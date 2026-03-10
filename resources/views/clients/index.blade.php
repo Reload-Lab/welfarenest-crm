@@ -2,34 +2,38 @@
 
 @section('content')
 
-<h2>Clienti</h2>
-
-<p><a href="/clients/create">Nuovo cliente</a></p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Clienti</h2>
+    <a href="/clients/create" class="btn btn-primary">Nuovo cliente</a>
+</div>
 
 @if($clients->count())
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Telefono</th>
-        </tr>
-
-        @foreach($clients as $client)
-            <tr>
-                <td>{{ $client->id }}</td>
-                <td>{{ $client->name }}</td>
-                <td>{{ $client->email }}</td>
-                <td>{{ $client->phone }}</td>
-            </tr>
-        @endforeach
-    </table>
-
-    <br>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefono</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($clients as $client)
+                    <tr>
+                        <td>{{ $client->id }}</td>
+                        <td>{{ $client->name }}</td>
+                        <td>{{ $client->email }}</td>
+                        <td>{{ $client->phone }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
     {{ $clients->links() }}
 @else
-    <p>Nessun cliente presente</p>
+    <div class="alert alert-info">Nessun cliente presente</div>
 @endif
 
 @endsection
