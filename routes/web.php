@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return "Welfarenest CRM";
+    return view('dashboard');
 });
