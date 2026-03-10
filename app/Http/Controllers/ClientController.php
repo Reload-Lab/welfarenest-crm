@@ -13,4 +13,16 @@ class ClientController extends Controller
 
         return view('clients.index', compact('clients'));
     }
+
+    public function create()
+    {
+        return view('clients.create');
+    }
+
+    public function store(Request $request)
+    {
+        Client::create($request->all());
+
+        return redirect('/clients');
+    }
 }
