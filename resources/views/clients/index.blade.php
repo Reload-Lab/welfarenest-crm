@@ -27,6 +27,23 @@
 
 </form>
 
+@php
+    function sortIcon($column, $sort, $direction) {
+        if ($sort !== $column) {
+            return '';
+        }
+
+        return $direction === 'asc' ? ' ↑' : ' ↓';
+    }
+
+    function nextDirection($column, $sort, $direction) {
+        if ($sort === $column) {
+            return $direction === 'asc' ? 'desc' : 'asc';
+        }
+
+        return 'asc';
+    }
+@endphp
 
 @if(session('success'))
     <div class="alert alert-success">
@@ -40,10 +57,29 @@
         <table class="table table-bordered table-striped align-middle">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Telefono</th>
+                    <th>
+                        <a href="?search={{ urlencode($search) }}&sort=id&direction={{ nextDirection('id', $sort, $direction) }}">
+                            ID{!! sortIcon('id', $sort, $direction) !!}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a href="?search={{ urlencode($search) }}&sort=name&direction={{ nextDirection('name', $sort, $direction) }}">
+                            Nome{!! sortIcon('name', $sort, $direction) !!}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a href="?search={{ urlencode($search) }}&sort=email&direction={{ nextDirection('email', $sort, $direction) }}">
+                            Email{!! sortIcon('email', $sort, $direction) !!}
+                        </a>
+                    </th>
+
+                    <th>
+                        <a href="?search={{ urlencode($search) }}&sort=phone&direction={{ nextDirection('phone', $sort, $direction) }}">
+                            Telefono{!! sortIcon('phone', $sort, $direction) !!}
+                        </a>
+                    </th>
                     <th>Azioni</th>
                 </tr>
             </thead>

@@ -11,15 +11,19 @@ class ClientController extends Controller
     {
         $search = $request->search;
 
+        $sort = $request->sort ?? 'id';
+        $direction = $request->direction ?? 'desc';
+
         $clients = Client::query()
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%");
             })
-            ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->orderBy($sort, $direction)
+            ->paginate(10)
+            ->appends($request->query());
 
-        return view('clients.index', compact('clients', 'search'));
+        return view('clients.index', compact('clients', 'search', 'sort', 'direction'));
     }
 
     public function create()

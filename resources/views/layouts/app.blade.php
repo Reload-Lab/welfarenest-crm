@@ -18,11 +18,15 @@
                 <ul class="navbar-nav me-auto">
 
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Dashboard</a>
+                        <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="/">
+                            Dashboard
+                        </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="/clients">Clienti</a>
+                        <a class="nav-link {{ request()->is('clients*') ? 'active' : '' }}" href="/clients">
+                            Clienti
+                        </a>
                     </li>
 
                 </ul>
