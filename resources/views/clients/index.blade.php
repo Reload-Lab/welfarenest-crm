@@ -7,6 +7,27 @@
     <a href="/clients/create" class="btn btn-primary">Nuovo cliente</a>
 </div>
 
+<form method="GET" action="/clients" class="mb-3">
+
+    <div class="row g-2">
+
+        <div class="col">
+            <input type="text"
+                   name="search"
+                   class="form-control"
+                   placeholder="Cerca cliente..."
+                   value="{{ $search }}">
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-primary">Cerca</button>
+        </div>
+
+    </div>
+
+</form>
+
+
 @if(session('success'))
     <div class="alert alert-success">
         {{ session('success') }}
@@ -54,7 +75,8 @@
         </table>
     </div>
 
-    {{ $clients->links() }}
+    {{ $clients->appends(['search' => $search])->links() }}
+    
 @else
     <div class="alert alert-info">Nessun cliente presente</div>
 @endif
