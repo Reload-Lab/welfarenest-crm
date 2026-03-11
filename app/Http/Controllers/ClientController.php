@@ -21,8 +21,14 @@ class ClientController extends Controller
 
     public function store(Request $request)
     {
-        Client::create($request->all());
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
+        ]);
 
-        return redirect('/clients');
+        Client::create($validated);
+        
+        return redirect('/clients')->with('success', 'Cliente creato correttamente.');
     }
 }

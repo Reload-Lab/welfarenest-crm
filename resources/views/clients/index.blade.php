@@ -7,6 +7,13 @@
     <a href="/clients/create" class="btn btn-primary">Nuovo cliente</a>
 </div>
 
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+
 @if($clients->count())
     <div class="table-responsive">
         <table class="table table-bordered table-striped align-middle">
