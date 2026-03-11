@@ -31,4 +31,24 @@ class ClientController extends Controller
         
         return redirect('/clients')->with('success', 'Cliente creato correttamente.');
     }
+
+    public function edit(Client $client)
+    {
+        return view('clients.edit', compact('client'));
+    }
+
+    public function update(Request $request, Client $client)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
+        ]);
+
+        $client->update($validated);
+
+        return redirect('/clients')->with('success', 'Cliente aggiornato.');
+    }
+
+    
 }

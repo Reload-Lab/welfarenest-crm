@@ -23,6 +23,7 @@
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Telefono</th>
+                    <th>Azioni</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +33,11 @@
                         <td>{{ $client->name }}</td>
                         <td>{{ $client->email }}</td>
                         <td>{{ $client->phone }}</td>
+                        <td>
+                            <a href="/clients/{{ $client->id }}/edit" class="btn btn-sm btn-warning">
+                                Modifica
+                            </a>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
