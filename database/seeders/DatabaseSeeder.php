@@ -17,9 +17,22 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        use Illuminate\Support\Facades\Hash;
+
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Alessio Attanasio',
+            'email' => 'alessio.attanasio@reloadlab.it',
+            'password' => Hash::make('C4rt3s10'),
+        ]);
+
+        $this->call([
+            OrganizationTypeSeeder::class,
+            OrganizationRoleSeeder::class,
+            QualificationSeeder::class,
+            DepartmentSeeder::class,
+            ContactTypeSeeder::class,
+            ContactUsageSeeder::class,
+            AddressTypeSeeder::class,
         ]);
     }
 }
