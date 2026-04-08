@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\OrganizationType;
+
 
 class Organization extends Model
 {
@@ -26,4 +28,14 @@ class Organization extends Model
         'is_split_payment' => 'boolean',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Relazione con OrganizationType
+     */
+    public function organizationType()
+    {
+        return $this->belongsTo(OrganizationType::class);
+    }
+
 }
+

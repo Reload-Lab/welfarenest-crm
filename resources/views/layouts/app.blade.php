@@ -1,53 +1,83 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welfarenest CRM</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ config('app.name', 'CRM') }}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
+    <div id="crmApp" class="crm-app">
+        @include('layouts.partials.sidebar')
 
-            <a class="navbar-brand" href="/">Welfarenest CRM</a>
+        <div class="crm-sidebar-backdrop" id="crmSidebarBackdrop"></div>
 
-            <div class="collapse navbar-collapse">
+        <div class="crm-main">
+            @include('layouts.partials.topbar')
 
-                <ul class="navbar-nav me-auto">
+            <main class="crm-content">
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                        href="{{ route('dashboard') }}">
-                            Dashboard
-                        </a>
-                    </li>
+                @hasSection('pageHeader')
+                    <div class="crm-page-header">
+                        @yield('pageHeader')
+                    </div>
+                @endif
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('organizations.*') ? 'active' : '' }}"
-                        href="{{ route('organizations.index') }}">
-                            Organizzazioni
-                        </a>
-                    </li>
+                {{-- SUCCESS MESSAGE --}}
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
 
-                </ul>
+                {{-- ERROR MESSAGE --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger mx-4 mt-3">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-            </div>
 
+                @yield('content')
+            </main>
         </div>
-    </nav>
-
-
-    <div class="container py-4">
-        <header class="mb-4">
-            <h1 class="h3">Welfarenest CRM</h1>
-        </header>
-        <main>
-            @yield('content')
-        </main>
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const crmApp = document.getElementById('crmApp');
+            const sidebarToggleDesktop = document.getElementById('sidebarToggleDesktop');
+            const sidebarToggleMobile = document.getElementById('sidebarToggleMobile');
+            const sidebarBackdrop = document.getElementById('crmSidebarBackdrop');
+
+            if (sidebarToggleDesktop) {
+                sidebarToggleDesktop.addEventListener('click', function () {
+                    if (window.innerWidth >= 992) {
+                        crmApp.classList.toggle('sidebar-collapsed');
+                    } else {
+                        crmApp.classList.toggle('sidebar-mobile-open');
+                    }
+                });
+            }
+
+            if (sidebarToggleMobile) {
+                sidebarToggleMobile.addEventListener('click', function () {
+                    crmApp.classList.toggle('sidebar-mobile-open');
+                });
+            }
+
+            if (sidebarBackdrop) {
+                sidebarBackdrop.addEventListener('click', function () {
+                    crmApp.classList.remove('sidebar-mobile-open');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

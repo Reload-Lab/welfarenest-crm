@@ -1,140 +1,203 @@
 @extends('layouts.app')
 
+@section('topbar_title', 'Clienti')
+@section('topbar_subtitle', 'Gestione anagrafiche clienti')
+
+@section('pageHeader')
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div>
+            <h1 class="crm-page-title">Clienti</h1>
+            <p class="crm-page-subtitle mb-0">
+                Elenco, ricerca e gestione delle organizzazioni registrate
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('organizations.create') }}" class="btn btn-primary">
+                Nuovo cliente
+            </a>
+        </div>
+    </div>
+@endsection
+
 @section('content')
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4 mb-0">Organizzazioni</h2>
-    <a href="{{ route('organizations.create') }}" class="btn btn-primary">Nuova organizzazione</a>
-</div>
-
-<form method="GET" action="{{ route('organizations.index') }}" class="mb-3">
-    <div class="row g-2">
-        <div class="col">
-            <input
-                type="text"
-                name="search"
-                class="form-control"
-                placeholder="Cerca organizzazione..."
-                value="{{ $search }}"
-            >
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
         </div>
+    @endif
 
-        <div class="col-auto">
-            <button class="btn btn-primary">Cerca</button>
-        </div>
-    </div>
-</form>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('organizations.index') }}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-lg-5">
+                        <label for="search" class="form-label fw-semibold">Ricerca</label>
+                        <input
+                            type="text"
+                            name="search"
+                            id="search"
+                            class="form-control"
+                            placeholder="Nome, ragione sociale, P.IVA, codice fiscale"
+                            value="{{ $search }}"
+                        >
+                    </div>
 
-@php
-    function sortIcon($column, $sort, $direction) {
-        if ($sort !== $column) {
-            return '';
-        }
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <label for="status" class="form-label fw-semibold">Stato</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">Tutti</option>
+                            <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Attivi</option>
+                            <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Non attivi</option>
+                        </select>
+                    </div>
 
-        return $direction === 'asc' ? ' ↑' : ' ↓';
-    }
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <label for="per_page" class="form-label fw-semibold">Righe</label>
+                        <select name="per_page" id="per_page" class="form-select">
+                            <option value="10" {{ (int) $perPage === 10 ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ (int) $perPage === 20 ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ (int) $perPage === 50 ? 'selected' : '' }}>50</option>
+                        </select>
+                    </div>
 
-    function nextDirection($column, $sort, $direction) {
-        if ($sort === $column) {
-            return $direction === 'asc' ? 'desc' : 'asc';
-        }
+                    <div class="col-12 col-md-4 col-lg-3">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Filtra
+                            </button>
 
-        return 'asc';
-    }
-@endphp
-
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
-
-@if($organizations->count())
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>
-                        <a href="?search={{ urlencode($search) }}&sort=id&direction={{ nextDirection('id', $sort, $direction) }}">
-                            ID{!! sortIcon('id', $sort, $direction) !!}
-                        </a>
-                    </th>
-
-                    <th>
-                        <a href="?search={{ urlencode($search) }}&sort=name&direction={{ nextDirection('name', $sort, $direction) }}">
-                            Nome{!! sortIcon('name', $sort, $direction) !!}
-                        </a>
-                    </th>
-
-                    <th>
-                        <a href="?search={{ urlencode($search) }}&sort=legal_name&direction={{ nextDirection('legal_name', $sort, $direction) }}">
-                            Ragione sociale{!! sortIcon('legal_name', $sort, $direction) !!}
-                        </a>
-                    </th>
-
-                    <th>
-                        <a href="?search={{ urlencode($search) }}&sort=vat_number&direction={{ nextDirection('vat_number', $sort, $direction) }}">
-                            P. IVA{!! sortIcon('vat_number', $sort, $direction) !!}
-                        </a>
-                    </th>
-
-                    <th>
-                        <a href="?search={{ urlencode($search) }}&sort=tax_code&direction={{ nextDirection('tax_code', $sort, $direction) }}">
-                            Codice fiscale{!! sortIcon('tax_code', $sort, $direction) !!}
-                        </a>
-                    </th>
-
-                    <th>
-                        <a href="?search={{ urlencode($search) }}&sort=is_active&direction={{ nextDirection('is_active', $sort, $direction) }}">
-                            Stato{!! sortIcon('is_active', $sort, $direction) !!}
-                        </a>
-                    </th>
-
-                    <th>Azioni</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($organizations as $organization)
-                    <tr>
-                        <td>{{ $organization->id }}</td>
-                        <td>{{ $organization->name ?: '—' }}</td>
-                        <td>{{ $organization->legal_name ?: '—' }}</td>
-                        <td>{{ $organization->vat_number ?: '—' }}</td>
-                        <td>{{ $organization->tax_code ?: '—' }}</td>
-                        <td>
-                            @if($organization->is_active)
-                                <span class="badge text-bg-success">Attiva</span>
-                            @else
-                                <span class="badge text-bg-secondary">Non attiva</span>
-                            @endif
-                        </td>
-                        <td class="text-nowrap">
-                            <a href="{{ route('organizations.edit', $organization) }}" class="btn btn-sm btn-warning">
-                                Modifica
+                            <a href="{{ route('organizations.index') }}" class="btn btn-outline-secondary">
+                                Reset
                             </a>
+                        </div>
+                    </div>
+                </div>
 
-                            <form action="{{ route('organizations.destroy', $organization) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Eliminare questa organizzazione?')"
-                                >
-                                    Elimina
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+                <input type="hidden" name="sort" value="{{ $sort }}">
+                <input type="hidden" name="direction" value="{{ $direction }}">
+            </form>
+        </div>
     </div>
 
-    {{ $organizations->appends(['search' => $search, 'sort' => $sort, 'direction' => $direction])->links() }}
-@else
-    <div class="alert alert-info">Nessuna organizzazione presente</div>
-@endif
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                <div>
+                    <h2 class="h5 mb-1">Anagrafiche clienti</h2>
+                    <p class="text-muted mb-0 small">
+                        {{ $organizations->total() }} risultati trovati
+                    </p>
+                </div>
+            </div>
+        </div>
 
+        <div class="card-body p-0 pt-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">
+                                @include('organizations.partials.sortable-th', ['label' => 'Nome', 'field' => 'name'])
+                            </th>
+                            <th>
+                                @include('organizations.partials.sortable-th', ['label' => 'Ragione sociale', 'field' => 'legal_name'])
+                            </th>
+                            <th>
+                                @include('organizations.partials.sortable-th', ['label' => 'P.IVA', 'field' => 'vat_number'])
+                            </th>
+                            <th>
+                                @include('organizations.partials.sortable-th', ['label' => 'Codice fiscale', 'field' => 'tax_code'])
+                            </th>
+                            <th>
+                                @include('organizations.partials.sortable-th', ['label' => 'Stato', 'field' => 'is_active'])
+                            </th>
+                            <th class="text-end pe-4">Azioni</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @forelse($organizations as $organization)
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-semibold text-dark">
+                                        <a href="{{ route('organizations.show', $organization) }}" class="text-decoration-none fw-semibold">
+                                            {{ $organization->name ?: $organization->legal_name }}
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="text-dark">
+                                        {{ $organization->legal_name ?: '—' }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="text-muted">
+                                        {{ $organization->vat_number ?: '—' }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="text-muted">
+                                        {{ $organization->tax_code ?: '—' }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @if($organization->is_active)
+                                        <span class="badge rounded-pill text-bg-success">
+                                            Attivo
+                                        </span>
+                                    @else
+                                        <span class="badge rounded-pill text-bg-secondary">
+                                            Non attivo
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-2">
+                                        <a href="{{ route('organizations.edit', $organization) }}" class="btn btn-sm btn-outline-primary">
+                                            Modifica
+                                        </a>
+
+                                        <form
+                                            action="{{ route('organizations.destroy', $organization) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Confermi l\'eliminazione di questo cliente?')"
+                                        >
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                Elimina
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="text-muted mb-2">Nessun cliente trovato</div>
+                                    <a href="{{ route('organizations.create') }}" class="btn btn-primary btn-sm">
+                                        Crea il primo cliente
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if($organizations->hasPages())
+            <div class="card-footer bg-white border-0 px-4 py-3">
+                {{ $organizations->links() }}
+            </div>
+        @endif
+    </div>
 @endsection

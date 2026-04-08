@@ -1,15 +1,15 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 
 @section('content')
 
-<div class="row justify-content-center">
-    <div class="col-md-4">
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
 
-        <h2 class="h4 mb-4">Login</h2>
+        <h2 class="h4 mb-4 text-center">Accedi</h2>
 
         @if ($errors->any())
             <div class="alert alert-danger">
-                <ul class="mb-0">
+                <ul class="mb-0 small">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -35,7 +35,9 @@
                 <label class="form-check-label" for="remember">Ricordami</label>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Accedi</button>
+            <button type="submit" class="btn btn-primary w-100">
+                Accedi
+            </button>
         </form>
 
     </div>

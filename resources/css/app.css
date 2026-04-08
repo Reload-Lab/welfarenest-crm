@@ -1,3 +1,4 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -5,7 +6,219 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+:root {
+    --crm-sidebar-width: 260px;
+    --crm-sidebar-collapsed-width: 78px;
+    --crm-topbar-height: 70px;
+    --crm-bg: #f5f7fb;
+    --crm-sidebar-bg: #111827;
+    --crm-sidebar-hover: rgba(255, 255, 255, 0.08);
+    --crm-sidebar-active: #2563eb;
+    --crm-text-muted: #6b7280;
+    --crm-border: #e5e7eb;
+}
+
+body {
+    background-color: var(--crm-bg);
+}
+
+.crm-app {
+    min-height: 100vh;
+}
+
+.crm-sidebar {
+    width: var(--crm-sidebar-width);
+    background: var(--crm-sidebar-bg);
+    color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1030;
+    transition: width 0.25s ease;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.crm-main {
+    margin-left: var(--crm-sidebar-width);
+    min-height: 100vh;
+    transition: margin-left 0.25s ease;
+}
+
+.crm-app.sidebar-collapsed .crm-sidebar {
+    width: var(--crm-sidebar-collapsed-width);
+}
+
+.crm-app.sidebar-collapsed .crm-main {
+    margin-left: var(--crm-sidebar-collapsed-width);
+}
+
+.crm-app.sidebar-collapsed .sidebar-brand-text,
+.crm-app.sidebar-collapsed .sidebar-section-title,
+.crm-app.sidebar-collapsed .sidebar-link-text,
+.crm-app.sidebar-collapsed .sidebar-footer-text {
+    display: none;
+}
+
+.crm-app.sidebar-collapsed .sidebar-link {
+    justify-content: center;
+}
+
+.crm-topbar {
+    height: var(--crm-topbar-height);
+    background: #fff;
+    border-bottom: 1px solid var(--crm-border);
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.crm-content {
+    padding: 24px;
+}
+
+.sidebar-brand {
+    height: var(--crm-topbar-height);
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.sidebar-brand-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #2563eb;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.sidebar-toggle-btn {
+    border: 0;
+    background: transparent;
+    color: #cbd5e1;
+    padding: 0.35rem 0.5rem;
+    border-radius: 8px;
+}
+
+.sidebar-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.sidebar-nav {
+    padding: 1rem 0.75rem;
+}
+
+.sidebar-section-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    padding: 0.75rem 0.75rem 0.35rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: #e5e7eb;
+    text-decoration: none;
+    padding: 0.8rem 0.85rem;
+    border-radius: 12px;
+    margin-bottom: 0.3rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-link:hover {
+    background: var(--crm-sidebar-hover);
+    color: #fff;
+}
+
+.sidebar-link.active {
+    background: var(--crm-sidebar-active);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+}
+
+.sidebar-link-icon {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar-footer {
+    padding: 1rem 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 1rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.crm-page-header {
+    margin-bottom: 1.5rem;
+}
+
+.crm-page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.crm-page-subtitle {
+    color: var(--crm-text-muted);
+    margin-bottom: 0;
+}
+
+@media (max-width: 991.98px) {
+    .crm-sidebar {
+        transform: translateX(-100%);
+        width: var(--crm-sidebar-width);
+    }
+
+    .crm-main {
+        margin-left: 0 !important;
+    }
+
+    .crm-app.sidebar-mobile-open .crm-sidebar {
+        transform: translateX(0);
+    }
+
+    .crm-app.sidebar-collapsed .sidebar-brand-text,
+    .crm-app.sidebar-collapsed .sidebar-section-title,
+    .crm-app.sidebar-collapsed .sidebar-link-text,
+    .crm-app.sidebar-collapsed .sidebar-footer-text {
+        display: inline;
+    }
+
+    .crm-app.sidebar-collapsed .sidebar-link {
+        justify-content: flex-start;
+    }
+
+    .crm-sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        z-index: 1025;
+    }
+
+    .crm-app.sidebar-mobile-open .crm-sidebar-backdrop {
+        display: block;
+    }
 }
