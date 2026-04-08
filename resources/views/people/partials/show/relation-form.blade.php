@@ -1,8 +1,36 @@
 @php
-    $isEditing = isset($relation) && $relation;
-    $formAction = $isEditing
-        ? route('people.relations.update', [$person, $relation])
-        : route('people.relations.store', $person);
+    $relationModel = (isset($relation) && data_get($relation, 'id')) ? $relation : null;
+    $isEditing = isset($relation) && isset($relation->id);
+    $relationContext = $relationContext ?? 'person';
+    $personModel = $person ?? null;
+    $organizationModel = $selectedOrganization ?? ($organization ?? null);
+    $selectedPerson = $selectedPerson ?? $personModel;
+    $selectedOrganizationId = old('organization_id', $relationModel->organization_id ?? $organizationModel?->id ?? '');
+    $selectedPersonId = old('person_id', $relationModel->person_id ?? $selectedPerson?->id ?? '');
+    $cancelUrl = $relationContext === 'organization'
+        ? ($organizationModel ? route('organizations.show', $organizationModel) : null)
+        : ($personModel ? route('people.show', $personModel) : null);
+
+    if ($relationContext === 'organization') {
+        if ($isEditing) {
+            $formAction = $relationModel
+                ? route('people.relations.update', [$relationModel->person_id, $relationModel])
+                : '#';
+        } else {
+            $formAction = $organizationModel
+                ? route('organizations.relations.store', $organizationModel)
+                : '#';
+        }
+    } elseif ($isEditing) {
+        $formAction = $personModel
+            ? route('people.relations.update', [$personModel, $relationModel])
+            : '#';
+    } else {
+        $formAction = $personModel
+            ? route('people.relations.store', $personModel)
+            : '#';
+    }
+
 @endphp
 
 <form method="POST" action="{{ $formAction }}">
@@ -11,31 +39,49 @@
         @method('PUT')
     @endif
 
+    @if($relationContext === 'organization')
+        <input type="hidden" name="organization_id" value="{{ $organizationModel?->id }}">
+        <input type="hidden" name="return_to" value="organization">
+    @endif
+
     <div class="row g-3">
-        <div class="col-12 col-lg-6">
-            <label for="organization_id" class="form-label fw-semibold">Organizzazione</label>
+
+@if($relationContext === 'organization')
+    <div class="col-12 col-lg-6">
+        <label class="form-label fw-semibold">Persona</label>
+
+        @if($isEditing)
+            <input type="hidden" name="person_id" value="{{ $relationModel->person_id }}">
+
+            <input
+                type="text"
+                class="form-control"
+                value="{{ $relationModel->person?->full_name ?: ('#' . $relationModel->person_id) }}"
+                readonly
+            >
+        @else
             <select
-                name="organization_id"
-                id="organization_id"
-                class="form-select @error('organization_id') is-invalid @enderror"
+                name="person_id"
+                id="person_id"
+                class="form-select @error('person_id') is-invalid @enderror"
             >
                 <option value="">Seleziona...</option>
-                @foreach($organizations as $organization)
-                    @php
-                        $organizationLabel = $organization->name ?: $organization->legal_name;
-                    @endphp
+                @foreach($people as $item)
                     <option
-                        value="{{ $organization->id }}"
-                        {{ (string) old('organization_id', $relation->organization_id ?? '') === (string) $organization->id ? 'selected' : '' }}
+                        value="{{ $item->id }}"
+                        {{ (string) $selectedPersonId === (string) $item->id ? 'selected' : '' }}
                     >
-                        {{ $organizationLabel }}
+                        {{ $item->full_name ?: ('#' . $item->id) }}
                     </option>
                 @endforeach
             </select>
-            @error('organization_id')
+
+            @error('person_id')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-        </div>
+        @endif
+    </div>
+@endif
 
         <div class="col-12 col-md-6 col-lg-3">
             <label for="qualification_id" class="form-label fw-semibold">Qualifica</label>
@@ -45,10 +91,10 @@
                 class="form-select @error('qualification_id') is-invalid @enderror"
             >
                 <option value="">Nessuna</option>
-                @foreach($qualifications as $qualification)
+                    @foreach($qualifications as $qualification)
                     <option
                         value="{{ $qualification->id }}"
-                        {{ (string) old('qualification_id', $relation->qualification_id ?? '') === (string) $qualification->id ? 'selected' : '' }}
+                        {{ (string) old('qualification_id', $relationModel->qualification_id ?? '') === (string) $qualification->id ? 'selected' : '' }}
                     >
                         {{ $qualification->name }}
                     </option>
@@ -67,10 +113,10 @@
                 class="form-select @error('department_id') is-invalid @enderror"
             >
                 <option value="">Nessuno</option>
-                @foreach($departments as $department)
+                    @foreach($departments as $department)
                     <option
                         value="{{ $department->id }}"
-                        {{ (string) old('department_id', $relation->department_id ?? '') === (string) $department->id ? 'selected' : '' }}
+                        {{ (string) old('department_id', $relationModel->department_id ?? '') === (string) $department->id ? 'selected' : '' }}
                     >
                         {{ $department->name }}
                     </option>
@@ -88,7 +134,7 @@
                 name="start_date"
                 id="start_date"
                 class="form-control @error('start_date') is-invalid @enderror"
-                value="{{ old('start_date', optional($relation->start_date ?? null)->format('Y-m-d')) }}"
+                value="{{ old('start_date', optional($relationModel->start_date ?? null)->format('Y-m-d')) }}"
             >
             @error('start_date')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -102,7 +148,7 @@
                 name="end_date"
                 id="end_date"
                 class="form-control @error('end_date') is-invalid @enderror"
-                value="{{ old('end_date', optional($relation->end_date ?? null)->format('Y-m-d')) }}"
+                value="{{ old('end_date', optional($relationModel->end_date ?? null)->format('Y-m-d')) }}"
             >
             @error('end_date')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -116,10 +162,10 @@
                 id="is_active"
                 class="form-select @error('is_active') is-invalid @enderror"
             >
-                <option value="1" {{ old('is_active', isset($relation) ? (int) $relation->is_active : 1) === 1 ? 'selected' : '' }}>
+                <option value="1" {{ old('is_active', $isEditing ? (int) $relationModel->is_active : 1) === 1 ? 'selected' : '' }}>
                     Attiva
                 </option>
-                <option value="0" {{ old('is_active', isset($relation) ? (int) $relation->is_active : 1) === 0 ? 'selected' : '' }}>
+                <option value="0" {{ old('is_active', $isEditing ? (int) $relationModel->is_active : 1) === 0 ? 'selected' : '' }}>
                     Non attiva
                 </option>
             </select>
@@ -137,7 +183,7 @@
                     name="is_primary"
                     id="is_primary"
                     value="1"
-                    {{ old('is_primary', $relation->is_primary ?? false) ? 'checked' : '' }}
+                    {{ old('is_primary', $relationModel->is_primary ?? false) ? 'checked' : '' }}
                 >
                 <label class="form-check-label fw-semibold" for="is_primary">
                     Relazione principale
@@ -149,12 +195,12 @@
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                Chiudi
+                Chiudi {{ $isEditing ? 'EDIT' : 'CREATE' }}
             </button>
 
-            @if($isEditing)
-                <a href="{{ route('people.show', $person) }}" class="btn btn-outline-secondary">
-                    Annulla modifica
+            @if($cancelUrl)
+                <a href="{{ $cancelUrl }}" class="btn btn-outline-secondary">
+                    {{ $isEditing ? 'Annulla modifica' : 'Annulla' }}
                 </a>
             @endif
         </div>

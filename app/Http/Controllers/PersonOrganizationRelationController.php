@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Organization;
 use App\Models\Person;
 use App\Models\PersonOrganizationRelation;
 use Illuminate\Http\Request;
@@ -16,7 +17,24 @@ class PersonOrganizationRelationController extends Controller
         $person->organizationRelations()->create($validated);
 
         return redirect()
-            ->route('people.show', $person)
+            ->to($this->redirectUrl($request, $person, $validated['organization_id']))
+            ->with('success', 'Relazione aggiunta con successo.');
+    }
+
+    public function storeFromOrganization(Request $request, Organization $organization)
+    {
+        $person = Person::query()
+            ->whereKey($request->validate([
+                'person_id' => ['required', 'exists:people,id'],
+            ])['person_id'])
+            ->firstOrFail();
+
+        $validated = $this->validateRelation($request, $person, $organization);
+
+        $person->organizationRelations()->create($validated);
+
+        return redirect()
+            ->to($this->redirectUrl($request, $person, $organization->id))
             ->with('success', 'Relazione aggiunta con successo.');
     }
 
@@ -29,14 +47,20 @@ class PersonOrganizationRelationController extends Controller
         $relation->update($validated);
 
         return redirect()
-            ->route('people.show', $person)
+            ->to($this->redirectUrl($request, $person, $validated['organization_id']))
             ->with('success', 'Relazione aggiornata con successo.');
     }
 
-    protected function validateRelation(Request $request, Person $person): array
+    protected function validateRelation(Request $request, Person $person, ?Organization $organization = null): array
     {
+        $organizationIdRules = ['required', 'exists:organizations,id'];
+
+        if ($organization) {
+            $organizationIdRules[] = Rule::in([$organization->id]);
+        }
+
         $validated = $request->validate([
-            'organization_id' => ['required', 'exists:organizations,id'],
+            'organization_id' => $organizationIdRules,
             'qualification_id' => ['nullable', 'exists:qualifications,id'],
             'department_id' => ['nullable', 'exists:departments,id'],
             'start_date' => ['nullable', 'date'],
@@ -51,5 +75,14 @@ class PersonOrganizationRelationController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
 
         return $validated;
+    }
+
+    protected function redirectUrl(Request $request, Person $person, int $organizationId): string
+    {
+        if ($request->input('return_to') === 'organization') {
+            return route('organizations.show', $organizationId);
+        }
+
+        return route('people.show', $person);
     }
 }

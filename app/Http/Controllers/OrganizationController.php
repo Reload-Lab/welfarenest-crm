@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use App\Models\Organization;
 use App\Models\OrganizationType;
+use App\Models\Person;
+use App\Models\Qualification;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
@@ -13,15 +16,43 @@ class OrganizationController extends Controller
     {
         $organization->load([
             'organizationType',
-            // future relations:
-            // 'people',
+            'personOrganizationRelations' => function ($query) {
+                $query->with([
+                    'person',
+                    'qualification',
+                    'department',
+                ])->orderByDesc('is_active')
+                    ->orderBy('id');
+            },
             // 'contactPoints.contactType',
             // 'contactPoints.contactUsage',
             // 'addresses.addressType',
             // 'notes.author',
         ]);
 
-        return view('organizations.show', compact('organization'));
+        $people = Person::query()
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
+
+        $qualifications = Qualification::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $departments = Department::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('organizations.show', compact(
+            'organization',
+            'people',
+            'qualifications',
+            'departments'
+        ));
     }
 
     public function index(Request $request)
