@@ -19,10 +19,10 @@
             'patterns' => [],
         ],
         [
-            'label' => 'Contatti',
-            'route' => null,
+            'label' => 'Persone',
+            'route' => 'people.index',
             'icon' => '◌',
-            'patterns' => [],
+            'patterns' => ['people.*'],
         ],
         [
             'label' => 'Lead',

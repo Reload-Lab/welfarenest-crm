@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\PersonController;
+use App\Http\Controllers\PersonOrganizationRelationController;
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -15,6 +17,9 @@ Route::middleware('auth')->group(function () {
     
 Route::middleware(['auth'])->group(function () {
     Route::resource('organizations', OrganizationController::class);
+    Route::resource('people', PersonController::class)->except(['destroy']);
+    Route::post('people/{person}/relations', [PersonOrganizationRelationController::class, 'store'])->name('people.relations.store');
+    Route::put('people/{person}/relations/{relation}', [PersonOrganizationRelationController::class, 'update'])->name('people.relations.update');
 });
 
     Route::get('/organizations/{organization}', [OrganizationController::class, 'show'])->name('organizations.show');

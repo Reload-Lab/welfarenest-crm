@@ -37,5 +37,10 @@ class Organization extends Model
         return $this->belongsTo(OrganizationType::class);
     }
 
+    public function personOrganizationRelations()
+    {
+        return $this->hasMany(PersonOrganizationRelation::class);
+    }
+
 }
 

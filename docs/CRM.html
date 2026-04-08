@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welfare Nest CRM</title>
+  
+  <!-- Tailwind CSS per il design -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Icone Phosphor (sostituiscono lucide-react per il web autonomo) -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- React, ReactDOM e Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Personalizzazione Scrollbar globale */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    /* Disabilita evidenziazione tap su mobile */
+    * { -webkit-tap-highlight-color: transparent; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased overflow-hidden">
+  
+  <div id="root"></div>
+
+  <!-- Inizio Codice React -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // --- WRAPPER ICONE (Compatibilità Lucide -> Phosphor Icons) ---
+    const Icon = (baseClass) => ({ size = 20, className = "", strokeWidth }) => (
+      <i className={`ph ${baseClass} ${className}`} style={{ fontSize: size, fontWeight: strokeWidth ? strokeWidth * 100 : 'normal' }}></i>
+    );
+
+    const Users = Icon('ph-users');
+    const Building2 = Icon('ph-buildings');
+    const UserCircle = Icon('ph-user-circle');
+    const Target = Icon('ph-target');
+    const Mail = Icon('ph-envelope-simple');
+    const Plus = Icon('ph-plus');
+    const Edit = Icon('ph-pencil-simple');
+    const Trash2 = Icon('ph-trash');
+    const X = Icon('ph-x');
+    const Check = Icon('ph-check');
+    const Search = Icon('ph-magnifying-glass');
+    const Save = Icon('ph-floppy-disk');
+    const ShieldCheck = Icon('ph-shield-check');
+    const Send = Icon('ph-paper-plane-right');
+    const FileText = Icon('ph-file-text');
+    const AlertCircle = Icon('ph-warning-circle');
+    const ChevronDown = Icon('ph-caret-down');
+    const ChevronUp = Icon('ph-caret-up');
+    const ExternalLink = Icon('ph-arrow-square-out');
+    const BarChart2 = Icon('ph-chart-bar');
+    const Download = Icon('ph-download-simple');
+    const Settings = Icon('ph-gear');
+    const Filter = Icon('ph-funnel');
+    const Sliders = Icon('ph-sliders-horizontal');
+    const LayoutDashboard = Icon('ph-squares-four');
+    const UserPlus = Icon('ph-user-plus');
+    const HeartHandshake = Icon('ph-handshake');
+    const RefreshCw = Icon('ph-arrows-clockwise');
+
+    // --- COSTANTI E OPZIONI ---
+    const ORG_TYPES = [
+      'Fondo sanitario', 'Ente bilaterale', 'Cassa di previdenza', 'SMS', 
+      'Compagnia di assicurazione', 'Banca', 'SGR', 'ETS', 'Fondo pensione', 
+      'Big pharma', 'Erogatore sanitario', 'TPA', 'Istituzioni', 
+      'Università/Centro di ricerca', 'Società di consulenza', 'Società di consulenza comunicazione', 
+      'Società di consulenza IT', 'Studio attuariale', 'Studio legale', 
+      'Studio commercialista', 'Studio consulenza del lavoro', 'Studi professionali', 
+      'Broker', 'Utility', 'Altre aziende'
+    ];
+
+    const DIMENSIONI_AZIENDALI = ['0-10', '10-50', '50-100', '100-500', '500-2000', '>2000'];
+    const NUMERO_ISCRITTI = ['0-5000', '5000-10000', '10000-20000', '20000-50000', '50000-100000', '100000-150000', '150000-300000', '300000-500000', '>500000'];
+
+    const SERVIZI_CLIENTE = ['WN+', 'NESTA', 'Consulenza strategica', 'Consulenza comunicazione', 'Assistenza legale', 'Consulenza IT', 'Segnalazione'];
+    const STATUS_CLIENTE = ['Cliente attivo', 'Prospect', 'Fuori target'];
+
+    const TAG1_OPTIONS = ['Presidente', 'Direttore', 'Responsabile Ufficio/Area', 'Consulente', 'Organi sociali', 'Consulente medico-sanitario', 'Consulente attuariale', 'Consulente comunicazione', 'Consulente legale', 'Consulente IT', 'Consulente del lavoro', 'Docente'];
+    const TAG2_OPTIONS = ['Presidenza', 'Direzione', 'Area operativa', 'Area commerciale', 'Area comunicazione', 'Area formazione', 'Area liquidazioni'];
+
+    const LEAD_STATUS = ['Da contattare', 'In lavorazione', 'Convertito', 'Perso'];
+
+    // --- COMPONENTI UI GENERICI E STILI COMUNI ---
+    const inputStyle = "w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm shadow-sm outline-none";
+    const primaryBtnStyle = "bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-md hover:shadow-lg transition-all active:scale-95";
+    const secondaryBtnStyle = "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-teal-700 px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm";
+
+    // HOOK PER ORDINAMENTO TABELLE
+    const useSortableData = (items, config = null) => {
+      const [sortConfig, setSortConfig] = useState(config);
+
+      const sortedItems = useMemo(() => {
+        let sortableItems = [...items];
+        if (sortConfig !== null) {
+          sortableItems.sort((a, b) => {
+            let aVal = a[sortConfig.key];
+            let bVal = b[sortConfig.key];
+            
+            // Logica personalizzata per chiavi complesse
+            if (sortConfig.key === 'nominativo') {
+              aVal = `${a.cognome} ${a.nome}`;
+              bVal = `${b.cognome} ${b.nome}`;
+            }
+            if (sortConfig.key === 'nominativoLead') {
+              aVal = `${a.cognome} ${a.nome}`;
+              bVal = `${b.cognome} ${b.nome}`;
+            }
+            if (sortConfig.key === 'ruoloOrg') {
+              aVal = a.isClient ? 'A' : a.isSupplier ? 'B' : 'C';
+              bVal = b.isClient ? 'A' : b.isSupplier ? 'B' : 'C';
+            }
+            if (sortConfig.key === 'ruoloWN') {
+              aVal = a.isStaffWN ? '1' : a.isCollaboratoreWN ? '2' : '3';
+              bVal = b.isStaffWN ? '1' : b.isCollaboratoreWN ? '2' : '3';
+            }
+            if (sortConfig.key === 'orgsList') {
+              aVal = (a.orgs || []).join(', ');
+              bVal = (b.orgs || []).join(', ');
+            }
+
+            if (aVal === undefined || aVal === null) aVal = '';
+            if (bVal === undefined || bVal === null) bVal = '';
+            
+            if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+            if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+
+            if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
+            if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
+            return 0;
+          });
+        }
+        return sortableItems;
+      }, [items, sortConfig]);
+
+      const requestSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+          direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+      };
+
+      return { items: sortedItems, requestSort, sortConfig };
+    };
+
+    const SortableHeader = ({ label, sortKey, sortConfig, requestSort, align = "left" }) => {
+      const isActive = sortConfig?.key === sortKey;
+      return (
+        <th 
+          className={`p-5 text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors group select-none ${align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-left'}`} 
+          onClick={() => requestSort(sortKey)}
+        >
+          <div className={`flex items-center gap-1.5 ${align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : 'justify-start'}`}>
+            {label}
+            <span className={`text-slate-400 flex flex-col ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-40 transition-opacity'}`}>
+              {isActive && sortConfig.direction === 'descending' ? <ChevronDown size={14} strokeWidth={3}/> : <ChevronUp size={14} strokeWidth={3}/>}
+            </span>
+          </div>
+        </th>
+      );
+    };
+
+    const TableHeader = ({ children }) => <th className="p-5 text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">{children}</th>;
+    const TableCell = ({ children, className="" }) => <td className={`p-5 text-sm text-slate-700 border-b border-slate-50 ${className}`}>{children}</td>;
+
+    // --- COMPONENTE PER I BADGE DEI CONSENSI ---
+    const ConsentBadge = ({ label, hasConsent }) => (
+      <div 
+        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border transition-colors cursor-help ${
+          hasConsent 
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+            : 'bg-slate-50 text-slate-400 border-slate-200'
+        }`} 
+        title={`${label}: ${hasConsent ? 'Consenso acquisito' : 'Consenso mancante'}`}
+      >
+        <div className={`w-1.5 h-1.5 rounded-full ${hasConsent ? 'bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]' : 'bg-slate-300'}`}></div>
+        {label}
+      </div>
+    );
+
+    const Modal = ({ isOpen, onClose, title, children }) => {
+      if (!isOpen) return null;
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-slate-900/40 backdrop-blur-sm p-4 transition-all">
+          <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-slate-100 transform transition-all scale-100 opacity-100">
+            <div className="flex items-center justify-between border-b border-slate-100 p-5 px-6">
+              <h3 className="text-xl font-bold text-slate-800">{title}</h3>
+              <button type="button" onClick={onClose} className="rounded-full p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/30">
+              {children}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const Toast = ({ message, type = 'success', onClose }) => {
+      useEffect(() => {
+        const timer = setTimeout(onClose, 3000);
+        return () => clearTimeout(timer);
+      }, [onClose]);
+
+      return (
+        <div className={`fixed bottom-6 right-6 z-[60] flex items-center gap-3 rounded-2xl px-5 py-4 shadow-xl text-white transform transition-all translate-y-0 opacity-100 ${type === 'success' ? 'bg-teal-600' : type === 'error' ? 'bg-rose-500' : 'bg-slate-800'}`}>
+          <div className={`p-1 rounded-full bg-white/20`}>
+            {type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
+          </div>
+          <span className="font-semibold tracking-wide text-sm">{message}</span>
+        </div>
+      );
+    };
+
+    // --- APP PRINCIPALE ---
+    function App() {
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [toast, setToast] = useState(null);
+
+      const [orgModal, setOrgModal] = useState({ isOpen: false, data: null });
+      const [contactModal, setContactModal] = useState({ isOpen: false, data: null, convertingLeadId: null });
+      const [leadModal, setLeadModal] = useState({ isOpen: false, data: null });
+
+      const [organizations, setOrganizations] = useState([
+        { id: 0, isClient: false, isSupplier: false, ragioneSociale: 'Welfare Nest', partitaIva: '11223344556', codiceFiscale: '11223344556', tipo: 'Società di consulenza comunicazione', sedeLegale: { indirizzo: 'Viale Innovazione 1', citta: 'Milano', provincia: 'MI', cap: '20100', paese: 'Italia' }, dimensione: '10-50' },
+        { id: 1, isClient: true, isSupplier: false, ragioneSociale: 'Fondo Sanitario Alpha', partitaIva: '12345678901', codiceFiscale: '12345678901', tipo: 'Fondo sanitario', sedeLegale: { indirizzo: 'Via Roma 1', citta: 'Milano', provincia: 'MI', cap: '20100', paese: 'Italia' }, email: 'info@fondoalpha.it', telefono: '02 123456', pec: 'fondoalpha@pec.it', sdi: 'USAL8WQ', splitPayment: true, dimensione: '50-100', iscritti: '10000-20000', serviziStatus: { 'WN+': 'Cliente attivo', 'Consulenza strategica': 'Prospect' } },
+        { id: 2, isClient: false, isSupplier: true, ragioneSociale: 'Tech Solutions srl', partitaIva: '09876543210', tipo: 'Società di consulenza IT', sedeLegale: { indirizzo: 'Via Verdi 4', citta: 'Roma' }, dimensione: '10-50' }
+      ]);
+      
+      const [contacts, setContacts] = useState([
+        { id: 1, nome: 'Mario', cognome: 'Rossi', telefoni: ['3331234567'], origine: 'Fiera', isStaffWN: false, isCollaboratoreWN: false, ruoloWN: '', orgs: ['Fondo Sanitario Alpha'], aziendeDettagli: { 'Fondo Sanitario Alpha': { emails: ['mario.rossi@fondoalpha.it'], tag1: 'Direttore', tag2: 'Direzione', privacy: true, marketing: false, privacyLog: ['Consenso acquisito il 10/10/2023'], marketingLog: [], isReferenteWN: true, wnPlusUser: 'm.rossi', wnPlusPass: 'pass123' } } },
+        { id: 2, nome: 'Giulia', cognome: 'Bianchi', telefoni: ['3389876543', '0289876543'], origine: 'Assunzione', isStaffWN: true, isCollaboratoreWN: false, ruoloWN: '', orgs: ['Welfare Nest', 'Fondo Sanitario Alpha'], aziendeDettagli: { 'Welfare Nest': { emails: ['g.bianchi@welfarenest.it'], tag1: 'Consulente', privacy: true, wnPlusUser: 'gbianchi_wn', wnPlusPass: 'secure!' }, 'Fondo Sanitario Alpha': { emails: ['giulia.consulenza@fondoalpha.it'], tag1: 'Consulente', tag2: 'Area operativa', privacy: true, marketing: true } } }
+      ]);
+
+      const [leads, setLeads] = useState([
+        { id: 1, azienda: 'Beta SGR', nome: 'Luigi', cognome: 'Verdi', email: 'l.verdi@betasgr.it', telefono: '3339876543', status: 'Da contattare', origine: 'Sito Web', privacy: true, marketing: true, privacyLog: ['Consenso acquisito il 14/10/2023 (Form Web)'], marketingLog: ['Consenso acquisito il 14/10/2023 (Form Web)'] },
+        { id: 2, azienda: 'Tech Solutions srl', nome: 'Anna', cognome: 'Neri', email: 'anna@techsolutions.it', telefono: '3451234567', status: 'In lavorazione', origine: 'Linkedin', privacy: false, marketing: false, privacyLog: [], marketingLog: [] }
+      ]);
+
+      const [campaigns, setCampaigns] = useState([
+        { id: 1, subject: 'Novità WN+ Autunno', list: 'community_wn', date: '15/10/2023 10:30', sent: 240, opened: 156, bounced: 3, errors: 0 },
+        { id: 2, subject: 'Invito Evento Esclusivo', list: 'Contatti Spot (2)', date: '02/11/2023 14:15', sent: 2, opened: 2, bounced: 0, errors: 0 }
+      ]);
+
+      const [crmSettings, setCrmSettings] = useState({
+        systemName: 'Welfare Nest',
+        defaultEmail: 'noreply@welfarenest.it',
+        users: [
+          { id: 1, nome: 'Admin System', email: 'admin@welfarenest.it', ruolo: 'Amministratore' },
+          { id: 2, nome: 'Operatore CRM', email: 'crm@welfarenest.it', ruolo: 'Editor' }
+        ]
+      });
+
+      const [trash, setTrash] = useState([]);
+
+      const showToast = (msg, type='success') => setToast({ msg, type });
+
+      const openOrgModal = (orgName) => {
+        const org = organizations.find(o => o.ragioneSociale === orgName);
+        if (org) {
+          setContactModal({ isOpen: false, data: null, convertingLeadId: null });
+          setActiveTab('organizations');
+          setOrgModal({ isOpen: true, data: org });
+        } else {
+          showToast('Organizzazione non trovata', 'error');
+        }
+      };
+
+      const openContactModal = (contactId) => {
+        const contact = contacts.find(c => c.id === contactId);
+        if (contact) {
+          setOrgModal({ isOpen: false, data: null });
+          setActiveTab('contacts');
+          setContactModal({ isOpen: true, data: contact, convertingLeadId: null });
+        }
+      };
+
+      const handleSaveOrg = (org) => {
+        if (orgModal.data && orgModal.data.id) {
+          setOrganizations(organizations.map(d => d.id === org.id ? org : d));
+          showToast('Organizzazione aggiornata con successo');
+        } else {
+          setOrganizations([...organizations, { ...org, id: Date.now() }]);
+          showToast('Organizzazione creata con successo');
+        }
+        setOrgModal({ isOpen: false, data: null });
+      };
+
+      const handleSaveContact = (contact) => {
+        if (contactModal.data && contactModal.data.id && !contactModal.convertingLeadId) {
+          setContacts(contacts.map(d => d.id === contact.id ? contact : d));
+          showToast('Contatto aggiornato con successo');
+        } else {
+          setContacts([...contacts, { ...contact, id: Date.now() }]);
+          showToast('Contatto creato con successo');
+          
+          if (contactModal.convertingLeadId) {
+            setLeads(leads.filter(l => l.id !== contactModal.convertingLeadId));
+            showToast('Lead convertito con successo e rimosso dalla pipeline.', 'success');
+          }
+        }
+        setContactModal({ isOpen: false, data: null, convertingLeadId: null });
+      };
+
+      const handleSaveLead = (lead) => {
+        if (leadModal.data && leadModal.data.id) {
+          setLeads(leads.map(d => d.id === lead.id ? lead : d));
+          showToast('Lead aggiornato con successo');
+        } else {
+          setLeads([...leads, { ...lead, id: Date.now() }]);
+          showToast('Nuovo Lead inserito');
+        }
+        setLeadModal({ isOpen: false, data: null });
+      };
+
+      const handleConvertLead = (lead) => {
+        let orgName = lead.azienda;
+        let existingOrg = organizations.find(o => o.ragioneSociale.toLowerCase() === (orgName || '').toLowerCase());
+        
+        if (!existingOrg && orgName) {
+          const newOrg = {
+            id: Date.now(),
+            ragioneSociale: orgName,
+            tipo: 'Altre aziende',
+            isClient: false,
+            isSupplier: false,
+            sedeLegale: { indirizzo: '', citta: '', provincia: '', cap: '', paese: 'Italia' },
+            hasSedeOperativa: false, sedeOperativa: { indirizzo: '', citta: '', provincia: '', cap: '', paese: 'Italia' },
+            email: '', telefono: '', pec: '', sdi: '', splitPayment: false, sitoWeb: '', dimensione: '', iscritti: '', serviziStatus: {}
+          };
+          setOrganizations(prev => [...prev, newOrg]);
+        }
+
+        const prefilledContact = {
+          nome: lead.nome || '',
+          cognome: lead.cognome || '',
+          telefoni: lead.telefono ? [lead.telefono] : [''],
+          origine: lead.origine || 'Conversione da Lead',
+          isStaffWN: false,
+          isCollaboratoreWN: false,
+          ruoloWN: '',
+          orgs: orgName ? [orgName] : [],
+          aziendeDettagli: {}
+        };
+
+        if (orgName) {
+           prefilledContact.aziendeDettagli[orgName] = {
+             emails: [lead.email || ''], 
+             tag1: '', tag2: '', 
+             privacy: lead.privacy || false, 
+             marketing: lead.marketing || false, 
+             privacyLog: lead.privacyLog ? [...lead.privacyLog] : [], 
+             marketingLog: lead.marketingLog ? [...lead.marketingLog] : [], 
+             isReferenteWN: false, wnPlusUser: '', wnPlusPass: ''
+           };
+        }
+
+        setLeadModal({ isOpen: false, data: null });
+        setContactModal({ isOpen: true, data: prefilledContact, convertingLeadId: lead.id });
+      };
+
+      const deleteOrg = (id) => { 
+        const item = organizations.find(d => d.id === id);
+        if (item) {
+          setTrash(prev => [...prev, { trashId: Date.now(), originalId: item.id, type: 'Organizzazione', name: item.ragioneSociale, data: item, deletedAt: new Date().toLocaleString('it-IT') }]);
+          setOrganizations(organizations.filter(d => d.id !== id)); 
+          showToast('Organizzazione spostata nel cestino'); 
+        }
+      };
+      
+      const deleteContact = (id) => { 
+        const item = contacts.find(d => d.id === id);
+        if (item) {
+          setTrash(prev => [...prev, { trashId: Date.now(), originalId: item.id, type: 'Contatto', name: `${item.nome} ${item.cognome}`.trim(), data: item, deletedAt: new Date().toLocaleString('it-IT') }]);
+          setContacts(contacts.filter(d => d.id !== id)); 
+          showToast('Contatto spostato nel cestino'); 
+        }
+      };
+      
+      const deleteLead = (id) => { 
+        const item = leads.find(d => d.id === id);
+        if (item) {
+          const leadName = item.nome || item.cognome ? `${item.nome} ${item.cognome}`.trim() : item.referente;
+          setTrash(prev => [...prev, { trashId: Date.now(), originalId: item.id, type: 'Lead', name: `${item.azienda}${leadName ? ` (${leadName})` : ''}`, data: item, deletedAt: new Date().toLocaleString('it-IT') }]);
+          setLeads(leads.filter(d => d.id !== id)); 
+          showToast('Lead spostato nel cestino'); 
+        }
+      };
+
+      const SidebarItem = ({ id, icon: Icon, label }) => (
+        <button
+          onClick={() => setActiveTab(id)}
+          className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-left transition-all duration-200 group ${
+            activeTab === id 
+              ? 'bg-teal-50 text-teal-700 font-bold shadow-sm' 
+              : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-medium'
+          }`}
+        >
+          <Icon size={20} className={`${activeTab === id ? 'text-teal-600' : 'text-slate-400 group-hover:text-teal-500'} transition-colors`} />
+          <span>{label}</span>
+        </button>
+      );
+
+      return (
+        <div className="flex h-screen w-full bg-slate-50/50 font-sans text-slate-800 selection:bg-teal-100 selection:text-teal-900">
+          <aside className="w-72 bg-white border-r border-slate-100 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-20">
+            <div className="p-6 flex items-center gap-3 border-b border-slate-50">
+              <div className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white p-2.5 rounded-xl shadow-lg shadow-teal-500/30">
+                <HeartHandshake size={26} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h1 className="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">{crmSettings.systemName}</h1>
+                <p className="text-[10px] uppercase tracking-widest text-teal-600 font-bold mt-0.5">Management System</p>
+              </div>
+            </div>
+            <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
+              <SidebarItem id="dashboard" icon={LayoutDashboard} label="Dashboard" />
+              <div className="my-3 border-t border-slate-100"></div>
+              <SidebarItem id="organizations" icon={Building2} label="Organizzazioni" />
+              <SidebarItem id="contacts" icon={Users} label="Contatti" />
+              <SidebarItem id="staff" icon={UserCircle} label="Team & Collaboratori" />
+              <div className="my-3 border-t border-slate-100"></div>
+              <SidebarItem id="leads" icon={Target} label="Lead" />
+              <SidebarItem id="newsletter" icon={Mail} label="Invio Newsletter" />
+              <div className="my-3 border-t border-slate-100"></div>
+              <SidebarItem id="report" icon={Download} label="Esportazioni" />
+              <SidebarItem id="settings" icon={Settings} label="Impostazioni" />
+              <div className="my-3 border-t border-slate-100"></div>
+              <SidebarItem id="trash" icon={Trash2} label="Cestino" />
+            </nav>
+          </aside>
+
+          <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-slate-50">
+            <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200/60 flex items-center px-10 shadow-[0_4px_24px_rgba(0,0,0,0.02)] z-10 justify-between sticky top-0">
+              <div>
+                <h2 className="text-2xl font-extrabold capitalize text-slate-800 tracking-tight">
+                  {activeTab === 'contacts' ? 'Contatti' : 
+                   activeTab === 'report' ? 'Report ed Esportazioni' :
+                   activeTab === 'staff' ? 'Team & Collaboratori' :
+                   activeTab === 'leads' ? 'Gestione Lead' :
+                   activeTab === 'newsletter' ? 'Invio Newsletter' :
+                   activeTab === 'trash' ? 'Cestino' :
+                   activeTab}
+                </h2>
+              </div>
+              <div className="text-sm font-semibold text-slate-600 bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-full flex items-center gap-2.5 cursor-pointer hover:border-teal-300 hover:text-teal-700 transition-all" onClick={() => setActiveTab('settings')}>
+                <div className="bg-teal-100 text-teal-700 rounded-full p-1"><UserCircle size={16} strokeWidth={2.5}/></div>
+                Amministratore
+              </div>
+            </header>
+            
+            <div className="flex-1 overflow-y-auto p-8 lg:p-10 custom-scrollbar">
+              {activeTab === 'dashboard' && <Dashboard stats={{ orgs: organizations.length, contacts: contacts.length, leads: leads.length, campaigns: campaigns.length }} />}
+              
+              {activeTab === 'organizations' && (
+                <OrganizationsView 
+                  data={organizations} 
+                  onNew={() => setOrgModal({ isOpen: true, data: null })}
+                  onEdit={(org) => setOrgModal({ isOpen: true, data: org })}
+                  onDelete={deleteOrg}
+                  contacts={contacts} openContactModal={openContactModal}
+                />
+              )}
+              
+              {activeTab === 'contacts' && (
+                <ContactsView 
+                  data={contacts}
+                  onNew={() => setContactModal({ isOpen: true, data: null, convertingLeadId: null })}
+                  onEdit={(contact) => setContactModal({ isOpen: true, data: contact, convertingLeadId: null })}
+                  onDelete={deleteContact}
+                  openOrgModal={openOrgModal}
+                />
+              )}
+              
+              {activeTab === 'staff' && (
+                 <StaffView 
+                   data={contacts}
+                   onNew={() => setContactModal({ isOpen: true, data: { isStaffWN: true }, convertingLeadId: null })}
+                   onEdit={(contact) => setContactModal({ isOpen: true, data: contact, convertingLeadId: null })}
+                   onDelete={deleteContact}
+                   openOrgModal={openOrgModal}
+                 />
+              )}
+              
+              {activeTab === 'leads' && (
+                <LeadsView 
+                  data={leads}
+                  onNew={() => setLeadModal({ isOpen: true, data: null })}
+                  onEdit={(lead) => setLeadModal({ isOpen: true, data: lead })}
+                  onDelete={deleteLead}
+                  onConvert={handleConvertLead}
+                  organizations={organizations}
+                />
+              )}
+              
+              {activeTab === 'newsletter' && <NewsletterView contacts={contacts} showToast={showToast} campaigns={campaigns} setCampaigns={setCampaigns} />}
+
+              {activeTab === 'report' && <ReportView showToast={showToast} />}
+
+              {activeTab === 'settings' && <SettingsView settings={crmSettings} setSettings={setCrmSettings} showToast={showToast} />}
+
+              {activeTab === 'trash' && (
+                <TrashView 
+                  trash={trash} 
+                  setTrash={setTrash} 
+                  setOrganizations={setOrganizations} 
+                  setContacts={setContacts} 
+                  setLeads={setLeads} 
+                  showToast={showToast} 
+                />
+              )}
+            </div>
+          </main>
+
+          <OrgFormModal 
+            isOpen={orgModal.isOpen} 
+            onClose={() => setOrgModal({ isOpen: false, data: null })} 
+            onSave={handleSaveOrg} 
+            initialData={orgModal.data} 
+            contacts={contacts}
+            openContactModal={openContactModal}
+          />
+          
+          <ContactFormModal 
+            isOpen={contactModal.isOpen} 
+            onClose={() => setContactModal({ isOpen: false, data: null, convertingLeadId: null })} 
+            onSave={handleSaveContact} 
+            initialData={contactModal.data} 
+            organizations={organizations} 
+          />
+
+          <LeadFormModal 
+            isOpen={leadModal.isOpen} 
+            onClose={() => setLeadModal({ isOpen: false, data: null })} 
+            onSave={handleSaveLead} 
+            initialData={leadModal.data}
+            organizations={organizations}
+          />
+
+          {toast && <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+        </div>
+      );
+    }
+
+    // --- VISTE E COMPONENTI INTERNI ---
+    const Dashboard = ({ stats }) => (
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div className="bg-gradient-to-r from-teal-800 to-teal-600 rounded-3xl shadow-xl p-8 md:p-10 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
+            <HeartHandshake size={300} strokeWidth={1} />
+          </div>
+          <h3 className="text-3xl font-extrabold mb-3">Benvenuto nel CRM Welfare Nest</h3>
+          <p className="text-teal-100 text-lg max-w-2xl leading-relaxed font-medium">
+            Il tuo centro di controllo per gestire Organizzazioni, Contatti, Lead e Invio di Newsletter in un unico ambiente interconnesso.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard icon={Building2} title="Organizzazioni" value={stats.orgs} color="text-blue-600" bg="bg-blue-50" />
+          <StatCard icon={Users} title="Contatti in Rubrica" value={stats.contacts} color="text-teal-600" bg="bg-teal-50" />
+          <StatCard icon={Target} title="Lead Attivi" value={stats.leads} color="text-orange-500" bg="bg-orange-50" />
+          <StatCard icon={BarChart2} title="Campagne Inviate" value={stats.campaigns} color="text-indigo-600" bg="bg-indigo-50" />
+        </div>
+      </div>
+    );
+
+    const StatCard = ({ icon: Icon, title, value, color, bg }) => (
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-center gap-5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all group">
+        <div className={`${bg} ${color} p-4 rounded-2xl group-hover:scale-110 transition-transform duration-300`}>
+          <Icon size={28} strokeWidth={2.5} />
+        </div>
+        <div>
+          <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-1">{title}</p>
+          <p className="text-3xl font-black text-slate-800 leading-none">{value}</p>
+        </div>
+      </div>
+    );
+
+    const NetworkPreviewModal = ({ isOpen, onClose, org, contacts, openContactModal }) => {
+      const associatedContacts = org ? contacts.filter(c => c.orgs?.includes(org.ragioneSociale)) : [];
+
+      return (
+        <Modal isOpen={isOpen} onClose={onClose} title={org ? `Network Associato: ${org.ragioneSociale}` : "Network"}>
+          <div className="space-y-4">
+             {associatedContacts.length > 0 ? (
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {associatedContacts.map(c => {
+                   const dett = c.aziendeDettagli[org.ragioneSociale] || {};
+                   return (
+                     <div key={c.id} onClick={() => { onClose(); openContactModal(c.id); }} className="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-teal-300 hover:bg-white hover:shadow-md cursor-pointer transition-all group">
+                       <div>
+                         <div className="flex items-center gap-2">
+                           <p className="font-bold text-slate-800">{c.nome} {c.cognome}</p>
+                           {dett.isReferenteWN && <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-cyan-50 text-cyan-700 border border-cyan-200 tracking-wider">WN+ REF</span>}
+                         </div>
+                         <div className="flex gap-2 mt-2 items-center">
+                           {dett.tag1 && <span className="bg-white border border-slate-200 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">{dett.tag1}</span>}
+                           {dett.tag2 && <span className="bg-white border border-slate-200 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">{dett.tag2}</span>}
+                         </div>
+                         <div className="flex gap-1.5 mt-2.5">
+                           <ConsentBadge label="GDPR" hasConsent={dett.privacy} />
+                           <ConsentBadge label="Mktg" hasConsent={dett.marketing} />
+                         </div>
+                       </div>
+                       <ExternalLink size={18} className="text-teal-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                     </div>
+                   );
+                 })}
+               </div>
+             ) : (
+               <div className="bg-slate-50 p-8 rounded-xl border border-dashed border-slate-200 text-center">
+                 <Users size={32} className="mx-auto mb-3 text-slate-300" />
+                 <p className="text-sm font-medium text-slate-500">Nessun contatto attualmente associato a questa organizzazione.</p>
+               </div>
+             )}
+          </div>
+        </Modal>
+      );
+    };
+
+    const OrganizationsView = ({ data, onNew, onEdit, onDelete, contacts, openContactModal }) => {
+      const dataWithNetwork = useMemo(() => {
+        return data.map(org => ({
+          ...org,
+          networkCount: contacts.filter(c => c.orgs?.includes(org.ragioneSociale)).length
+        }));
+      }, [data, contacts]);
+
+      const { items: sortedData, requestSort, sortConfig } = useSortableData(dataWithNetwork, { key: 'ragioneSociale', direction: 'ascending' });
+      const [networkModal, setNetworkModal] = useState({ isOpen: false, org: null });
+
+      return (
+        <div className="space-y-6 max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input type="text" placeholder="Cerca organizzazione..." className="pl-11 pr-4 py-3 w-full border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none shadow-sm transition-all text-sm" />
+            </div>
+            <button onClick={onNew} className={primaryBtnStyle}>
+              <Plus size={18} strokeWidth={2.5} /> Nuova Organizzazione
+            </button>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50/50">
+                <tr>
+                  <SortableHeader label="Ragione Sociale" sortKey="ragioneSociale" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Tipologia" sortKey="tipo" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Ruolo" sortKey="ruoloOrg" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Network" sortKey="networkCount" sortConfig={sortConfig} requestSort={requestSort} align="center" />
+                  <TableHeader><div className="text-right">Azioni</div></TableHeader>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedData.map(org => (
+                  <tr key={org.id} className="hover:bg-slate-50/80 transition-colors group">
+                    <TableCell>
+                      <span className="font-bold text-slate-800 cursor-pointer group-hover:text-teal-600 transition-colors" onClick={() => onEdit(org)}>
+                        {org.ragioneSociale}
+                      </span>
+                    </TableCell>
+                    <TableCell><span className="text-slate-600 font-medium">{org.tipo}</span></TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {org.isClient && <span className="bg-teal-50 text-teal-700 text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-lg font-bold border border-teal-100">Cliente</span>}
+                        {org.isSupplier && <span className="bg-orange-50 text-orange-700 text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-lg font-bold border border-orange-100">Fornitore</span>}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <button 
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setNetworkModal({ isOpen: true, org }); }}
+                        className={`inline-flex items-center justify-center font-bold h-8 w-8 rounded-full text-xs transition-all shadow-sm ${org.networkCount > 0 ? 'bg-teal-50 text-teal-700 hover:bg-teal-100 hover:scale-105 cursor-pointer border border-teal-200' : 'bg-slate-100 text-slate-400 cursor-default'}`}
+                        title={org.networkCount > 0 ? "Vedi contatti associati" : "Nessun contatto"}
+                        disabled={org.networkCount === 0}
+                      >
+                        {org.networkCount}
+                      </button>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => onEdit(org)} className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-all" title="Modifica"><Edit size={18} /></button>
+                        <button onClick={() => onDelete(org.id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="Elimina"><Trash2 size={18} /></button>
+                      </div>
+                    </TableCell>
+                  </tr>
+                ))}
+                {data.length === 0 && (
+                  <tr><td colSpan="5" className="p-12 text-center text-slate-400 font-medium">Nessuna organizzazione trovata.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <NetworkPreviewModal 
+            isOpen={networkModal.isOpen} 
+            onClose={() => setNetworkModal({ isOpen: false, org: null })} 
+            org={networkModal.org} 
+            contacts={contacts}
+            openContactModal={openContactModal}
+          />
+        </div>
+      );
+    };
+
+    const OrgFormModal = ({ isOpen, onClose, onSave, initialData, contacts, openContactModal }) => {
+      const [formData, setFormData] = useState({
+        isClient: false, isSupplier: false, ragioneSociale: '', partitaIva: '', codiceFiscale: '', tipo: '',
+        sedeLegale: { indirizzo: '', citta: '', provincia: '', cap: '', paese: 'Italia' },
+        hasSedeOperativa: false, sedeOperativa: { indirizzo: '', citta: '', provincia: '', cap: '', paese: 'Italia' },
+        email: '', telefono: '', pec: '', sdi: '', splitPayment: false, sitoWeb: '', dimensione: '',
+        iscritti: '', serviziStatus: {}
+      });
+
+      useEffect(() => {
+        const defaultState = {
+          isClient: false, isSupplier: false, ragioneSociale: '', partitaIva: '', codiceFiscale: '', tipo: '',
+          sedeLegale: { indirizzo: '', citta: '', provincia: '', cap: '', paese: 'Italia' },
+          hasSedeOperativa: false, sedeOperativa: { indirizzo: '', citta: '', provincia: '', cap: '', paese: 'Italia' },
+          email: '', telefono: '', pec: '', sdi: '', splitPayment: false, sitoWeb: '', dimensione: '',
+          iscritti: '', serviziStatus: {}
+        };
+        if (initialData) {
+          setFormData({
+            ...defaultState,
+            ...initialData,
+            sedeLegale: { ...defaultState.sedeLegale, ...(initialData.sedeLegale || {}) },
+            sedeOperativa: { ...defaultState.sedeOperativa, ...(initialData.sedeOperativa || {}) },
+            serviziStatus: initialData.serviziStatus || {}
+          });
+        } else {
+          setFormData(defaultState);
+        }
+      }, [initialData, isOpen]);
+
+      const handleChange = (e, section = null, field = null) => {
+        const { name, value, type, checked } = e.target;
+        const val = type === 'checkbox' ? checked : value;
+        
+        if (section) {
+          setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field || name]: val } }));
+        } else {
+          setFormData(prev => ({ ...prev, [name]: val }));
+        }
+      };
+
+      const handleServiceStatusChange = (service, status) => {
+        setFormData(prev => {
+          const newStatus = { ...prev.serviziStatus };
+          if (status) {
+            newStatus[service] = status;
+          } else {
+            delete newStatus[service];
+          }
+          return { ...prev, serviziStatus: newStatus };
+        });
+      };
+
+      const needsIscritti = ['Fondo sanitario', 'Fondo pensione', 'Cassa di previdenza'].includes(formData.tipo);
+      const associatedContacts = formData.ragioneSociale ? contacts.filter(c => c.orgs?.includes(formData.ragioneSociale)) : [];
+
+      return (
+        <Modal isOpen={isOpen} onClose={onClose} title={initialData ? `Anagrafica: ${initialData.ragioneSociale}` : "Nuova Organizzazione"}>
+          <form onSubmit={(e) => { e.preventDefault(); onSave(formData); }} className="space-y-8">
+            
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <h4 className="font-bold mb-5 text-slate-800 flex items-center gap-2">Classificazione</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo Organizzazione *</label>
+                  <select required name="tipo" value={formData.tipo || ''} onChange={handleChange} className={inputStyle}>
+                    <option value="">Seleziona...</option>
+                    {ORG_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div className="flex gap-4 items-end pt-1">
+                  <label className={`flex-1 flex items-center justify-center gap-2 cursor-pointer p-3 rounded-xl border-2 transition-all ${formData.isClient ? 'border-teal-500 bg-teal-50 text-teal-800' : 'border-slate-100 bg-slate-50 text-slate-500 hover:border-teal-200'}`}>
+                    <input type="checkbox" name="isClient" checked={formData.isClient || false} onChange={handleChange} className="hidden" />
+                    <span className="font-bold text-sm">Cliente</span>
+                  </label>
+                  <label className={`flex-1 flex items-center justify-center gap-2 cursor-pointer p-3 rounded-xl border-2 transition-all ${formData.isSupplier ? 'border-orange-500 bg-orange-50 text-orange-800' : 'border-slate-100 bg-slate-50 text-slate-500 hover:border-orange-200'}`}>
+                    <input type="checkbox" name="isSupplier" checked={formData.isSupplier || false} onChange={handleChange} className="hidden" />
+                    <span className="font-bold text-sm">Fornitore</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <h4 className="font-bold mb-5 text-slate-800">Dati Identificativi</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ragione Sociale *</label>
+                  <input required type="text" name="ragioneSociale" value={formData.ragioneSociale || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Partita IVA</label>
+                  <input type="text" name="partitaIva" value={formData.partitaIva || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Codice Fiscale</label>
+                  <input type="text" name="codiceFiscale" value={formData.codiceFiscale || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-teal-50 to-emerald-50 p-6 rounded-2xl border border-teal-100/50 shadow-sm">
+              <h4 className="font-bold mb-5 text-teal-900">Dati Dimensionali</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-teal-700 uppercase tracking-wider mb-2">Dipendenti</label>
+                  <select name="dimensione" value={formData.dimensione || ''} onChange={handleChange} className={inputStyle}>
+                    <option value="">Seleziona...</option>
+                    {DIMENSIONI_AZIENDALI.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                {needsIscritti && (
+                  <div>
+                    <label className="block text-xs font-bold text-teal-700 uppercase tracking-wider mb-2">Numero Iscritti</label>
+                    <select name="iscritti" value={formData.iscritti || ''} onChange={handleChange} className={inputStyle}>
+                      <option value="">Seleziona...</option>
+                      {NUMERO_ISCRITTI.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <h4 className="font-bold mb-5 text-slate-800">Amministrazione & Recapiti</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Aziendale</label>
+                  <input type="email" name="email" value={formData.email || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Telefono</label>
+                  <input type="tel" name="telefono" value={formData.telefono || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sito Web</label>
+                  <input type="url" name="sitoWeb" value={formData.sitoWeb || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Indirizzo PEC</label>
+                  <input type="email" name="pec" value={formData.pec || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Codice SDI</label>
+                  <input type="text" name="sdi" value={formData.sdi || ''} onChange={handleChange} className={inputStyle} maxLength="7" />
+                </div>
+                <div className="flex items-center pt-6">
+                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors w-full">
+                    <input type="checkbox" name="splitPayment" checked={formData.splitPayment || false} onChange={handleChange} className="w-5 h-5 text-teal-600 rounded focus:ring-teal-500" />
+                    <span className="text-sm font-semibold text-slate-700">Split Payment</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <h4 className="font-bold mb-5 text-slate-800">Sede Legale</h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Indirizzo + civico</label>
+                    <input type="text" value={formData.sedeLegale?.indirizzo || ''} onChange={(e) => handleChange(e, 'sedeLegale', 'indirizzo')} className={inputStyle} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Città</label>
+                      <input type="text" value={formData.sedeLegale?.citta || ''} onChange={(e) => handleChange(e, 'sedeLegale', 'citta')} className={inputStyle} />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Provincia</label>
+                      <input type="text" value={formData.sedeLegale?.provincia || ''} onChange={(e) => handleChange(e, 'sedeLegale', 'provincia')} className={inputStyle} maxLength="2" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">CAP</label>
+                      <input type="text" value={formData.sedeLegale?.cap || ''} onChange={(e) => handleChange(e, 'sedeLegale', 'cap')} className={inputStyle} />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Paese</label>
+                      <input type="text" value={formData.sedeLegale?.paese || ''} onChange={(e) => handleChange(e, 'sedeLegale', 'paese')} className={inputStyle} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative">
+                <h4 className="font-bold mb-5 text-slate-800 flex justify-between items-center">
+                  Sede Operativa
+                  <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 transition-colors">
+                    <input type="checkbox" name="hasSedeOperativa" checked={formData.hasSedeOperativa || false} onChange={handleChange} className="rounded text-teal-600 focus:ring-teal-500" />
+                    Diversa da legale
+                  </label>
+                </h4>
+                {formData.hasSedeOperativa ? (
+                   <div className="space-y-4">
+                   <div>
+                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Indirizzo + civico</label>
+                     <input type="text" value={formData.sedeOperativa?.indirizzo || ''} onChange={(e) => handleChange(e, 'sedeOperativa', 'indirizzo')} className={inputStyle} />
+                   </div>
+                   <div className="grid grid-cols-2 gap-4">
+                     <div>
+                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Città</label>
+                       <input type="text" value={formData.sedeOperativa?.citta || ''} onChange={(e) => handleChange(e, 'sedeOperativa', 'citta')} className={inputStyle} />
+                     </div>
+                     <div>
+                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Provincia</label>
+                       <input type="text" value={formData.sedeOperativa?.provincia || ''} onChange={(e) => handleChange(e, 'sedeOperativa', 'provincia')} className={inputStyle} maxLength="2" />
+                     </div>
+                   </div>
+                   <div className="grid grid-cols-2 gap-4">
+                     <div>
+                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">CAP</label>
+                       <input type="text" value={formData.sedeOperativa?.cap || ''} onChange={(e) => handleChange(e, 'sedeOperativa', 'cap')} className={inputStyle} />
+                     </div>
+                     <div>
+                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Paese</label>
+                       <input type="text" value={formData.sedeOperativa?.paese || ''} onChange={(e) => handleChange(e, 'sedeOperativa', 'paese')} className={inputStyle} />
+                     </div>
+                   </div>
+                 </div>
+                ) : (
+                  <div className="absolute inset-0 top-16 flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 rounded-b-2xl border-t border-slate-50">
+                    <Building2 size={32} className="mb-3 text-slate-300"/>
+                    <p className="text-sm font-medium text-slate-400">Attiva l'opzione per inserire una sede operativa diversa.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {formData.isClient && (
+              <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-100 p-6 rounded-2xl shadow-sm">
+                 <h4 className="font-bold mb-5 text-cyan-900 flex items-center gap-2"><Target size={20}/> Servizi e Status Cliente</h4>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {SERVIZI_CLIENTE.map(serv => (
+                     <div key={serv} className="flex items-center justify-between bg-white p-4 rounded-xl border border-cyan-50 shadow-sm">
+                       <span className="font-bold text-slate-700 text-sm">{serv}</span>
+                       <select 
+                         value={formData.serviziStatus?.[serv] || ''} 
+                         onChange={(e) => handleServiceStatusChange(serv, e.target.value)}
+                         className="w-1/2 p-2 border border-slate-200 rounded-lg bg-slate-50 text-xs font-bold focus:ring-cyan-500 text-slate-600 outline-none"
+                       >
+                         <option value="">Da selezionare...</option>
+                         {STATUS_CLIENTE.map(s => <option key={s} value={s}>{s}</option>)}
+                       </select>
+                     </div>
+                   ))}
+                 </div>
+              </div>
+            )}
+
+            {initialData && (
+               <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+                 <h4 className="font-bold mb-5 text-slate-800 flex items-center gap-2"><Users size={20} className="text-slate-400"/> Contatti Associati nel Network</h4>
+                 {associatedContacts.length > 0 ? (
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     {associatedContacts.map(c => {
+                       const dett = c.aziendeDettagli[formData.ragioneSociale] || {};
+                       return (
+                         <div key={c.id} onClick={() => openContactModal(c.id)} className="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-teal-300 hover:bg-white hover:shadow-md cursor-pointer transition-all group">
+                           <div>
+                             <div className="flex items-center gap-2">
+                               <p className="font-bold text-slate-800">{c.nome} {c.cognome}</p>
+                               {dett.isReferenteWN && <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-cyan-50 text-cyan-700 border border-cyan-200 tracking-wider">WN+ REF</span>}
+                             </div>
+                             <div className="flex gap-2 mt-2 items-center">
+                               {dett.tag1 && <span className="bg-white border border-slate-200 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">{dett.tag1}</span>}
+                               {dett.tag2 && <span className="bg-white border border-slate-200 text-slate-500 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">{dett.tag2}</span>}
+                             </div>
+                             <div className="flex gap-1.5 mt-2.5">
+                               <ConsentBadge label="GDPR" hasConsent={dett.privacy} />
+                               <ConsentBadge label="Mktg" hasConsent={dett.marketing} />
+                             </div>
+                           </div>
+                           <ExternalLink size={18} className="text-teal-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                         </div>
+                       );
+                     })}
+                   </div>
+                 ) : (
+                   <div className="bg-slate-50 p-6 rounded-xl border border-dashed border-slate-200 text-center">
+                     <p className="text-sm font-medium text-slate-500">Nessun contatto attualmente associato a questa organizzazione.</p>
+                   </div>
+                 )}
+               </div>
+            )}
+
+            <div className="flex justify-end gap-3 pt-8 border-t border-slate-100">
+              <button type="button" onClick={onClose} className={secondaryBtnStyle}>Annulla</button>
+              <button type="submit" className={primaryBtnStyle}>
+                <Save size={18} /> Salva Dati Organizzazione
+              </button>
+            </div>
+          </form>
+        </Modal>
+      );
+    };
+
+    const ContactsView = ({ data, onNew, onEdit, onDelete, openOrgModal }) => {
+      const { items: sortedData, requestSort, sortConfig } = useSortableData(data, { key: 'nominativo', direction: 'ascending' });
+
+      return (
+        <div className="space-y-6 max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input type="text" placeholder="Cerca in rubrica..." className="pl-11 pr-4 py-3 w-full border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none shadow-sm transition-all text-sm" />
+            </div>
+            <button onClick={onNew} className={primaryBtnStyle}>
+              <Plus size={18} strokeWidth={2.5}/> Nuovo Contatto
+            </button>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50/50">
+                <tr>
+                  <SortableHeader label="Nominativo & Info" sortKey="nominativo" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Ruolo WN" sortKey="ruoloWN" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Organizzazioni (Aziende)" sortKey="orgsList" sortConfig={sortConfig} requestSort={requestSort} />
+                  <TableHeader><div className="text-right">Azioni</div></TableHeader>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedData.map(contact => (
+                  <tr key={contact.id} className="hover:bg-slate-50/80 transition-colors group border-b border-slate-50">
+                    <TableCell className="align-top">
+                      <span className="font-bold text-slate-800 text-base cursor-pointer group-hover:text-teal-600 transition-colors" onClick={() => onEdit(contact)}>
+                        {contact.nome} {contact.cognome}
+                      </span>
+                      <div className="text-xs text-slate-500 font-medium mt-2 flex flex-col gap-1.5">
+                        {contact.telefoni?.length > 0 ? (
+                          contact.telefoni.map((tel, idx) => <span key={idx} className="flex items-center gap-2"><Search size={12} className="text-slate-400"/> {tel}</span>)
+                        ) : (
+                          <span className="flex items-center gap-2 italic"><Search size={12} className="text-slate-300"/> Nessun telefono</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <div className="space-y-2">
+                        {contact.isStaffWN && <span className="bg-slate-800 text-white text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-lg inline-block">Team Interno</span>}
+                        {contact.isCollaboratoreWN && <span className="bg-teal-50 text-teal-700 border border-teal-100 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-lg inline-block">Collab. Esterno</span>}
+                        {contact.isCollaboratoreWN && contact.ruoloWN && <div className="text-xs font-semibold text-slate-600">{contact.ruoloWN}</div>}
+                        {(!contact.isStaffWN && !contact.isCollaboratoreWN) && <span className="text-xs font-medium text-slate-400 italic">Nessuno</span>}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <div className="space-y-3">
+                        {contact.orgs?.map(orgName => {
+                          const dett = contact.aziendeDettagli?.[orgName];
+                          return (
+                            <div key={orgName} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm hover:border-teal-200 transition-colors">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-bold text-slate-700 cursor-pointer hover:text-teal-600 transition-colors flex items-center gap-1.5" onClick={() => openOrgModal(orgName)}>
+                                  <Building2 size={14} className="text-slate-400"/> {orgName}
+                                </span>
+                                <div className="flex gap-1.5 items-center">
+                                   {dett?.isReferenteWN && <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-cyan-50 text-cyan-700 border border-cyan-200 tracking-wider" title="Referente WN+">WN+ REF</span>}
+                                   <ConsentBadge label="GDPR" hasConsent={dett?.privacy} />
+                                   <ConsentBadge label="Mktg" hasConsent={dett?.marketing} />
+                                </div>
+                              </div>
+                              <div className="text-xs text-slate-500 space-y-1">
+                                {dett?.emails?.map((e, idx) => <span key={idx} className="block font-medium">{e}</span>)}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {(!contact.orgs || contact.orgs.length === 0) && <span className="text-xs font-medium text-slate-400 italic bg-slate-50 px-3 py-2 rounded-lg block w-max">Nessuna azienda associata</span>}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top">
+                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => onEdit(contact)} className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-all" title="Modifica"><Edit size={18} /></button>
+                        <button onClick={() => onDelete(contact.id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="Elimina"><Trash2 size={18} /></button>
+                      </div>
+                    </TableCell>
+                  </tr>
+                ))}
+                {data.length === 0 && (
+                  <tr><td colSpan="4" className="p-12 text-center text-slate-400 font-medium">Nessun contatto trovato.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    };
+
+    const ContactFormModal = ({ isOpen, onClose, onSave, initialData, organizations }) => {
+      const [formData, setFormData] = useState({
+        nome: '', cognome: '', telefoni: [''], origine: '', 
+        isStaffWN: false, isCollaboratoreWN: false, ruoloWN: '',
+        orgs: [], aziendeDettagli: {}
+      });
+
+      const [expandedOrg, setExpandedOrg] = useState(null);
+      const [orgSearchTerm, setOrgSearchTerm] = useState('');
+      const [showOrgSuggestions, setShowOrgSuggestions] = useState(false);
+
+      useEffect(() => {
+        const defaultState = {
+          nome: '', cognome: '', telefoni: [''], origine: '', 
+          isStaffWN: false, isCollaboratoreWN: false, ruoloWN: '',
+          orgs: [], aziendeDettagli: {}
+        };
+        if (initialData) {
+          setFormData({ 
+            ...defaultState, 
+            ...initialData,
+            telefoni: initialData.telefoni?.length ? initialData.telefoni : ['']
+          });
+          if (initialData.orgs?.length > 0) setExpandedOrg(initialData.orgs[0]);
+        } else {
+          setFormData(defaultState);
+          setExpandedOrg(null);
+        }
+        setOrgSearchTerm('');
+        setShowOrgSuggestions(false);
+      }, [initialData, isOpen]);
+
+      const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+      };
+
+      const handleTeamRoleChange = (role, checked) => {
+        setFormData(prev => {
+          const newData = { ...prev, [role]: checked };
+          if (role === 'isStaffWN' && checked) {
+            newData.isCollaboratoreWN = false;
+            newData.ruoloWN = ''; 
+          }
+          if (role === 'isCollaboratoreWN' && checked) {
+            newData.isStaffWN = false;
+          }
+          return newData;
+        });
+      };
+
+      const handlePhoneChange = (index, value) => {
+        setFormData(prev => {
+          const telefoni = [...(prev.telefoni || [''])];
+          telefoni[index] = value;
+          return { ...prev, telefoni };
+        });
+      };
+      const addPhone = () => setFormData(prev => ({ ...prev, telefoni: [...(prev.telefoni || []), ''] }));
+      const removePhone = (idx) => setFormData(prev => ({ ...prev, telefoni: prev.telefoni.filter((_, i) => i !== idx) }));
+
+      const handleOrgToggle = (orgName) => {
+        setFormData(prev => {
+          const currentOrgs = prev.orgs || [];
+          const isAlreadyIncluded = currentOrgs.includes(orgName);
+          const newOrgs = isAlreadyIncluded 
+            ? currentOrgs.filter(o => o !== orgName) 
+            : [...currentOrgs, orgName];
+          
+          const newDettagli = { ...prev.aziendeDettagli };
+          
+          if (!isAlreadyIncluded) {
+            if (!newDettagli[orgName]) {
+              newDettagli[orgName] = { 
+                emails: [''], tag1: '', tag2: '', 
+                privacy: false, marketing: false, privacyLog: [], marketingLog: [],
+                isReferenteWN: false, wnPlusUser: '', wnPlusPass: ''
+              };
+            }
+            setExpandedOrg(orgName);
+          } else {
+            if (expandedOrg === orgName) setExpandedOrg(null);
+          }
+
+          return { ...prev, orgs: newOrgs, aziendeDettagli: newDettagli };
+        });
+      };
+
+      const handleOrgDettagliChange = (orgName, field, value) => {
+        setFormData(prev => ({
+          ...prev,
+          aziendeDettagli: {
+            ...prev.aziendeDettagli,
+            [orgName]: {
+              ...prev.aziendeDettagli[orgName],
+              [field]: value
+            }
+          }
+        }));
+      };
+
+      const handleOrgEmailChange = (orgName, index, value) => {
+        setFormData(prev => {
+          const emails = [...(prev.aziendeDettagli[orgName]?.emails || [''])];
+          emails[index] = value;
+          return {
+            ...prev,
+            aziendeDettagli: {
+              ...prev.aziendeDettagli,
+              [orgName]: { ...prev.aziendeDettagli[orgName], emails }
+            }
+          }
+        });
+      };
+
+      const handleCheckboxDettaglio = (orgName, field, checked) => {
+        const now = new Date().toLocaleString('it-IT');
+        setFormData(prev => {
+          const dett = prev.aziendeDettagli[orgName];
+          let newLog = [];
+          if (field === 'privacy') {
+            newLog = [...(dett.privacyLog || []), `Consenso ${checked ? 'acquisito' : 'revocato'} il ${now}`];
+            return { ...prev, aziendeDettagli: { ...prev.aziendeDettagli, [orgName]: { ...dett, privacy: checked, privacyLog: newLog } } };
+          }
+          if (field === 'marketing') {
+            newLog = [...(dett.marketingLog || []), `Consenso ${checked ? 'acquisito' : 'revocato'} il ${now}`];
+            return { ...prev, aziendeDettagli: { ...prev.aziendeDettagli, [orgName]: { ...dett, marketing: checked, marketingLog: newLog } } };
+          }
+          return { ...prev, aziendeDettagli: { ...prev.aziendeDettagli, [orgName]: { ...dett, [field]: checked } } };
+        });
+      };
+
+      const isLinkedToWN = formData.orgs?.some(org => org.toLowerCase() === 'welfare nest');
+
+      const filteredOrgs = organizations.filter(org => 
+        org.ragioneSociale.toLowerCase().includes(orgSearchTerm.toLowerCase()) &&
+        !(formData.orgs || []).includes(org.ragioneSociale)
+      );
+
+      return (
+        <Modal isOpen={isOpen} onClose={onClose} title={initialData && initialData.nome ? `Profilo: ${initialData.nome} ${initialData.cognome}` : "Nuovo Contatto"}>
+          <form onSubmit={(e) => { e.preventDefault(); onSave(formData); }} className="space-y-8">
+            
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <h4 className="font-bold mb-5 text-slate-800">Dati Personali Generici</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome *</label>
+                  <input required type="text" name="nome" value={formData.nome || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Cognome *</label>
+                  <input type="text" name="cognome" value={formData.cognome || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Numeri di Telefono</label>
+                  {(formData.telefoni || ['']).map((tel, idx) => (
+                    <div key={idx} className="flex gap-3 mb-3">
+                      <input type="tel" value={tel || ''} onChange={(e) => handlePhoneChange(idx, e.target.value)} className={inputStyle} placeholder="Inserisci recapito..." />
+                      {idx > 0 && <button type="button" onClick={() => removePhone(idx)} className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl border border-rose-100 transition-colors"><X size={18}/></button>}
+                      {idx === (formData.telefoni || ['']).length - 1 && <button type="button" onClick={addPhone} className="p-3 text-teal-600 hover:bg-teal-50 rounded-xl border border-teal-100 transition-colors"><Plus size={18}/></button>}
+                    </div>
+                  ))}
+                </div>
+                <div className="md:col-span-2">
+                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Origine Contatto</label>
+                   <input type="text" name="origine" value={formData.origine || ''} onChange={handleChange} placeholder="Es: Fiera, LinkedIn, Form web..." className={inputStyle} />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative">
+              <h4 className="font-bold mb-2 text-slate-800">Organizzazioni & Enti</h4>
+              <p className="text-sm text-slate-500 mb-5 font-medium">Cerca e seleziona a quali aziende appartiene il contatto.</p>
+              
+              <div className="relative mb-5">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input 
+                  type="text"
+                  value={orgSearchTerm}
+                  onChange={(e) => {
+                    setOrgSearchTerm(e.target.value);
+                    setShowOrgSuggestions(true);
+                  }}
+                  onFocus={() => setShowOrgSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowOrgSuggestions(false), 200)}
+                  placeholder="Digita per cercare un'azienda..."
+                  className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm outline-none"
+                />
+                {showOrgSuggestions && orgSearchTerm && filteredOrgs.length > 0 && (
+                  <div className="absolute z-20 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                    {filteredOrgs.map(org => (
+                      <div 
+                        key={org.id}
+                        className="p-3.5 border-b border-slate-50 hover:bg-teal-50 cursor-pointer transition-colors"
+                        onClick={() => {
+                          handleOrgToggle(org.ragioneSociale);
+                          setOrgSearchTerm('');
+                          setShowOrgSuggestions(false);
+                        }}
+                      >
+                        <div className="font-bold text-slate-800">{org.ragioneSociale}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">{org.tipo}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {formData.orgs?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.orgs.map(orgName => (
+                    <span key={orgName} className="flex items-center gap-2 bg-teal-50 text-teal-800 border border-teal-200 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-all hover:bg-teal-100">
+                      <Building2 size={14} className="text-teal-600" />
+                      {orgName}
+                      <button type="button" onClick={() => handleOrgToggle(orgName)} className="ml-1 text-teal-600 hover:text-rose-600 transition-colors bg-white rounded-full p-0.5 shadow-sm">
+                        <X size={14} strokeWidth={3} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {isLinkedToWN && (
+              <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
+                  <ShieldCheck size={150} />
+                </div>
+                <h4 className="font-bold mb-5 flex items-center gap-2 text-teal-400"><ShieldCheck size={20}/> Rapporto interno con Welfare Nest</h4>
+                <div className="flex flex-col md:flex-row gap-6 items-start md:items-center relative z-10">
+                   <div className="flex flex-col sm:flex-row gap-4">
+                      <label className={`flex items-center justify-center gap-3 cursor-pointer px-5 py-3 rounded-xl border-2 transition-all ${formData.isStaffWN ? 'bg-teal-600/20 border-teal-500 text-white' : 'bg-slate-800 border-slate-700 hover:border-slate-600 text-slate-300'}`}>
+                        <input type="checkbox" checked={formData.isStaffWN || false} onChange={(e) => handleTeamRoleChange('isStaffWN', e.target.checked)} className="hidden" />
+                        <span className="font-bold text-sm">Team Interno WN</span>
+                      </label>
+                      <label className={`flex items-center justify-center gap-3 cursor-pointer px-5 py-3 rounded-xl border-2 transition-all ${formData.isCollaboratoreWN ? 'bg-teal-600/20 border-teal-500 text-white' : 'bg-slate-800 border-slate-700 hover:border-slate-600 text-slate-300'}`}>
+                        <input type="checkbox" checked={formData.isCollaboratoreWN || false} onChange={(e) => handleTeamRoleChange('isCollaboratoreWN', e.target.checked)} className="hidden" />
+                        <span className="font-bold text-sm">Collaboratore Esterno</span>
+                      </label>
+                   </div>
+                   {formData.isCollaboratoreWN && (
+                      <div className="flex-1 w-full md:w-auto">
+                        <input type="text" name="ruoloWN" value={formData.ruoloWN || ''} onChange={handleChange} placeholder="Specifica Ruolo/Qualifica..." className="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all text-sm font-medium" />
+                      </div>
+                   )}
+                </div>
+              </div>
+            )}
+
+            {formData.orgs?.length > 0 && (
+              <div>
+                <h4 className="font-bold mb-5 text-slate-800">Dettagli Profilo per singola Azienda</h4>
+                <div className="space-y-5">
+                  {formData.orgs.map(orgName => {
+                    const dett = formData.aziendeDettagli?.[orgName] || {};
+                    const isExpanded = expandedOrg === orgName;
+                    
+                    return (
+                      <div key={orgName} className={`rounded-2xl overflow-hidden transition-all duration-300 border ${isExpanded ? 'border-teal-200 shadow-lg' : 'border-slate-200 shadow-sm hover:border-teal-300'}`}>
+                        <button 
+                          type="button" 
+                          onClick={() => setExpandedOrg(isExpanded ? null : orgName)}
+                          className={`w-full p-5 flex items-center justify-between transition-colors ${isExpanded ? 'bg-teal-600 text-white' : 'bg-white text-slate-700'}`}
+                        >
+                          <span className="font-bold flex items-center gap-3"><Building2 size={20} className={isExpanded ? 'text-teal-200' : 'text-slate-400'}/> Profilo: {orgName}</span>
+                          {isExpanded ? <ChevronUp size={22} className="text-teal-200"/> : <ChevronDown size={22} className="text-slate-400"/>}
+                        </button>
+                        
+                        {isExpanded && (
+                          <div className="p-6 md:p-8 bg-white space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="md:col-span-2 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Email lavorative ({orgName})</label>
+                                {(dett.emails || ['']).map((email, idx) => (
+                                  <div key={idx} className="flex gap-3 mb-3">
+                                    <input type="email" value={email || ''} onChange={(e) => handleOrgEmailChange(orgName, idx, e.target.value)} className={inputStyle} placeholder="Indirizzo e-mail aziendale..." />
+                                    {idx > 0 && <button type="button" onClick={() => handleOrgDettagliChange(orgName, 'emails', dett.emails.filter((_, i) => i !== idx))} className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl border border-rose-100 transition-colors bg-white"><X size={18}/></button>}
+                                    {idx === (dett.emails || ['']).length - 1 && <button type="button" onClick={() => handleOrgDettagliChange(orgName, 'emails', [...dett.emails, ''])} className="p-3 text-teal-600 hover:bg-teal-50 rounded-xl border border-teal-100 transition-colors bg-white"><Plus size={18}/></button>}
+                                  </div>
+                                ))}
+                              </div>
+                              <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Qualifica Principale</label>
+                                <select value={dett.tag1 || ''} onChange={(e) => handleOrgDettagliChange(orgName, 'tag1', e.target.value)} className={inputStyle}>
+                                  <option value="">Nessun tag...</option>
+                                  {TAG1_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Area / Dipartimento</label>
+                                <select value={dett.tag2 || ''} onChange={(e) => handleOrgDettagliChange(orgName, 'tag2', e.target.value)} className={inputStyle}>
+                                  <option value="">Nessun tag...</option>
+                                  {TAG2_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-100 p-6 rounded-2xl">
+                              <h5 className="font-bold text-cyan-900 mb-5 flex items-center gap-2"><UserCircle size={20}/> Accesso Piattaforma WN+</h5>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                <div>
+                                  <label className="block text-[10px] font-bold text-cyan-700 uppercase tracking-wider mb-2">Username</label>
+                                  <input type="text" value={dett.wnPlusUser || ''} onChange={(e) => handleOrgDettagliChange(orgName, 'wnPlusUser', e.target.value)} className={inputStyle} placeholder="Username..." />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold text-cyan-700 uppercase tracking-wider mb-2">Password WN+</label>
+                                  <input type="text" value={dett.wnPlusPass || ''} onChange={(e) => handleOrgDettagliChange(orgName, 'wnPlusPass', e.target.value)} className={inputStyle} placeholder="Password temporanea..." />
+                                </div>
+                              </div>
+                              <label className="flex items-center gap-3 cursor-pointer bg-white p-4 rounded-xl border border-cyan-100 shadow-sm w-fit hover:border-cyan-300 transition-colors">
+                                <input type="checkbox" checked={dett.isReferenteWN || false} onChange={(e) => handleCheckboxDettaglio(orgName, 'isReferenteWN', e.target.checked)} className="w-5 h-5 rounded text-cyan-600 focus:ring-cyan-500" />
+                                <span className="font-bold text-sm text-cyan-900">Abilita come Referente WN+ (Crea Utenze)</span>
+                              </label>
+                            </div>
+
+                            <div>
+                              <h5 className="font-bold mb-4 text-slate-800 flex items-center gap-2"><ShieldCheck size={20} className="text-emerald-500"/> Consensi GDPR ({orgName})</h5>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                  <label className="flex items-center gap-3 cursor-pointer mb-4">
+                                    <input type="checkbox" checked={dett.privacy || false} onChange={(e) => handleCheckboxDettaglio(orgName, 'privacy', e.target.checked)} className="w-5 h-5 rounded text-emerald-500 focus:ring-emerald-500" />
+                                    <span className="font-bold text-slate-800 text-sm">Privacy Policy Base</span>
+                                  </label>
+                                  <div className="h-24 overflow-y-auto bg-slate-50 border border-slate-100 rounded-xl p-3 text-[10px] font-mono text-slate-500 leading-relaxed custom-scrollbar">
+                                    {dett.privacyLog?.slice().reverse().map((log, i) => <div key={i} className="border-b border-slate-200/50 pb-1.5 mb-1.5 last:border-0">{log}</div>)}
+                                  </div>
+                                </div>
+                                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                  <label className="flex items-center gap-3 cursor-pointer mb-4">
+                                    <input type="checkbox" checked={dett.marketing || false} onChange={(e) => handleCheckboxDettaglio(orgName, 'marketing', e.target.checked)} className="w-5 h-5 rounded text-emerald-500 focus:ring-emerald-500" />
+                                    <span className="font-bold text-slate-800 text-sm">Comunicazioni Marketing</span>
+                                  </label>
+                                  <div className="h-24 overflow-y-auto bg-slate-50 border border-slate-100 rounded-xl p-3 text-[10px] font-mono text-slate-500 leading-relaxed custom-scrollbar">
+                                    {dett.marketingLog?.slice().reverse().map((log, i) => <div key={i} className="border-b border-slate-200/50 pb-1.5 mb-1.5 last:border-0">{log}</div>)}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-4 pt-8 border-t border-slate-100">
+              <button type="button" onClick={onClose} className={secondaryBtnStyle}>Annulla</button>
+              <button type="submit" className={primaryBtnStyle}>
+                <Save size={18} /> Salva Profilo Completo
+              </button>
+            </div>
+          </form>
+        </Modal>
+      );
+    };
+
+    // --- MODULO TEAM & COLLABORATORI ---
+    const StaffView = ({ data, onNew, onEdit, onDelete, openOrgModal }) => {
+      const staffMembers = useMemo(() => data.filter(c => c.isStaffWN || c.isCollaboratoreWN), [data]);
+      const { items: sortedData, requestSort, sortConfig } = useSortableData(staffMembers, { key: 'nominativo', direction: 'ascending' });
+
+      return (
+        <div className="space-y-6 max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input type="text" placeholder="Cerca nel team..." className="pl-11 pr-4 py-3 w-full border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none shadow-sm transition-all text-sm" />
+            </div>
+            <button onClick={onNew} className={primaryBtnStyle}>
+              <Plus size={18} strokeWidth={2.5}/> Registra Membro
+            </button>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50/50">
+                <tr>
+                  <SortableHeader label="Nominativo & Info" sortKey="nominativo" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Ruolo WN" sortKey="ruoloWN" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Organizzazioni (Aziende)" sortKey="orgsList" sortConfig={sortConfig} requestSort={requestSort} />
+                  <TableHeader><div className="text-right">Azioni</div></TableHeader>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedData.map(contact => (
+                  <tr key={contact.id} className="hover:bg-slate-50/80 transition-colors group border-b border-slate-50">
+                    <TableCell className="align-top">
+                      <span className="font-bold text-slate-800 text-base cursor-pointer group-hover:text-teal-600 transition-colors" onClick={() => onEdit(contact)}>
+                        {contact.nome} {contact.cognome}
+                      </span>
+                      <div className="text-xs text-slate-500 font-medium mt-2 flex flex-col gap-1.5">
+                        {contact.telefoni?.length > 0 ? (
+                          contact.telefoni.map((tel, idx) => <span key={idx} className="flex items-center gap-2"><Search size={12} className="text-slate-400"/> {tel}</span>)
+                        ) : (
+                          <span className="flex items-center gap-2 italic"><Search size={12} className="text-slate-300"/> Nessun telefono</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <div className="space-y-2">
+                        {contact.isStaffWN && <span className="bg-slate-800 text-white text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-lg inline-block">Team Interno</span>}
+                        {contact.isCollaboratoreWN && <span className="bg-teal-50 text-teal-700 border border-teal-100 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-lg inline-block">Collab. Esterno</span>}
+                        {contact.isCollaboratoreWN && contact.ruoloWN && <div className="text-xs font-semibold text-slate-600">{contact.ruoloWN}</div>}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top">
+                      <div className="space-y-3">
+                        {contact.orgs?.map(orgName => {
+                          const dett = contact.aziendeDettagli?.[orgName];
+                          return (
+                            <div key={orgName} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm hover:border-teal-200 transition-colors">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-bold text-slate-700 cursor-pointer hover:text-teal-600 transition-colors flex items-center gap-1.5" onClick={() => openOrgModal(orgName)}>
+                                  <Building2 size={14} className="text-slate-400"/> {orgName}
+                                </span>
+                                <div className="flex gap-1.5 items-center">
+                                   {dett?.isReferenteWN && <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-cyan-50 text-cyan-700 border border-cyan-200 tracking-wider" title="Referente WN+">WN+ REF</span>}
+                                   <ConsentBadge label="GDPR" hasConsent={dett?.privacy} />
+                                   <ConsentBadge label="Mktg" hasConsent={dett?.marketing} />
+                                </div>
+                              </div>
+                              <div className="text-xs text-slate-500 space-y-1">
+                                {dett?.emails?.map((e, idx) => <span key={idx} className="block font-medium">{e}</span>)}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top">
+                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => onEdit(contact)} className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-all" title="Modifica"><Edit size={18} /></button>
+                        <button onClick={() => onDelete(contact.id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="Elimina"><Trash2 size={18} /></button>
+                      </div>
+                    </TableCell>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    };
+
+    // --- MODULO LEAD ---
+    const LeadsView = ({ data, onNew, onEdit, onDelete, onConvert, organizations }) => {
+      const { items: sortedData, requestSort, sortConfig } = useSortableData(data, { key: 'azienda', direction: 'ascending' });
+
+      return (
+        <div className="space-y-6 max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <h3 className="text-xl font-bold text-slate-800">Pipeline Lead</h3>
+            <button onClick={onNew} className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-md transition-all active:scale-95">
+              <Plus size={18} strokeWidth={2.5}/> Inserisci Lead
+            </button>
+          </div>
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50/50">
+                <tr>
+                  <SortableHeader label="Azienda / Ente" sortKey="azienda" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Contatto" sortKey="nominativoLead" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Origine" sortKey="origine" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Status" sortKey="status" sortConfig={sortConfig} requestSort={requestSort} />
+                  <TableHeader><div className="text-right">Azioni</div></TableHeader>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedData.map(lead => (
+                  <tr key={lead.id} className="hover:bg-slate-50/80 transition-colors group">
+                    <TableCell className="font-bold text-slate-800">{lead.azienda}</TableCell>
+                    <TableCell>
+                      <div className="font-semibold text-slate-700">{lead.nome} {lead.cognome}</div>
+                      <div className="text-xs text-slate-500 mt-1 font-medium flex flex-col gap-0.5">
+                        <span>{lead.email}</span>
+                        {lead.telefono && <span><Search size={10} className="inline mr-1 text-slate-400"/>{lead.telefono}</span>}
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-2.5">
+                        <ConsentBadge label="GDPR" hasConsent={lead.privacy} />
+                        <ConsentBadge label="Mktg" hasConsent={lead.marketing} />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">{lead.origine}</span>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-lg font-bold border ${
+                        lead.status === 'Convertito' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                        lead.status === 'Perso' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                        'bg-orange-50 text-orange-700 border-orange-200'
+                      }`}>{lead.status}</span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => onConvert(lead)} className="p-2 text-teal-600 hover:text-white hover:bg-teal-500 rounded-xl transition-all shadow-sm border border-teal-100 flex items-center gap-1.5" title="Converti in Contatto/Azienda">
+                          <UserPlus size={16} /> <span className="text-xs font-bold uppercase tracking-wider pr-1">Converti</span>
+                        </button>
+                        <button onClick={() => onEdit(lead)} className="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-xl transition-colors" title="Modifica"><Edit size={18} /></button>
+                        <button onClick={() => onDelete(lead.id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors" title="Elimina"><Trash2 size={18} /></button>
+                      </div>
+                    </TableCell>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    };
+
+    const LeadFormModal = ({ isOpen, onClose, onSave, initialData, organizations }) => {
+      const [formData, setFormData] = useState({ 
+        azienda: '', nome: '', cognome: '', email: '', telefono: '', origine: '', status: 'Da contattare',
+        privacy: false, marketing: false, privacyLog: [], marketingLog: []
+      });
+
+      const [showSuggestions, setShowSuggestions] = useState(false);
+
+      useEffect(() => {
+        const defaultState = { 
+          azienda: '', nome: '', cognome: '', email: '', telefono: '', origine: '', status: 'Da contattare',
+          privacy: false, marketing: false, privacyLog: [], marketingLog: []
+        };
+        if (initialData) {
+          setFormData({ ...defaultState, ...initialData });
+        } else {
+          setFormData(defaultState);
+        }
+        setShowSuggestions(false);
+      }, [initialData, isOpen]);
+
+      const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
+      const handleCheckboxChange = (field, checked) => {
+        const now = new Date().toLocaleString('it-IT');
+        setFormData(prev => {
+          let newLog = [...(prev[`${field}Log`] || [])];
+          newLog.push(`Consenso ${checked ? 'acquisito' : 'revocato'} il ${now}`);
+          return { ...prev, [field]: checked, [`${field}Log`]: newLog };
+        });
+      };
+
+      const filteredOrgs = (organizations || []).filter(org => 
+        org.ragioneSociale.toLowerCase().includes((formData.azienda || '').toLowerCase()) &&
+        org.ragioneSociale.toLowerCase() !== (formData.azienda || '').toLowerCase()
+      );
+
+      return (
+        <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Dettaglio Lead" : "Nuovo Lead"}>
+          <form onSubmit={(e) => { e.preventDefault(); onSave(formData); }} className="space-y-6">
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-5">
+              <div className="relative">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Azienda / Ente *</label>
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input 
+                    required 
+                    type="text" 
+                    name="azienda" 
+                    value={formData.azienda || ''} 
+                    onChange={(e) => { handleChange(e); setShowSuggestions(true); }} 
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm shadow-sm outline-none" 
+                    autoComplete="off"
+                    placeholder="Cerca un'azienda esistente o inserisci una nuova..."
+                  />
+                </div>
+                {showSuggestions && formData.azienda && filteredOrgs.length > 0 && (
+                  <div className="absolute z-20 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                    {filteredOrgs.map(org => (
+                      <div 
+                        key={org.id} 
+                        className="p-3.5 border-b border-slate-50 hover:bg-orange-50 cursor-pointer transition-colors"
+                        onClick={() => { setFormData(prev => ({ ...prev, azienda: org.ragioneSociale })); setShowSuggestions(false); }}
+                      >
+                        <div className="font-bold text-slate-800">{org.ragioneSociale}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">{org.tipo}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome Referente</label>
+                  <input type="text" name="nome" value={formData.nome || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Cognome Referente</label>
+                  <input type="text" name="cognome" value={formData.cognome || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Contatto</label>
+                  <input type="email" name="email" value={formData.email || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Telefono</label>
+                  <input type="tel" name="telefono" value={formData.telefono || ''} onChange={handleChange} className={inputStyle} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Origine Acquisizione</label>
+                  <input type="text" name="origine" value={formData.origine || ''} onChange={handleChange} placeholder="Es: Fiera, Inbound, Sito web..." className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status Corrente *</label>
+                  <select required name="status" value={formData.status || ''} onChange={handleChange} className={inputStyle}>
+                    {LEAD_STATUS.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h5 className="font-bold mb-4 text-slate-800 flex items-center gap-2"><ShieldCheck size={20} className="text-emerald-500"/> Consensi Preliminari</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                  <label className="flex items-center gap-3 cursor-pointer mb-4">
+                    <input type="checkbox" checked={formData.privacy || false} onChange={(e) => handleCheckboxChange('privacy', e.target.checked)} className="w-5 h-5 rounded text-emerald-500 focus:ring-emerald-500" />
+                    <span className="font-bold text-slate-800 text-sm">Privacy Policy Base</span>
+                  </label>
+                  <div className="h-20 overflow-y-auto bg-slate-50 border border-slate-100 rounded-xl p-3 text-[10px] font-mono text-slate-500 leading-relaxed custom-scrollbar">
+                    {formData.privacyLog?.slice().reverse().map((log, i) => <div key={i} className="border-b border-slate-200/50 pb-1.5 mb-1.5 last:border-0">{log}</div>)}
+                  </div>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                  <label className="flex items-center gap-3 cursor-pointer mb-4">
+                    <input type="checkbox" checked={formData.marketing || false} onChange={(e) => handleCheckboxChange('marketing', e.target.checked)} className="w-5 h-5 rounded text-emerald-500 focus:ring-emerald-500" />
+                    <span className="font-bold text-slate-800 text-sm">Comunicazioni Marketing</span>
+                  </label>
+                  <div className="h-20 overflow-y-auto bg-slate-50 border border-slate-100 rounded-xl p-3 text-[10px] font-mono text-slate-500 leading-relaxed custom-scrollbar">
+                    {formData.marketingLog?.slice().reverse().map((log, i) => <div key={i} className="border-b border-slate-200/50 pb-1.5 mb-1.5 last:border-0">{log}</div>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+              <button type="button" onClick={onClose} className={secondaryBtnStyle}>Annulla</button>
+              <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-md transition-all active:scale-95">
+                <Save size={18} /> Salva Lead
+              </button>
+            </div>
+          </form>
+        </Modal>
+      );
+    };
+
+    // --- MODULO NEWSLETTER ---
+    const NewsletterView = ({ contacts, showToast, campaigns, setCampaigns }) => {
+      const [formData, setFormData] = useState({ list: '', subject: '', body: '', spotEmails: [] });
+      const { items: sortedCampaigns, requestSort, sortConfig } = useSortableData(campaigns, { key: 'id', direction: 'descending' });
+
+      const getAllEmails = (c) => {
+        let emails = [];
+        Object.values(c.aziendeDettagli || {}).forEach(dett => {
+          if (dett.emails) emails.push(...dett.emails.filter(e => e.trim() !== ''));
+        });
+        return [...new Set(emails)];
+      };
+
+      const handleSend = (e) => {
+        e.preventDefault();
+        if (!formData.list && (!formData.spotEmails || formData.spotEmails.length === 0)) {
+          showToast('Seleziona una lista o dei contatti spot.', 'error');
+          return;
+        }
+        
+        const newCampaign = {
+          id: Date.now(),
+          subject: formData.subject,
+          list: formData.list ? formData.list : `Contatti Specifici (${formData.spotEmails.length})`,
+          date: new Date().toLocaleString('it-IT'),
+          sent: Math.floor(Math.random() * 200) + 10,
+          opened: Math.floor(Math.random() * 80),
+          bounced: Math.floor(Math.random() * 5),
+          errors: Math.floor(Math.random() * 2),
+        };
+        
+        setCampaigns([newCampaign, ...campaigns]);
+        showToast('Campagna inviata con successo!', 'success');
+        setFormData({ list: '', subject: '', body: '', spotEmails: [] });
+      };
+
+      const handleSpotEmailToggle = (email) => {
+        setFormData(prev => {
+          const arr = prev.spotEmails || [];
+          return { ...prev, spotEmails: arr.includes(email) ? arr.filter(e => e !== email) : [...arr, email] };
+        });
+      };
+
+      return (
+        <div className="max-w-6xl mx-auto space-y-8">
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="p-8 border-b border-slate-50 flex items-center gap-5 bg-gradient-to-r from-teal-50 to-white">
+              <div className="bg-teal-500 text-white p-3 rounded-2xl shadow-md shadow-teal-500/20"><Mail size={26} strokeWidth={2}/></div>
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-800">Compositore Invio Newsletter</h3>
+                <p className="text-sm font-medium text-slate-500 mt-0.5">Gestisci e invia comunicazioni mirate al network</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSend} className="p-8 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Invia a Lista / Segmento</label>
+                  <select value={formData.list || ''} onChange={(e) => setFormData({...formData, list: e.target.value})} className={inputStyle}>
+                    <option value="">Nessuna lista predefinita...</option>
+                    <option value="community_wn">Community WN+ (Tutti i referenti attivi)</option>
+                    <option value="all_clients">Tutti i Clienti Attivi (Contatti Principali)</option>
+                    <option value="newsletter_subscribers">Iscritti Newsletter (Con Consenso Marketing)</option>
+                    <option value="prospects">Lista Prospect / Lead in lavorazione</option>
+                  </select>
+                  <div className="flex items-start gap-3 p-4 bg-teal-50/50 rounded-2xl border border-teal-100/50">
+                    <ShieldCheck size={18} className="text-teal-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-teal-800 leading-relaxed font-medium">
+                      Le liste dinamiche includono automaticamente solo i contatti che hanno il <strong>consenso Privacy/Marketing attivo</strong>.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Oppure: E-mail Singole</label>
+                  <div className="w-full h-44 overflow-y-auto border border-slate-200 rounded-2xl p-4 bg-slate-50/50 space-y-3 shadow-inner custom-scrollbar">
+                    {contacts.map(c => {
+                       const emails = getAllEmails(c);
+                       if (emails.length === 0) return null;
+                       return (
+                         <div key={c.id} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:border-teal-200 transition-colors">
+                           <span className="text-sm font-bold text-slate-800 block mb-2">{c.nome} {c.cognome}</span>
+                           <div className="space-y-2 pl-1">
+                             {emails.map(email => (
+                                <label key={email} className="flex items-center gap-3 cursor-pointer text-sm text-slate-600 hover:text-teal-700 transition-colors font-medium">
+                                  <input type="checkbox" checked={formData.spotEmails?.includes(email) || false} onChange={() => handleSpotEmailToggle(email)} className="rounded-md border-slate-300 text-teal-600 w-4 h-4 focus:ring-teal-500" />
+                                  {email}
+                                </label>
+                             ))}
+                           </div>
+                         </div>
+                       );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Oggetto Messaggio</label>
+                <input required type="text" value={formData.subject || ''} onChange={(e) => setFormData({...formData, subject: e.target.value})} className={inputStyle} />
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Contenuto (HTML)</label>
+                <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+                  <div className="bg-slate-50 border-b border-slate-100 p-3 flex items-center gap-3">
+                    <button type="button" className="p-2 text-slate-400 hover:bg-white hover:shadow-sm hover:text-teal-600 rounded-lg transition-all"><FileText size={18}/></button>
+                    <div className="w-px h-5 bg-slate-200 mx-1"></div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Editor Visuale Attivo</span>
+                  </div>
+                  <textarea required value={formData.body || ''} onChange={(e) => setFormData({...formData, body: e.target.value})} rows="8" className="w-full p-6 border-none focus:ring-0 resize-y outline-none text-slate-700 leading-relaxed font-medium bg-transparent" placeholder="Digita qui il contenuto del messaggio..."></textarea>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button type="submit" className={primaryBtnStyle}><Send size={18} /> Invia Ora</button>
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="p-6 md:p-8 border-b border-slate-50 flex items-center gap-4 bg-white">
+              <div className="bg-slate-100 text-slate-600 p-2.5 rounded-xl"><BarChart2 size={22}/></div>
+              <h3 className="text-lg font-bold text-slate-800">Storico e Statistiche</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50/50">
+                  <tr>
+                    <SortableHeader label="Campagna" sortKey="subject" sortConfig={sortConfig} requestSort={requestSort} />
+                    <SortableHeader label="Segmento" sortKey="list" sortConfig={sortConfig} requestSort={requestSort} />
+                    <SortableHeader label="Inviate" sortKey="sent" sortConfig={sortConfig} requestSort={requestSort} align="center" />
+                    <SortableHeader label="Aperte" sortKey="opened" sortConfig={sortConfig} requestSort={requestSort} align="center" />
+                    <SortableHeader label="Bounced" sortKey="bounced" sortConfig={sortConfig} requestSort={requestSort} align="center" />
+                    <SortableHeader label="Errori" sortKey="errors" sortConfig={sortConfig} requestSort={requestSort} align="center" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedCampaigns.map(camp => (
+                    <tr key={camp.id} className="hover:bg-slate-50 transition-colors border-b border-slate-50">
+                      <TableCell>
+                        <span className="font-bold text-slate-800 block mb-1">{camp.subject}</span>
+                        <span className="text-[11px] font-semibold text-slate-400">{camp.date}</span>
+                      </TableCell>
+                      <TableCell><span className="text-sm font-semibold text-slate-600">{camp.list}</span></TableCell>
+                      <TableCell className="text-center"><span className="bg-blue-50 text-blue-700 px-3.5 py-1.5 rounded-xl font-bold text-xs">{camp.sent}</span></TableCell>
+                      <TableCell className="text-center"><span className="bg-emerald-50 text-emerald-700 px-3.5 py-1.5 rounded-xl font-bold text-xs">{camp.opened}</span></TableCell>
+                      <TableCell className="text-center"><span className="text-orange-600 font-bold text-sm">{camp.bounced}</span></TableCell>
+                      <TableCell className="text-center"><span className={`${camp.errors > 0 ? 'text-rose-600 font-bold' : 'text-slate-300 font-medium'} text-sm`}>{camp.errors}</span></TableCell>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+
+    // --- MODULO REPORT & ESPORTAZIONI ---
+    const ReportView = ({ showToast }) => {
+      const [reportType, setReportType] = useState('contacts');
+      const [filters, setFilters] = useState({ tipoOrg: '', ruoloWN: '', consensoPrivacy: '' });
+
+      const handleDownload = (format) => showToast(`Report ${reportType === 'contacts' ? 'Contatti' : 'Organizzazioni'} in download (${format}).`, 'success');
+
+      return (
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="p-8 border-b border-slate-50 flex items-center gap-5 bg-gradient-to-r from-teal-50 to-white">
+              <div className="bg-teal-500 text-white p-3 rounded-2xl shadow-md shadow-teal-500/20"><Download size={26} strokeWidth={2}/></div>
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-800">Centro Estrazione Dati</h3>
+                <p className="text-sm font-medium text-slate-500 mt-0.5">Filtra e scarica i record in formati foglio di calcolo</p>
+              </div>
+            </div>
+
+            <div className="p-8 space-y-10">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Target di Esportazione</label>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button onClick={() => setReportType('contacts')} className={`flex-1 py-4 px-6 rounded-2xl border-2 font-bold transition-all flex justify-center items-center gap-3 ${reportType === 'contacts' ? 'border-teal-500 bg-teal-50 text-teal-800 shadow-sm' : 'border-slate-100 text-slate-400 hover:border-teal-200 hover:bg-slate-50'}`}>
+                    <Users size={22} strokeWidth={2.5}/> Rubrica Contatti
+                  </button>
+                  <button onClick={() => setReportType('organizations')} className={`flex-1 py-4 px-6 rounded-2xl border-2 font-bold transition-all flex justify-center items-center gap-3 ${reportType === 'organizations' ? 'border-teal-500 bg-teal-50 text-teal-800 shadow-sm' : 'border-slate-100 text-slate-400 hover:border-teal-200 hover:bg-slate-50'}`}>
+                    <Building2 size={22} strokeWidth={2.5}/> Anagrafica Aziendale
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-slate-50/50 p-6 md:p-8 rounded-3xl border border-slate-100 shadow-inner">
+                <h4 className="font-bold text-slate-700 mb-6 flex items-center gap-2"><Filter size={18} className="text-slate-400"/> Regole di Filtraggio</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {reportType === 'organizations' ? (
+                    <>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Settore Operativo</label>
+                        <select value={filters.tipoOrg} onChange={(e) => setFilters({...filters, tipoOrg: e.target.value})} className={inputStyle}>
+                          <option value="">Nessun filtro...</option>
+                          {ORG_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Relazione con WN</label>
+                        <select className={inputStyle}>
+                          <option value="">Tutti</option>
+                          <option value="clienti">Solo Clienti Attivi</option>
+                          <option value="prospect">Solo Prospect</option>
+                          <option value="fornitori">Solo Fornitori</option>
+                        </select>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Stato GDPR</label>
+                        <select value={filters.consensoPrivacy} onChange={(e) => setFilters({...filters, consensoPrivacy: e.target.value})} className={inputStyle}>
+                          <option value="">Nessun filtro...</option>
+                          <option value="privacy">Solo Privacy Accettata</option>
+                          <option value="marketing">Solo Consenso Marketing</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Qualifica Sistema WN</label>
+                        <select value={filters.ruoloWN} onChange={(e) => setFilters({...filters, ruoloWN: e.target.value})} className={inputStyle}>
+                          <option value="">Tutti i contatti</option>
+                          <option value="staff">Solo Team Interno WN</option>
+                          <option value="collab">Solo Collaboratori</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t border-slate-100">
+                <button onClick={() => handleDownload('Excel')} className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-xl flex items-center justify-center gap-3 font-bold transition-all shadow-md">
+                  <Download size={20} /> Excel (.xlsx)
+                </button>
+                <button onClick={() => handleDownload('CSV')} className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3.5 rounded-xl flex items-center justify-center gap-3 font-bold transition-all shadow-md">
+                  <Download size={20} /> CSV Grezzo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // --- MODULO IMPOSTAZIONI ---
+    const SettingsView = ({ settings, setSettings, showToast }) => {
+      const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+      const [editingUser, setEditingUser] = useState(null);
+      const { items: sortedUsers, requestSort, sortConfig } = useSortableData(settings.users, { key: 'nome', direction: 'ascending' });
+
+      const handleSaveUser = (user) => {
+        if (editingUser) {
+          setSettings({...settings, users: settings.users.map(u => u.id === user.id ? user : u)});
+          showToast('Account aggiornato');
+        } else {
+          setSettings({...settings, users: [...settings.users, { ...user, id: Date.now() }]});
+          showToast('Nuovo account creato');
+        }
+        setIsUserModalOpen(false);
+      };
+
+      return (
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="p-6 border-b border-slate-50 flex items-center gap-4 bg-white">
+              <div className="bg-slate-100 text-slate-600 p-2.5 rounded-xl"><Sliders size={22}/></div>
+              <h3 className="text-xl font-bold text-slate-800">Variabili Globali Sistema</h3>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); showToast('Preferenze globali salvate.', 'success'); }} className="p-8 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome Visibile Istanza</label>
+                  <input type="text" value={settings.systemName} onChange={(e) => setSettings({...settings, systemName: e.target.value})} className={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mittente Default Mailer</label>
+                  <input type="email" value={settings.defaultEmail} onChange={(e) => setSettings({...settings, defaultEmail: e.target.value})} className={inputStyle} />
+                </div>
+              </div>
+              <div className="flex justify-end border-t border-slate-100 pt-6">
+                <button type="submit" className={primaryBtnStyle}><Save size={18} /> Salva Configurazione</button>
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-white">
+              <div className="flex items-center gap-4">
+                <div className="bg-slate-100 text-slate-600 p-2.5 rounded-xl"><Users size={22}/></div>
+                <h3 className="text-xl font-bold text-slate-800">Controllo Accessi</h3>
+              </div>
+              <button onClick={() => { setEditingUser(null); setIsUserModalOpen(true); }} className="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-md transition-all">
+                <Plus size={16} /> Nuovo Operatore
+              </button>
+            </div>
+            <table className="w-full text-left">
+              <thead className="bg-slate-50/50">
+                <tr>
+                  <SortableHeader label="Profilo" sortKey="nome" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Credenziale" sortKey="email" sortConfig={sortConfig} requestSort={requestSort} />
+                  <SortableHeader label="Permessi" sortKey="ruolo" sortConfig={sortConfig} requestSort={requestSort} />
+                  <TableHeader><div className="text-right">Gestione</div></TableHeader>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedUsers.map(u => (
+                  <tr key={u.id} className="hover:bg-slate-50/80 transition-colors border-b border-slate-50">
+                    <TableCell className="font-bold text-slate-800 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-slate-100 flex justify-center items-center text-slate-500"><UserCircle size={20}/></div>
+                      {u.nome}
+                    </TableCell>
+                    <TableCell><span className="font-medium text-slate-500">{u.email}</span></TableCell>
+                    <TableCell><span className={`px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider font-bold ${u.ruolo === 'Amministratore' ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>{u.ruolo}</span></TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => { setEditingUser(u); setIsUserModalOpen(true); }} className="p-2 bg-white text-slate-400 border border-slate-200 hover:text-teal-600 hover:border-teal-200 rounded-xl"><Edit size={16}/></button>
+                        <button onClick={() => { setSettings({...settings, users: settings.users.filter(usr => usr.id !== u.id)}); showToast('Account revocato'); }} className="p-2 bg-white text-slate-400 border border-slate-200 hover:text-rose-600 hover:border-rose-200 rounded-xl"><Trash2 size={16}/></button>
+                      </div>
+                    </TableCell>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <Modal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} title={editingUser ? "Configura Operatore" : "Nuovo Operatore"}>
+            <form onSubmit={(e) => { e.preventDefault(); handleSaveUser({nome: e.target.nome.value, email: e.target.email.value, ruolo: e.target.ruolo.value, id: editingUser?.id || Date.now()}); }} className="space-y-6">
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome e Cognome *</label>
+                  <input required type="text" name="nome" defaultValue={editingUser?.nome || ''} className={inputStyle} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email *</label>
+                    <input required type="email" name="email" defaultValue={editingUser?.email || ''} className={inputStyle}/>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Privilegi *</label>
+                    <select required name="ruolo" defaultValue={editingUser?.ruolo || 'Editor'} className={inputStyle}>
+                      <option value="Editor">Editor (Gestione Dati base)</option>
+                      <option value="Amministratore">Root Admin (Tutti i permessi)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <button type="button" onClick={() => setIsUserModalOpen(false)} className={secondaryBtnStyle}>Annulla</button>
+                <button type="submit" className={primaryBtnStyle}><Save size={18} /> Salva</button>
+              </div>
+            </form>
+          </Modal>
+        </div>
+      );
+    };
+
+    // --- MODULO CESTINO ---
+    const TrashView = ({ trash, setTrash, setOrganizations, setContacts, setLeads, showToast }) => {
+      const { items: sortedTrash, requestSort, sortConfig } = useSortableData(trash, { key: 'deletedAt', direction: 'descending' });
+
+      const handleRestore = (item) => {
+        if (item.type === 'Organizzazione') setOrganizations(prev => [...prev, item.data]);
+        else if (item.type === 'Contatto') setContacts(prev => [...prev, item.data]);
+        else if (item.type === 'Lead') setLeads(prev => [...prev, item.data]);
+        
+        setTrash(prev => prev.filter(t => t.trashId !== item.trashId));
+        showToast(`${item.name} ripristinato con successo`, 'success');
+      };
+
+      return (
+        <div className="max-w-6xl mx-auto space-y-8">
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-gradient-to-r from-rose-50 to-white">
+              <div className="flex items-center gap-5">
+                <div className="bg-rose-500 text-white p-3 rounded-2xl shadow-md shadow-rose-500/20"><Trash2 size={26} strokeWidth={2}/></div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-slate-800">Cestino di Sistema</h3>
+                  <p className="text-sm font-medium text-slate-500 mt-0.5">Recupera o elimina in modo permanente gli elementi rimossi</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => { setTrash([]); showToast('Cestino svuotato in modo permanente', 'error'); }} 
+                disabled={trash.length === 0}
+                className={`px-5 py-2.5 rounded-xl font-semibold transition-all shadow-sm flex items-center gap-2 ${trash.length === 0 ? 'bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed' : 'bg-white border border-rose-200 text-rose-600 hover:bg-rose-50'}`}
+              >
+                <Trash2 size={18} /> Svuota Cestino
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50/50">
+                  <tr>
+                    <SortableHeader label="Nome / Identificativo" sortKey="name" sortConfig={sortConfig} requestSort={requestSort} />
+                    <SortableHeader label="Tipologia" sortKey="type" sortConfig={sortConfig} requestSort={requestSort} />
+                    <SortableHeader label="Data Eliminazione" sortKey="deletedAt" sortConfig={sortConfig} requestSort={requestSort} />
+                    <TableHeader><div className="text-right">Azioni</div></TableHeader>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedTrash.map(item => (
+                    <tr key={item.trashId} className="hover:bg-slate-50/80 transition-colors border-b border-slate-50 group">
+                      <TableCell><span className="font-bold text-slate-800">{item.name}</span></TableCell>
+                      <TableCell>
+                        <span className={`px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider font-bold ${item.type === 'Organizzazione' ? 'bg-blue-50 text-blue-700 border border-blue-100' : item.type === 'Contatto' ? 'bg-teal-50 text-teal-700 border border-teal-100' : 'bg-orange-50 text-orange-700 border border-orange-100'}`}>
+                          {item.type}
+                        </span>
+                      </TableCell>
+                      <TableCell><span className="text-xs font-semibold text-slate-500">{item.deletedAt}</span></TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => handleRestore(item)} className="px-3 py-2 text-teal-600 hover:text-white hover:bg-teal-500 rounded-xl transition-all border border-teal-100 flex items-center gap-1.5 shadow-sm" title="Ripristina">
+                            <RefreshCw size={16} /> <span className="text-[10px] uppercase tracking-wider font-bold pr-1">Ripristina</span>
+                          </button>
+                          <button onClick={() => { setTrash(prev => prev.filter(t => t.trashId !== item.trashId)); showToast('Elemento eliminato', 'error'); }} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all shadow-sm">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </TableCell>
+                    </tr>
+                  ))}
+                  {trash.length === 0 && (
+                    <tr>
+                      <td colSpan="4" className="p-16 text-center">
+                        <div className="flex flex-col items-center justify-center text-slate-400">
+                          <ShieldCheck size={48} className="mb-4 opacity-50" />
+                          <p className="text-lg font-bold text-slate-600">Il cestino è vuoto</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Rendering dell'app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
