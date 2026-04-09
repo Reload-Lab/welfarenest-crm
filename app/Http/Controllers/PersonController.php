@@ -6,10 +6,36 @@ use App\Models\Department;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Qualification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PersonController extends Controller
 {
+    public function search(Request $request): JsonResponse
+    {
+        $term = trim((string) $request->input('q', ''));
+
+        $people = Person::query()
+            ->when($term !== '', function ($query) use ($term) {
+                $query->where(function ($q) use ($term) {
+                    $q->where('first_name', 'like', "%{$term}%")
+                        ->orWhere('last_name', 'like', "%{$term}%")
+                        ->orWhereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) like ?", ["%{$term}%"]);
+                });
+            })
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->limit(10)
+            ->get(['id', 'first_name', 'last_name'])
+            ->map(fn (Person $person) => [
+                'id' => $person->id,
+                'text' => $person->full_name ?: ('#' . $person->id),
+            ])
+            ->values();
+
+        return response()->json($people);
+    }
+
     public function index(Request $request)
     {
         $search = trim((string) $request->input('search', ''));

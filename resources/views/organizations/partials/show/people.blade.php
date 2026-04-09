@@ -104,8 +104,7 @@
                     'relation' => null, // 🔥 QUESTO È IL FIX
                     'relationContext' => 'organization',
                     'selectedOrganization' => $organization,
-                    'selectedPerson' => null,
-                    'people' => $people,
+                    'selectedPerson' => $selectedPerson,
                     'qualifications' => $qualifications,
                     'departments' => $departments,
                 ])

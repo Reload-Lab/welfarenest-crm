@@ -63,17 +63,18 @@
             <select
                 name="person_id"
                 id="person_id"
-                class="form-select @error('person_id') is-invalid @enderror"
+                class="form-select js-person-search @error('person_id') is-invalid @enderror"
+                data-search-url="{{ route('people.search') }}"
+                data-placeholder="Cerca persona..."
+                data-selected-id="{{ $selectedPersonId }}"
+                data-selected-label="{{ $selectedPerson?->full_name ?: ($selectedPersonId ? ('#' . $selectedPersonId) : '') }}"
             >
                 <option value="">Seleziona...</option>
-                @foreach($people as $item)
-                    <option
-                        value="{{ $item->id }}"
-                        {{ (string) $selectedPersonId === (string) $item->id ? 'selected' : '' }}
-                    >
-                        {{ $item->full_name ?: ('#' . $item->id) }}
+                @if($selectedPersonId)
+                    <option value="{{ $selectedPersonId }}" selected>
+                        {{ $selectedPerson?->full_name ?: ('#' . $selectedPersonId) }}
                     </option>
-                @endforeach
+                @endif
             </select>
 
             @error('person_id')

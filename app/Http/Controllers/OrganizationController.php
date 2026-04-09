@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class OrganizationController extends Controller
 {
 
-    public function show(Organization $organization)
+    public function show(Request $request, Organization $organization)
     {
         $organization->load([
             'organizationType',
@@ -30,10 +30,11 @@ class OrganizationController extends Controller
             // 'notes.author',
         ]);
 
-        $people = Person::query()
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
+        $selectedPerson = null;
+
+        if ($personId = $request->old('person_id')) {
+            $selectedPerson = Person::query()->find($personId);
+        }
 
         $qualifications = Qualification::query()
             ->where('is_active', true)
@@ -49,7 +50,7 @@ class OrganizationController extends Controller
 
         return view('organizations.show', compact(
             'organization',
-            'people',
+            'selectedPerson',
             'qualifications',
             'departments'
         ));

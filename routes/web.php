@@ -14,14 +14,14 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    
-Route::middleware(['auth'])->group(function () {
-    Route::resource('organizations', OrganizationController::class);
-    Route::resource('people', PersonController::class)->except(['destroy']);
-    Route::post('people/{person}/relations', [PersonOrganizationRelationController::class, 'store'])->name('people.relations.store');
-    Route::post('organizations/{organization}/relations', [PersonOrganizationRelationController::class, 'storeFromOrganization'])->name('organizations.relations.store');
-    Route::put('people/{person}/relations/{relation}', [PersonOrganizationRelationController::class, 'update'])->name('people.relations.update');
-});
+    Route::middleware(['auth'])->group(function () {
+        Route::resource('organizations', OrganizationController::class);
+        Route::get('people/search', [PersonController::class, 'search'])->name('people.search');
+        Route::resource('people', PersonController::class)->except(['destroy']);
+        Route::post('people/{person}/relations', [PersonOrganizationRelationController::class, 'store'])->name('people.relations.store');
+        Route::post('organizations/{organization}/relations', [PersonOrganizationRelationController::class, 'storeFromOrganization'])->name('organizations.relations.store');
+        Route::put('people/{person}/relations/{relation}', [PersonOrganizationRelationController::class, 'update'])->name('people.relations.update');
+    });
 
     Route::get('/organizations/{organization}', [OrganizationController::class, 'show'])->name('organizations.show');
     Route::get('/organizations', [OrganizationController::class, 'index'])->name('organizations.index');

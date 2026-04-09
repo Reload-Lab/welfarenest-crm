@@ -185,6 +185,10 @@ body {
     margin-bottom: 0;
 }
 
+.ts-dropdown {
+    z-index: 2000 !important;
+}
+
 @media (max-width: 991.98px) {
     .crm-sidebar {
         transform: translateX(-100%);
@@ -222,3 +226,4 @@ body {
         display: block;
     }
 }
+
