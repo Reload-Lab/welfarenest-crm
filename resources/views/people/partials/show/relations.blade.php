@@ -1,8 +1,4 @@
 <div class="card border-0 shadow-sm h-100">
-    @php
-        $editingRelation = $person->organizationRelations->firstWhere('id', (int) request('edit_relation'));
-        $shouldOpenRelationModal = $editingRelation || $errors->any();
-    @endphp
 
     <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
         <h3 class="h5 mb-0">Relazioni con organizzazioni</h3>
@@ -16,6 +12,42 @@
             Nuova relazione
         </button>
     </div>
+
+    @foreach($person->organizationRelations as $relation)
+    <div
+        class="modal fade"
+        id="editRelationModal-{{ $relation->id }}"
+        tabindex="-1"
+        aria-labelledby="editRelationModalLabel-{{ $relation->id }}"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <div>
+                        <h4 class="modal-title h5 mb-1" id="editRelationModalLabel-{{ $relation->id }}">
+                            Modifica relazione
+                        </h4>
+                        <p class="text-muted small mb-0">
+                            Aggiorna organizzazione, qualifica, dipartimento, periodo e stato della relazione.
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+
+                <div class="modal-body">
+                    @include('people.partials.show.relation-form', [
+                        'person' => $person,
+                        'relation' => $relation,
+                        'organizations' => $organizations,
+                        'qualifications' => $qualifications,
+                        'departments' => $departments,
+                    ])
+                </div>
+            </div>
+        </div>
+    </div>
+    @endforeach
 
     <div class="card-body p-4 d-flex flex-column gap-4">
         @if($person->organizationRelations->isEmpty())
@@ -67,12 +99,15 @@
                                     </div>
                                 </td>
                                 <td class="text-end">
-                                    <a
-                                        href="{{ route('people.show', ['person' => $person, 'edit_relation' => $relation->id]) }}"
+                                    <button
+                                        type="button"
                                         class="btn btn-sm btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editRelationModal-{{ $relation->id }}"
+                                        onclick="event.preventDefault(); event.stopPropagation();"
                                     >
                                         Modifica
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -95,7 +130,7 @@
             <div class="modal-header">
                 <div>
                     <h4 class="modal-title h5 mb-1" id="personRelationModalLabel">
-                        {{ $editingRelation ? 'Modifica relazione' : 'Nuova relazione' }}
+                        Nuova relazione
                     </h4>
                     <p class="text-muted small mb-0">
                         Collega la persona a un'organizzazione con qualifica, dipartimento, periodo e stato.
@@ -107,7 +142,7 @@
             <div class="modal-body">
                 @include('people.partials.show.relation-form', [
                     'person' => $person,
-                    'relation' => $editingRelation,
+                    'relation' => null,
                     'organizations' => $organizations,
                     'qualifications' => $qualifications,
                     'departments' => $departments,
@@ -117,16 +152,4 @@
     </div>
 </div>
 
-@if($shouldOpenRelationModal)
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var modalElement = document.getElementById('personRelationModal');
 
-            if (!modalElement || typeof bootstrap === 'undefined') {
-                return;
-            }
-
-            bootstrap.Modal.getOrCreateInstance(modalElement).show();
-        });
-    </script>
-@endif

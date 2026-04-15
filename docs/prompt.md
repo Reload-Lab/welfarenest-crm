@@ -1,0 +1,51 @@
+***************************************************************************
+PROMPT PER GENERAZIONE ICONE SU CODEX
+
+
+Sto lavorando a un progetto Laravel 12 + Blade + Bootstrap 5 con un sistema centralizzato di icone SVG inline.
+
+Nel progetto esistono già:
+- componente Blade <x-icon>
+- file config/icons.php
+- file Blade SVG sotto resources/views/components/icons/...
+
+Voglio che tu intervenga SOLO su un sottoinsieme di icone, senza rigenerare tutto il sistema.
+
+Obiettivo:
+- analizzare le icone che ti indico
+- sostituire o migliorare solo quelle
+- mantenere invariata l’architettura esistente
+- non toccare le view applicative, salvo esplicita richiesta
+- non introdurre npm, package o build step
+
+Regole:
+- mantieni SVG inline
+- usa stroke="currentColor"
+- mantieni coerenza con il set principale già presente nel progetto
+- non rigenerare file già buoni
+- modifica solo i file che elenco oppure quelli strettamente necessari
+- se un’icona attuale è semanticamente debole o visivamente incoerente, sostituiscila con una più adatta
+- se non esiste una corrispondenza perfetta, scegli il miglior compromesso e segnalamelo
+
+Formato SVG desiderato:
+- viewBox="0 0 24 24"
+- fill="none"
+- stroke="currentColor"
+- stroke-width="2"
+- stroke-linecap="round"
+- stroke-linejoin="round"
+
+Elenco icone da rivedere:
+- [QUI INCOLLO L’ELENCO, es. status.success, navigation.settings, entities.supplier]
+
+Cosa devi fare:
+1. leggere i file esistenti relativi alle icone indicate
+2. sostituire solo quelle problematiche
+3. aggiornare config/icons.php solo se necessario
+4. non modificare le altre icone
+
+Output atteso:
+- elenco file modificati
+- breve nota sul perché hai cambiato ciascuna icona
+- contenuto finale dei file SVG modificati
+- eventuali compromessi semantici adottati

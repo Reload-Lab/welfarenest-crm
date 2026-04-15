@@ -1,6 +1,7 @@
 <div class="card border-0 shadow-sm">
     @php
-        $shouldOpenRelationModal = $errors->any();
+        $editingRelationId = (int) old('relation_id');
+        $shouldOpenCreateRelationModal = $errors->any() && ! $editingRelationId;
     @endphp
 
     <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
@@ -34,6 +35,7 @@
                             <th>Dipartimento</th>
                             <th>Periodo</th>
                             <th>Stato</th>
+                            <th class="text-end">Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,6 +71,17 @@
                                         <span class="badge text-bg-secondary">Non attiva</span>
                                     @endif
                                 </td>
+                                <td class="text-end">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editRelationModal-{{ $relation->id }}"
+                                        onclick="event.preventDefault(); event.stopPropagation();"
+                                    >
+                                        Modifica
+                                    </button>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -101,23 +114,60 @@
 
             <div class="modal-body">
                 @include('people.partials.show.relation-form', [
-                    'relation' => null, // 🔥 QUESTO È IL FIX
+                    'relation' => null,
                     'relationContext' => 'organization',
                     'selectedOrganization' => $organization,
                     'selectedPerson' => $selectedPerson,
                     'qualifications' => $qualifications,
                     'departments' => $departments,
                 ])
-
             </div>
         </div>
     </div>
 </div>
 
-@if($shouldOpenRelationModal)
+@foreach($organization->personOrganizationRelations as $relation)
+    <div
+        class="modal fade"
+        id="editRelationModal-{{ $relation->id }}"
+        tabindex="-1"
+        aria-labelledby="editRelationModalLabel-{{ $relation->id }}"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <div>
+                        <h4 class="modal-title h5 mb-1" id="editRelationModalLabel-{{ $relation->id }}">
+                            Modifica relazione
+                        </h4>
+                        <p class="text-muted small mb-0">
+                            Aggiorna qualifica, dipartimento, periodo e stato della relazione.
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+
+                <div class="modal-body">
+                    @include('people.partials.show.relation-form', [
+                        'relation' => $relation,
+                        'relationContext' => 'organization',
+                        'selectedOrganization' => $organization,
+                        'selectedPerson' => $relation->person,
+                        'qualifications' => $qualifications,
+                        'departments' => $departments,
+                    ])
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
+
+@if($shouldOpenCreateRelationModal || $editingRelationId)
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var modalElement = document.getElementById('organizationRelationModal');
+            var modalId = @json($editingRelationId ? 'editRelationModal-' . $editingRelationId : 'organizationRelationModal');
+            var modalElement = document.getElementById(modalId);
 
             if (!modalElement || typeof bootstrap === 'undefined') {
                 return;

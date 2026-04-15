@@ -1,5 +1,6 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'tailwindcss';
+@import './components/sidebar.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -185,8 +186,23 @@ body {
     margin-bottom: 0;
 }
 
-.ts-dropdown {
+.modal .ts-dropdown {
     z-index: 2000 !important;
+}
+
+.ts-dropdown {
+    width: 100% !important;
+}
+
+.icon {
+    display: inline-flex;
+    line-height: 1;
+}
+
+.icon svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
 }
 
 @media (max-width: 991.98px) {
@@ -226,4 +242,3 @@ body {
         display: block;
     }
 }
-

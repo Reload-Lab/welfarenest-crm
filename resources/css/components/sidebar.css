@@ -1,0 +1,101 @@
+/* ========================================
+   SIDEBAR CRM
+======================================== */
+
+.crm-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sidebar-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 0.75rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 44px;
+    padding: 0.75rem 0.875rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+}
+
+.sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    text-decoration: none;
+}
+
+.sidebar-link.active {
+    background-color: rgba(255, 255, 255, 0.14);
+}
+
+.sidebar-link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.sidebar-link-icon .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.sidebar-link-icon .icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    display: block;
+}
+
+.sidebar-link-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.sidebar-link-text small {
+    margin-top: 0.2rem;
+    line-height: 1.2;
+}
+
+.sidebar-brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.sidebar-brand-text {
+    line-height: 1;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+}
+
+.sidebar-footer-text {
+    line-height: 1.3;
+}

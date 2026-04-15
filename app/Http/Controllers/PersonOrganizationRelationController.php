@@ -51,6 +51,29 @@ class PersonOrganizationRelationController extends Controller
             ->with('success', 'Relazione aggiornata con successo.');
     }
 
+    public function updateFromOrganization(Request $request, Organization $organization, PersonOrganizationRelation $relation)
+    {
+        $person = Person::query()
+            ->whereKey($request->validate([
+                'person_id' => ['required', 'exists:people,id'],
+            ])['person_id'])
+            ->firstOrFail();
+
+        abort_unless(
+            $relation->organization_id === $organization->id
+            && $relation->person_id === $person->id,
+            404
+        );
+
+        $validated = $this->validateRelation($request, $person, $organization);
+
+        $relation->update($validated);
+
+        return redirect()
+            ->to($this->redirectUrl($request, $person, $organization->id))
+            ->with('success', 'Relazione aggiornata con successo.');
+    }
+
     protected function validateRelation(Request $request, Person $person, ?Organization $organization = null): array
     {
         $organizationIdRules = ['required', 'exists:organizations,id'];

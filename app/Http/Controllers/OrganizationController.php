@@ -7,10 +7,33 @@ use App\Models\Organization;
 use App\Models\OrganizationType;
 use App\Models\Person;
 use App\Models\Qualification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
 {
+    public function search(Request $request): JsonResponse
+    {
+        $term = trim((string) $request->input('q', ''));
+
+        $organizations = Organization::query()
+            ->when($term !== '', function ($query) use ($term) {
+                $query->where(function ($q) use ($term) {
+                    $q->where('name', 'like', "%{$term}%")
+                        ->orWhere('legal_name', 'like', "%{$term}%");
+                });
+            })
+            ->orderByRaw('COALESCE(name, legal_name)')
+            ->limit(10)
+            ->get(['id', 'name', 'legal_name'])
+            ->map(fn (Organization $organization) => [
+                'id' => $organization->id,
+                'text' => $organization->name ?: $organization->legal_name ?: ('#' . $organization->id),
+            ])
+            ->values();
+
+        return response()->json($organizations);
+    }
 
     public function show(Request $request, Organization $organization)
     {

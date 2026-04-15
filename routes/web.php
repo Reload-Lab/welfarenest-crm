@@ -15,12 +15,14 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     Route::middleware(['auth'])->group(function () {
+        Route::get('organizations/search', [OrganizationController::class, 'search'])->name('organizations.search');
         Route::resource('organizations', OrganizationController::class);
         Route::get('people/search', [PersonController::class, 'search'])->name('people.search');
         Route::resource('people', PersonController::class)->except(['destroy']);
         Route::post('people/{person}/relations', [PersonOrganizationRelationController::class, 'store'])->name('people.relations.store');
         Route::post('organizations/{organization}/relations', [PersonOrganizationRelationController::class, 'storeFromOrganization'])->name('organizations.relations.store');
         Route::put('people/{person}/relations/{relation}', [PersonOrganizationRelationController::class, 'update'])->name('people.relations.update');
+        Route::put('organizations/{organization}/relations/{relation}', [PersonOrganizationRelationController::class, 'updateFromOrganization'])->name('organizations.relations.update');
     });
 
     Route::get('/organizations/{organization}', [OrganizationController::class, 'show'])->name('organizations.show');
@@ -31,3 +33,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/organizations/{organization}', [OrganizationController::class, 'update'])->name('organizations.update');
     Route::delete('/organizations/{organization}', [OrganizationController::class, 'destroy'])->name('organizations.destroy');
 });
+
+
+//DEV
+Route::middleware(['auth'])->get('/dev/icons', function () {
+    $icons = config('icons');
+    return view('dev.icons.index', compact('icons'));
+})->name('dev.icons');

@@ -3,49 +3,57 @@
         [
             'label' => 'Dashboard',
             'route' => 'dashboard',
-            'icon' => '⌂',
+            'icon_group' => 'navigation',
+            'icon_name' => 'dashboard',
             'patterns' => ['dashboard'],
         ],
         [
             'label' => 'Clienti',
             'route' => 'organizations.index',
-            'icon' => '◫',
+            'icon_group' => 'entities',
+            'icon_name' => 'client',
             'patterns' => ['organizations.*'],
         ],
         [
             'label' => 'Fornitori',
             'route' => null,
-            'icon' => '▣',
+            'icon_group' => 'entities',
+            'icon_name' => 'supplier',
             'patterns' => [],
         ],
         [
             'label' => 'Persone',
             'route' => 'people.index',
-            'icon' => '◌',
+            'icon_group' => 'entities',
+            'icon_name' => 'person',
             'patterns' => ['people.*'],
         ],
         [
             'label' => 'Lead',
             'route' => null,
-            'icon' => '◎',
+            'icon_group' => 'entities',
+            'icon_name' => 'lead',
             'patterns' => [],
         ],
         [
             'label' => 'Invio Newsletter',
             'route' => null,
-            'icon' => '✉',
+            'icon_group' => 'contact',
+            'icon_name' => 'email',
             'patterns' => [],
         ],
         [
             'label' => 'Esportazioni',
             'route' => null,
-            'icon' => '⇩',
+            'icon_group' => 'navigation',
+            'icon_name' => 'reports',
             'patterns' => [],
         ],
         [
             'label' => 'Impostazioni',
             'route' => null,
-            'icon' => '⚙',
+            'icon_group' => 'navigation',
+            'icon_name' => 'settings',
             'patterns' => [],
         ],
     ];
@@ -85,7 +93,9 @@
                     href="{{ route($item['route']) }}"
                     class="sidebar-link {{ $active ? 'active' : '' }}"
                 >
-                    <span class="sidebar-link-icon">{{ $item['icon'] }}</span>
+                    <span class="sidebar-link-icon">
+                        <x-icon :group="$item['icon_group']" :name="$item['icon_name']" />
+                    </span>
                     <span class="sidebar-link-text">{{ $item['label'] }}</span>
                 </a>
             @else
@@ -95,7 +105,9 @@
                     onclick="return false;"
                     style="opacity: .70;"
                 >
-                    <span class="sidebar-link-icon">{{ $item['icon'] }}</span>
+                    <span class="sidebar-link-icon">
+                        <x-icon :group="$item['icon_group']" :name="$item['icon_name']" />
+                    </span>
                     <span class="sidebar-link-text">
                         {{ $item['label'] }}
                         <small class="d-block text-white-50">Presto disponibile</small>

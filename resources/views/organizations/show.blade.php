@@ -16,6 +16,11 @@
                         </li>
                         <li class="breadcrumb-item">
                             <a href="{{ route('organizations.index') }}">Organizzazioni</a>
+
+<x-icon group="actions" name="edit" />
+<x-icon group="actions" name="delete" class="text-danger fs-5" />
+<x-icon group="entities" name="organization" class="text-primary fs-4" />
+
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
                             {{ $organization->name ?: $organization->legal_name ?: 'Scheda organizzazione' }}
