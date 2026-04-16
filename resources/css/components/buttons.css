@@ -1,0 +1,27 @@
+.btn-icon {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: .5rem;
+    background-color: transparent;
+    color: var(--bs-secondary-color);
+    transition: all .15s ease-in-out;
+}
+
+.btn-icon:hover,
+.btn-icon:focus {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-emphasis-color);
+}
+
+.btn-icon-danger:hover,
+.btn-icon-danger:focus {
+    color: var(--bs-danger);
+    background-color: rgba(var(--bs-danger-rgb), .08);
+    border-color: rgba(var(--bs-danger-rgb), .2);
+}

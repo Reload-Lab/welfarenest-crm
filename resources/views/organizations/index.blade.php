@@ -13,8 +13,11 @@
         </div>
 
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('organizations.create') }}" class="btn btn-primary">
-                Nuovo cliente
+            
+            <a href="{{ route('organizations.create') }}"
+            class="btn btn-primary d-inline-flex align-items-center gap-2">
+                <x-icon group="actions" name="create" />
+                <span>Nuova Organizzazione</span>
             </a>
         </div>
     </div>
@@ -64,12 +67,15 @@
 
                     <div class="col-12 col-md-4 col-lg-3">
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                Filtra
+                            <button type="submit" class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-2">
+                                <x-icon group="actions" name="filter" />
+                                <span>Filtra</span>
                             </button>
 
-                            <a href="{{ route('organizations.index') }}" class="btn btn-outline-secondary">
-                                Reset
+                            <a href="{{ route('organizations.index') }}"
+                            class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2">
+                                <x-icon group="actions" name="reset" />
+                                <span>Reset</span>
                             </a>
                         </div>
                     </div>
@@ -97,7 +103,7 @@
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
-                        <tr>
+                        <tr class="crm-table-row-actions">
                             <th class="ps-4">
                                 @include('organizations.partials.sortable-th', ['label' => 'Nome', 'field' => 'name'])
                             </th>
@@ -122,7 +128,8 @@
                             <tr>
                                 <td class="ps-4">
                                     <div class="fw-semibold text-dark">
-                                        <a href="{{ route('organizations.show', $organization) }}" class="text-decoration-none fw-semibold">
+                                        <a href="{{ route('organizations.show', $organization) }}"
+                                        class="crm-entity-link">
                                             {{ $organization->name ?: $organization->legal_name }}
                                         </a>
                                     </div>
@@ -158,33 +165,50 @@
                                     @endif
                                 </td>
 
+
                                 <td class="text-end pe-4">
-                                    <div class="d-inline-flex gap-2">
-                                        <a href="{{ route('organizations.edit', $organization) }}" class="btn btn-sm btn-outline-primary">
-                                            Modifica
+                                    <div class="crm-row-actions d-inline-flex align-items-center gap-1">
+                                        <a href="{{ route('organizations.show', $organization) }}"
+                                        class="btn btn-icon"
+                                        title="Apri"
+                                        aria-label="Apri">
+                                            <x-icon group="actions" name="view" />
+                                        </a>
+
+                                        <a href="{{ route('organizations.edit', $organization) }}"
+                                        class="btn btn-icon"
+                                        title="Modifica"
+                                        aria-label="Modifica">
+                                            <x-icon group="actions" name="edit" />
                                         </a>
 
                                         <form
                                             action="{{ route('organizations.destroy', $organization) }}"
                                             method="POST"
+                                            class="d-inline"
                                             onsubmit="return confirm('Confermi l\'eliminazione di questo cliente?')"
                                         >
                                             @csrf
                                             @method('DELETE')
 
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                Elimina
+                                            <button type="submit"
+                                                    class="btn btn-icon btn-icon-danger"
+                                                    title="Elimina"
+                                                    aria-label="Elimina">
+                                                <x-icon group="actions" name="delete" />
                                             </button>
                                         </form>
                                     </div>
                                 </td>
+
+
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center py-5">
                                     <div class="text-muted mb-2">Nessun cliente trovato</div>
                                     <a href="{{ route('organizations.create') }}" class="btn btn-primary btn-sm">
-                                        Crea il primo cliente
+                                        Crea la prima organizzazione
                                     </a>
                                 </td>
                             </tr>

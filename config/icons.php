@@ -12,6 +12,12 @@ return [
         'filter' => 'icons.actions.filter',
         'more'   => 'icons.actions.more',
         'close'  => 'icons.actions.close',
+        'reset'  => 'icons.actions.reset',
+        'sidebar-collapse' => 'icons.actions.sidebar-collapse',
+        'sidebar-expand' => 'icons.actions.sidebar-expand',
+        'sidebar-toggle' => 'icons.actions.sidebar-toggle',
+        'chevron-right' => 'icons.actions.chevron-right',
+        'chevron-left' => 'icons.actions.chevron-left',
     ],
 
     'entities' => [

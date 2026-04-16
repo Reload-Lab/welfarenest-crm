@@ -1,0 +1,26 @@
+.crm-entity-link {
+    color: var(--bs-emphasis-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color .15s ease-in-out;
+}
+
+.crm-entity-link:hover,
+.crm-entity-link:focus {
+    color: var(--bs-primary);
+    text-decoration: none;
+}
+
+.crm-table-row-actions .crm-row-actions {
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity .18s ease, transform .18s ease;
+    pointer-events: none;
+}
+
+.crm-table-row-actions:hover .crm-row-actions,
+.crm-table-row-actions:focus-within .crm-row-actions {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}

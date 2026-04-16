@@ -69,16 +69,37 @@
 @endphp
 
 <aside class="crm-sidebar">
+
     <div class="sidebar-brand">
         <a href="{{ route('dashboard') }}" class="sidebar-brand-link">
-            <span class="sidebar-brand-logo">R</span>
-            <span class="sidebar-brand-text">Reload CRM</span>
+            <span class="sidebar-brand-logo">
+                <img
+                    src="{{ asset('images/logo-wn-pittogramma.png') }}"
+                    alt="Welfare Nest"
+                    class="sidebar-logo-icon"
+                >
+            </span>
+
+            <span class="sidebar-brand-text">
+                <img
+                    src="{{ asset('images/logo-wn.png') }}"
+                    alt="Welfare Nest"
+                    class="sidebar-logo-full"
+                >
+            </span>
         </a>
 
-        <button type="button" class="sidebar-toggle-btn d-none d-lg-inline-flex" id="sidebarToggleDesktop" aria-label="Comprimi menu">
-            ☰
+        <button
+            type="button"
+            class="sidebar-toggle-btn d-none d-lg-inline-flex"
+            id="sidebarToggleDesktop"
+            aria-label="Comprimi o espandi menu"
+        >
+            <x-icon group="actions" name="chevron-left" class="sidebar-toggle-icon" />
         </button>
+
     </div>
+
 
     <nav class="sidebar-nav">
         <div class="sidebar-section-title">CRM</div>
