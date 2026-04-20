@@ -1,27 +1,175 @@
+/* =========================================================
+   CRM BUTTONS
+   ========================================================= */
+
+:root {
+    --crm-primary: #0E354D;
+    --crm-primary-hover: #12425f;
+    --crm-primary-active: #0b2d42;
+    --crm-primary-soft: rgba(14, 53, 77, 0.08);
+    --crm-primary-border: rgba(14, 53, 77, 0.16);
+
+    --crm-btn-radius: 0.875rem;
+    --crm-btn-shadow: 0 6px 18px rgba(14, 53, 77, 0.10);
+    --crm-btn-shadow-hover: 0 10px 24px rgba(14, 53, 77, 0.16);
+}
+
+/* Base comune */
+.btn {
+    --bs-btn-border-radius: var(--crm-btn-radius);
+    font-weight: 600;
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+}
+
+.btn:focus-visible {
+    box-shadow: 0 0 0 .22rem rgba(14, 53, 77, 0.16);
+}
+
+/* Primary */
+.btn-primary {
+    --bs-btn-bg: var(--crm-primary);
+    --bs-btn-border-color: var(--crm-primary);
+    --bs-btn-hover-bg: var(--crm-primary-hover);
+    --bs-btn-hover-border-color: var(--crm-primary-hover);
+    --bs-btn-active-bg: var(--crm-primary-active);
+    --bs-btn-active-border-color: var(--crm-primary-active);
+    --bs-btn-disabled-bg: var(--crm-primary);
+    --bs-btn-disabled-border-color: var(--crm-primary);
+
+    box-shadow: var(--crm-btn-shadow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--crm-btn-shadow-hover);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Outline secondary */
+.btn-outline-secondary {
+    --bs-btn-color: #475569;
+    --bs-btn-border-color: rgba(15, 23, 42, 0.12);
+    --bs-btn-hover-color: var(--crm-primary);
+    --bs-btn-hover-bg: #fff;
+    --bs-btn-hover-border-color: rgba(14, 53, 77, 0.22);
+    --bs-btn-active-color: var(--crm-primary);
+    --bs-btn-active-bg: rgba(14, 53, 77, 0.04);
+    --bs-btn-active-border-color: rgba(14, 53, 77, 0.22);
+
+    background-color: #fff;
+}
+
+.btn-outline-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+/* Light utility button, se in futuro ti serve */
+.btn-light {
+    --bs-btn-bg: #fff;
+    --bs-btn-border-color: rgba(15, 23, 42, 0.08);
+    --bs-btn-hover-bg: #f8fafc;
+    --bs-btn-hover-border-color: rgba(15, 23, 42, 0.12);
+
+    color: #334155;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+/* Bottoni con icona + testo */
+.btn.d-inline-flex,
+.btn.inline-flex {
+    align-items: center;
+    gap: .5rem;
+}
+
+.btn .icon,
+.btn svg {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+}
+
+/* Dimensione più elegante per i bottoni principali */
+.btn-primary,
+.btn-outline-secondary,
+.btn-light {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+}
+
+/* ---------------------------------------------------------
+   ICON BUTTONS
+   --------------------------------------------------------- */
+
 .btn-icon {
-    width: 2rem;
-    height: 2rem;
+    width: 2.125rem;
+    height: 2.125rem;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 1px solid transparent;
-    border-radius: .5rem;
+    border-radius: .75rem;
     background-color: transparent;
     color: var(--bs-secondary-color);
-    transition: all .15s ease-in-out;
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
 }
 
 .btn-icon:hover,
-.btn-icon:focus {
-    background-color: var(--bs-tertiary-bg);
-    border-color: var(--bs-border-color);
-    color: var(--bs-emphasis-color);
+.btn-icon:focus-visible {
+    background-color: var(--crm-primary-soft);
+    border-color: var(--crm-primary-border);
+    color: var(--crm-primary);
+    box-shadow: 0 4px 10px rgba(14, 53, 77, 0.08);
+    transform: translateY(-1px);
+}
+
+.btn-icon .icon,
+.btn-icon svg {
+    width: 1rem;
+    height: 1rem;
 }
 
 .btn-icon-danger:hover,
-.btn-icon-danger:focus {
+.btn-icon-danger:focus-visible {
     color: var(--bs-danger);
     background-color: rgba(var(--bs-danger-rgb), .08);
-    border-color: rgba(var(--bs-danger-rgb), .2);
+    border-color: rgba(var(--bs-danger-rgb), .18);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.10);
+}
+
+/* ---------------------------------------------------------
+   SMALL BUTTONS
+   --------------------------------------------------------- */
+
+.btn-sm {
+    --bs-btn-border-radius: .75rem;
+    font-weight: 600;
+}
+
+
+.btn-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-inline .icon,
+.btn-inline svg {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
 }

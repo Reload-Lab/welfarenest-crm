@@ -4,6 +4,7 @@ return [
 
     'actions' => [
         'create' => 'icons.actions.create',
+        'add'    => 'icons.actions.add',
         'edit'   => 'icons.actions.edit',
         'delete' => 'icons.actions.delete',
         'view'   => 'icons.actions.view',
@@ -18,6 +19,10 @@ return [
         'sidebar-toggle' => 'icons.actions.sidebar-toggle',
         'chevron-right' => 'icons.actions.chevron-right',
         'chevron-left' => 'icons.actions.chevron-left',
+        'chevron-down' => 'icons.actions.chevron-down', 
+        'chevron-up' => 'icons.actions.chevron-up',
+        'sort' => 'icons.actions.sort',
+        'logout' => 'icons.actions.logout',
     ],
 
     'entities' => [
@@ -68,6 +73,7 @@ return [
         'reports'       => 'icons.navigation.reports',
         'settings'      => 'icons.navigation.settings',
         'trash'         => 'icons.navigation.trash',
+        'menu'          => 'icons.navigation.menu',
     ],
 
 ];

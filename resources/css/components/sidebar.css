@@ -22,8 +22,8 @@
     box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04);
 
     transition:
-        width 0.25s ease,
-        transform 0.25s ease;
+        width 0.75s ease,
+        transform 0.75s ease;
 }
 
 /* Brand */
@@ -83,42 +83,6 @@
 }
 
 
-/* Toggle Button */
-.sidebar-toggle-btn {
-    border: 0;
-    background: transparent;
-    color: #64748b;
-    padding: 0.55rem 0.7rem;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    line-height: 1;
-    transition: background-color 0.18s ease, color 0.18s ease;
-}
-
-.sidebar-toggle-btn:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-}
-
-.sidebar-toggle-icon {
-    display: inline-flex;
-    transition: transform 0.25s ease;
-}
-
-.sidebar-toggle-icon {
-    --icon-size: 1.65rem;
-    display: inline-flex;
-    transition: transform 0.25s ease;
-}
-
-.crm-app.sidebar-collapsed .sidebar-toggle-icon {
-    transform: rotate(180deg);
-}
-
-
 
 
 /* Navigation */
@@ -174,9 +138,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.25rem;
-    min-width: 1.25rem;
-    height: 1.25rem;
+    width: 1.6rem;
+    min-width: 1.6rem;
+    height: 1.6rem;
     flex-shrink: 0;
     line-height: 1;
     color: #94a3b8;
@@ -281,12 +245,6 @@
     padding-right: 0.75rem;
 }
 
-.crm-app.sidebar-collapsed .sidebar-toggle-btn {
-    position: absolute;
-    top: 50%;
-    right: 0.35rem;
-    transform: translateY(-50%);
-}
 
 .crm-app.sidebar-collapsed .sidebar-nav {
     padding-left: 0.75rem;
@@ -331,4 +289,56 @@
         justify-content: flex-start;
         flex: 1;
     }
+}
+
+
+/* Toggle nel footer */
+.sidebar-footer {
+    margin-top: auto;
+    padding: 0;
+    border-top: 1px solid #f1f5f9;
+    color: #64748b;
+    font-size: 0.9rem;
+    background: #ffffff;
+}
+
+.sidebar-footer-toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0;
+}
+
+.sidebar-toggle-btn {
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+    border-left: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #64748b;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 4px 0 0 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background-color 0.18s ease, color 0.75s ease, border-color 0.18s ease;
+    box-shadow: none;
+}
+
+.sidebar-toggle-btn:hover {
+    background: #f8fafc;
+    border-top-color: #cbd5e1;
+    border-left-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.sidebar-toggle-btn .icon {
+    --icon-size: 2.2rem;
+    display: inline-flex;
+    transition: transform 0.25s ease;
+}
+
+.crm-app.sidebar-collapsed .sidebar-toggle-btn .icon {
+    transform: rotate(180deg);
 }

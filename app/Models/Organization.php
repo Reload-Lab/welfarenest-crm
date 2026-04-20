@@ -42,5 +42,17 @@ class Organization extends Model
         return $this->hasMany(PersonOrganizationRelation::class);
     }
 
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->name ?: $this->legal_name ?: 'Organizzazione';
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar_path
+            ? asset('storage/' . $this->avatar_path)
+            : null;
+    }
+
 }
 

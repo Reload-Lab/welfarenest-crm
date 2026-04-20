@@ -13,10 +13,14 @@
         </div>
 
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('people.create') }}" class="btn btn-primary">
-                Nuova persona
-            </a>
+            <x-crm.button
+                href="{{ route('people.create') }}"
+                icon="add"
+            >
+                Nuova Persona
+            </x-crm.button>
         </div>
+
     </div>
 @endsection
 
@@ -55,12 +59,18 @@
 
                     <div class="col-12 col-md-8 col-lg-3">
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                Filtra
-                            </button>
 
-                            <a href="{{ route('people.index') }}" class="btn btn-outline-secondary">
-                                Reset
+                            <x-crm.button 
+                                type="submit"
+                                icon="filter"
+                            >
+                                Filtra
+                            </x-crm.button>
+
+
+                            <a href="{{ route('people.index') }}" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2">
+                                <x-icon group="actions" name="reset" />
+                                <span>Reset</span>
                             </a>
                         </div>
                     </div>
@@ -72,68 +82,111 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+    <div class="crm-table-card">
+        <div class="crm-table-card__header">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                 <div>
-                    <h2 class="h5 mb-1">Anagrafiche persone</h2>
-                    <p class="text-muted mb-0 small">
+                    <h2 class="crm-table-card__title">Anagrafiche persone</h2>
+                    <p class="crm-table-card__subtitle">
                         {{ $people->total() }} risultati trovati
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="card-body p-0 pt-3">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">Nome</th>
-                            <th>Cognome</th>
-                            <th>Relazioni</th>
-                            <th class="text-end pe-4">Azioni</th>
-                        </tr>
-                    </thead>
+        <div class="crm-table-responsive">
+            <table class="table crm-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="crm-cell-start">
+                            @include('components.crm.sortable-th', [
+                                'label' => 'Nome',
+                                'field' => 'first_name',
+                                'defaultSort' => 'last_name',
+                            ])
+                        </th>
 
-                    <tbody>
-                        @forelse($people as $person)
-                            <tr>
-                                <td class="ps-4">{{ $person->first_name ?: '—' }}</td>
-                                <td>
-                                    <a href="{{ route('people.show', $person) }}" class="text-decoration-none fw-semibold">
-                                        {{ $person->last_name ?: '—' }}
-                                    </a>
-                                </td>
-                                <td>
-                                    <span class="text-muted">
-                                        {{ $person->organization_relations_count ?? '—' }}
+                        <th>
+                            @include('components.crm.sortable-th', [
+                                'label' => 'Cognome',
+                                'field' => 'last_name',
+                                'defaultSort' => 'last_name',
+                            ])
+                        </th>
+
+                        <th>
+                            @include('components.crm.sortable-th', [
+                                'label' => 'Relazioni',
+                                'field' => 'organization_relations_count',
+                                'defaultSort' => 'last_name',
+                            ])
+                        </th>
+
+                        <th class="text-end crm-cell-end">Azioni</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse($people as $person)
+                        <tr class="crm-table__row">
+                            <td class="crm-cell-start">
+                                <div class="d-flex align-items-center gap-2">
+                                    <x-crm.avatar
+                                        :name="$person->display_name"
+                                        :image="$person->avatar_url"
+                                        type="person"
+                                        size="sm"
+                                    />
+
+                                    <span class="text-truncate">
+                                        {{ $person->first_name }}
                                     </span>
-                                </td>
-                                <td class="text-end pe-4">
-                                    <div class="d-inline-flex gap-2">
-                                        <a href="{{ route('people.show', $person) }}" class="btn btn-sm btn-outline-secondary">
-                                            Apri
-                                        </a>
-                                        <a href="{{ route('people.edit', $person) }}" class="btn btn-sm btn-outline-primary">
-                                            Modifica
+                                </div>
+                            </td>
+
+                            <td>
+                                <a href="{{ route('people.show', $person) }}"
+                                   class="crm-entity-link">
+                                    {{ $person->last_name ?: '—' }}
+                                </a>
+                            </td>
+
+                            <td>
+                                <span class="crm-text-muted">
+                                    {{ $person->organization_relations_count ?? 0 }}
+                                </span>
+                            </td>
+
+                            <td class="text-end crm-cell-end">
+                                <x-crm.row-actions
+                                    :view="route('people.show', $person)"
+                                    :edit="route('people.edit', $person)"
+                                />
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="p-0">
+                                <div class="crm-empty-state">
+                                    <div class="crm-empty-state__icon">
+                                        <x-icon group="actions" name="search" />
+                                    </div>
+                                    <h3 class="crm-empty-state__title">Nessuna persona trovata</h3>
+                                    <p class="crm-empty-state__text">
+                                        Non ci sono persone da mostrare con i filtri correnti.
+                                    </p>
+
+                                    <div class="mt-3">
+                                        <a href="{{ route('people.create') }}" class="btn btn-primary btn-sm">
+                                            Crea la prima persona
                                         </a>
                                     </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="text-center py-5">
-                                    <div class="text-muted mb-2">Nessuna persona trovata</div>
-                                    <a href="{{ route('people.create') }}" class="btn btn-primary btn-sm">
-                                        Crea la prima persona
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
         @if($people->hasPages())

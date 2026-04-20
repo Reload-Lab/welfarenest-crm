@@ -1,9 +1,11 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'tailwindcss';
 @import './components/sidebar.css';
+@import './components/topbar.css';
 @import './components/icons.css';
 @import './components/buttons.css';
 @import './components/tables.css';
+@import './components/avatar.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -45,14 +47,7 @@ body {
 }
 
 
-.crm-topbar {
-    height: var(--crm-topbar-height);
-    background: #fff;
-    border-bottom: 1px solid var(--crm-border);
-    position: sticky;
-    top: 0;
-    z-index: 1020;
-}
+
 
 .crm-content {
     padding: 24px;

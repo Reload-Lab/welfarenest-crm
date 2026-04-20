@@ -28,4 +28,17 @@ class Person extends Model
             $this->last_name,
         ])->filter()->implode(' '));
     }
+
+    public function getDisplayNameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar_path
+            ? asset('storage/' . $this->avatar_path)
+            : null;
+    }
+
 }

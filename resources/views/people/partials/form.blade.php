@@ -44,9 +44,12 @@
             </a>
 
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">
+                <x-crm.button 
+                    type="submit"
+                    icon="save"
+                >
                     {{ $submitLabel }}
-                </button>
+                </x-crm.button>
             </div>
         </div>
     </div>

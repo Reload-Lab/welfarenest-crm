@@ -1,0 +1,184 @@
+
+.crm-topbar {
+    height: var(--crm-topbar-height);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid #eaeef4;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    padding: 0 1.5rem;
+}
+
+.crm-topbar-left,
+.crm-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.crm-topbar-heading {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.crm-topbar-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #0f172a;
+}
+
+.crm-topbar-subtitle {
+    margin: 0.2rem 0 0;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    color: #64748b;
+}
+
+.crm-topbar-menu-btn {
+    width: 42px;
+    height: 42px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #475569;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.crm-topbar-menu-btn:hover {
+    background: #f8fafc;
+    color: #0f172a;
+    border-color: #cbd5e1;
+}
+
+.crm-topbar-menu-btn .icon {
+    --icon-size: 1.2rem;
+}
+
+.crm-topbar-user {
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #334155;
+    border-radius: 999px;
+    padding: 0.45rem 0.85rem;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.crm-topbar-user:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.crm-topbar-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #e6f4f1;
+    color: #0f766e;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+}
+
+.crm-topbar-user-avatar .icon {
+    --icon-size: 0.95rem;
+}
+
+.crm-topbar-user-text {
+    white-space: nowrap;
+}
+
+.crm-topbar-user {
+    cursor: pointer;
+}
+
+.crm-topbar-user::after {
+    margin-left: 0.35rem;
+}
+
+.crm-topbar-dropdown {
+    min-width: 220px;
+    border-radius: 14px;
+    padding: 0.5rem;
+    margin-top: 0.6rem;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+}
+
+.crm-topbar-dropdown .dropdown-item {
+    border-radius: 10px;
+    padding: 0.65rem 0.8rem;
+    font-size: 0.925rem;
+    color: #334155;
+}
+
+.crm-topbar-dropdown .dropdown-item:hover,
+.crm-topbar-dropdown .dropdown-item:focus {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.crm-topbar-dropdown .dropdown-divider {
+    margin: 0.4rem 0;
+}
+
+
+
+@media (max-width: 991.98px) {
+    .crm-topbar {
+        padding: 0 1rem;
+        height: 64px;
+    }
+
+    .crm-topbar-title {
+        font-size: 1.05rem;
+    }
+
+    .crm-topbar-subtitle {
+        display: none;
+    }
+
+    .crm-topbar-user-text {
+        display: none;
+    }
+
+    .crm-topbar-user {
+        padding: 0.45rem;
+        border-radius: 12px;
+    }
+
+    .crm-topbar-user::after {
+        display: none;
+    }
+
+}

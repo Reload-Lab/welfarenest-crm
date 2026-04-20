@@ -1,33 +1,24 @@
 @extends('layouts.app')
 
-@section('topbar_title', 'Clienti')
-@section('topbar_subtitle', 'Gestione anagrafiche clienti')
-
-@section('pageHeader')
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-        <div>
-            <h1 class="crm-page-title">Clienti</h1>
-            <p class="crm-page-subtitle mb-0">
-                Elenco, ricerca e gestione delle organizzazioni registrate
-            </p>
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-            
-            <a href="{{ route('organizations.create') }}"
-            class="btn btn-primary d-inline-flex align-items-center gap-2">
-                <x-icon group="actions" name="create" />
-                <span>Nuova Organizzazione</span>
-            </a>
-        </div>
-    </div>
-@endsection
 
 @section('content')
+<div class="container-fluid py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">Organizzazioni</h1>
+            <p class="text-muted mb-0">Gestione anagrafiche clienti e organizzazioni</p>
+        </div>
+
+        <a href="{{ route('organizations.create') }}"
+           class="btn btn-primary d-inline-flex align-items-center gap-2">
+            <x-icon group="actions" name="add" />
+            <span>Nuova organizzazione</span>
+        </a>
+    </div>
+
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+        <div class="alert alert-success border-0 shadow-sm" role="alert">
             {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
         </div>
     @endif
 
@@ -35,16 +26,14 @@
         <div class="card-body">
             <form method="GET" action="{{ route('organizations.index') }}">
                 <div class="row g-3 align-items-end">
-                    <div class="col-12 col-lg-5">
-                        <label for="search" class="form-label fw-semibold">Ricerca</label>
-                        <input
-                            type="text"
-                            name="search"
-                            id="search"
-                            class="form-control"
-                            placeholder="Nome, ragione sociale, P.IVA, codice fiscale"
-                            value="{{ $search }}"
-                        >
+                    <div class="col-12 col-lg-4">
+                        <label for="search" class="form-label fw-semibold">Cerca</label>
+                        <input type="text"
+                               name="search"
+                               id="search"
+                               value="{{ $search }}"
+                               class="form-control"
+                               placeholder="Nome, ragione sociale, P.IVA, codice fiscale...">
                     </div>
 
                     <div class="col-12 col-md-4 col-lg-2">
@@ -65,15 +54,16 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-4 col-lg-3">
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-2">
+                    <div class="col-12 col-md-4 col-lg-4">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit"
+                                    class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2">
                                 <x-icon group="actions" name="filter" />
                                 <span>Filtra</span>
                             </button>
 
                             <a href="{{ route('organizations.index') }}"
-                            class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2">
+                               class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2">
                                 <x-icon group="actions" name="reset" />
                                 <span>Reset</span>
                             </a>
@@ -87,135 +77,145 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+    <div class="crm-table-card">
+        <div class="crm-table-card__header">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                 <div>
-                    <h2 class="h5 mb-1">Anagrafiche clienti</h2>
-                    <p class="text-muted mb-0 small">
+                    <h2 class="crm-table-card__title">Anagrafiche clienti</h2>
+                    <p class="crm-table-card__subtitle">
                         {{ $organizations->total() }} risultati trovati
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="card-body p-0 pt-3">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr class="crm-table-row-actions">
-                            <th class="ps-4">
-                                @include('organizations.partials.sortable-th', ['label' => 'Nome', 'field' => 'name'])
-                            </th>
-                            <th>
-                                @include('organizations.partials.sortable-th', ['label' => 'Ragione sociale', 'field' => 'legal_name'])
-                            </th>
-                            <th>
-                                @include('organizations.partials.sortable-th', ['label' => 'P.IVA', 'field' => 'vat_number'])
-                            </th>
-                            <th>
-                                @include('organizations.partials.sortable-th', ['label' => 'Codice fiscale', 'field' => 'tax_code'])
-                            </th>
-                            <th>
-                                @include('organizations.partials.sortable-th', ['label' => 'Stato', 'field' => 'is_active'])
-                            </th>
-                            <th class="text-end pe-4">Azioni</th>
+        <div class="crm-table-responsive">
+            <table class="table crm-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="crm-cell-start">
+                            @include('components.crm.sortable-th', [
+                            
+                                'label' => 'Nome',
+                                'field' => 'name'
+                            ])
+                        </th>
+
+                        <th>
+                            @include('components.crm.sortable-th', [
+                                'label' => 'Ragione sociale',
+                                'field' => 'legal_name'
+                            ])
+                        </th>
+
+                        <th>
+                            @include('components.crm.sortable-th', [
+                                'label' => 'P.IVA',
+                                'field' => 'vat_number'
+                            ])
+                        </th>
+
+                        <th>
+                            @include('components.crm.sortable-th', [
+                                'label' => 'Codice fiscale',
+                                'field' => 'tax_code'
+                            ])
+                        </th>
+
+                        <th>
+                            @include('components.crm.sortable-th', [
+                                'label' => 'Stato',
+                                'field' => 'is_active'
+                            ])
+                        </th>
+
+                        <th class="text-end crm-cell-end">Azioni</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse($organizations as $organization)
+                        <tr class="crm-table__row">
+                            <td class="crm-cell-start">
+                                <div class="d-flex align-items-center gap-3">
+                                    <x-crm.avatar
+                                        :name="$organization->display_name"
+                                        :image="$organization->avatar_url"
+                                        type="organization"
+                                        size="sm"
+                                    />
+
+                                    <div class="min-w-0">
+                                        <a href="{{ route('organizations.show', $organization) }}"
+                                        class="crm-entity-link d-inline-block text-truncate">
+                                            {{ $organization->display_name }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="crm-text-muted">
+                                    {{ $organization->legal_name ?: '—' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="crm-text-muted">
+                                    {{ $organization->vat_number ?: '—' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="crm-text-muted">
+                                    {{ $organization->tax_code ?: '—' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                @if($organization->is_active)
+                                    <span class="crm-badge crm-badge--success">
+                                        Attivo
+                                    </span>
+                                @else
+                                    <span class="crm-badge crm-badge--muted">
+                                        Non attivo
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td class="text-end crm-cell-end">
+                                <x-crm.row-actions
+                                    :view="route('organizations.show', $organization)"
+                                    :edit="route('organizations.edit', $organization)"
+                                    :delete="route('organizations.destroy', $organization)"
+                                    delete-confirm="Confermi l'eliminazione di questa organizzazione?"
+                                />
+                            </td>
                         </tr>
-                    </thead>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-0">
+                                <div class="crm-empty-state">
+                                    <div class="crm-empty-state__icon">
+                                        <x-icon group="actions" name="search" />
+                                    </div>
+                                    <h3 class="crm-empty-state__title">Nessun cliente trovato</h3>
+                                    <p class="crm-empty-state__text">
+                                        Non ci sono organizzazioni da mostrare con i filtri correnti.
+                                    </p>
 
-                    <tbody>
-                        @forelse($organizations as $organization)
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="fw-semibold text-dark">
-                                        <a href="{{ route('organizations.show', $organization) }}"
-                                        class="crm-entity-link">
-                                            {{ $organization->name ?: $organization->legal_name }}
+                                    <div class="mt-3">
+                                        <a href="{{ route('organizations.create') }}" class="btn btn-primary btn-sm">
+                                            Crea la prima organizzazione
                                         </a>
                                     </div>
-                                </td>
-
-                                <td>
-                                    <div class="text-dark">
-                                        {{ $organization->legal_name ?: '—' }}
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <span class="text-muted">
-                                        {{ $organization->vat_number ?: '—' }}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <span class="text-muted">
-                                        {{ $organization->tax_code ?: '—' }}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    @if($organization->is_active)
-                                        <span class="badge rounded-pill text-bg-success">
-                                            Attivo
-                                        </span>
-                                    @else
-                                        <span class="badge rounded-pill text-bg-secondary">
-                                            Non attivo
-                                        </span>
-                                    @endif
-                                </td>
-
-
-                                <td class="text-end pe-4">
-                                    <div class="crm-row-actions d-inline-flex align-items-center gap-1">
-                                        <a href="{{ route('organizations.show', $organization) }}"
-                                        class="btn btn-icon"
-                                        title="Apri"
-                                        aria-label="Apri">
-                                            <x-icon group="actions" name="view" />
-                                        </a>
-
-                                        <a href="{{ route('organizations.edit', $organization) }}"
-                                        class="btn btn-icon"
-                                        title="Modifica"
-                                        aria-label="Modifica">
-                                            <x-icon group="actions" name="edit" />
-                                        </a>
-
-                                        <form
-                                            action="{{ route('organizations.destroy', $organization) }}"
-                                            method="POST"
-                                            class="d-inline"
-                                            onsubmit="return confirm('Confermi l\'eliminazione di questo cliente?')"
-                                        >
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-icon btn-icon-danger"
-                                                    title="Elimina"
-                                                    aria-label="Elimina">
-                                                <x-icon group="actions" name="delete" />
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-
-
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-5">
-                                    <div class="text-muted mb-2">Nessun cliente trovato</div>
-                                    <a href="{{ route('organizations.create') }}" class="btn btn-primary btn-sm">
-                                        Crea la prima organizzazione
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
         @if($organizations->hasPages())
@@ -224,4 +224,5 @@
             </div>
         @endif
     </div>
+</div>
 @endsection

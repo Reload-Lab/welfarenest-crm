@@ -88,21 +88,10 @@
                 >
             </span>
         </a>
-
-        <button
-            type="button"
-            class="sidebar-toggle-btn d-none d-lg-inline-flex"
-            id="sidebarToggleDesktop"
-            aria-label="Comprimi o espandi menu"
-        >
-            <x-icon group="actions" name="chevron-left" class="sidebar-toggle-icon" />
-        </button>
-
     </div>
 
 
     <nav class="sidebar-nav">
-        <div class="sidebar-section-title">CRM</div>
 
         @foreach($menuItems as $item)
             @php
@@ -142,6 +131,17 @@
         <div class="sidebar-footer-text">
             <div class="fw-semibold text-white">Reload CRM</div>
             <div>Versione iniziale</div>
+        </div>
+
+        <div class="sidebar-footer-toggle">
+            <button
+                type="button"
+                class="sidebar-toggle-btn"
+                id="sidebarToggleDesktop"
+                aria-label="Comprimi o espandi menu"
+            >
+                <x-icon group="actions" name="chevron-left" class="sidebar-toggle-icon" />
+            </button>
         </div>
     </div>
 </aside>
