@@ -130,3 +130,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.js-person-search').forEach(initPersonSearchSelect);
     document.querySelectorAll('.js-organization-search').forEach(initOrganizationSearchSelect);
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const setupFilterToggle = (buttonId, panelId) => {
+        const toggleBtn = document.getElementById(buttonId);
+        const panel = document.getElementById(panelId);
+
+        if (!toggleBtn || !panel) return;
+
+        toggleBtn.addEventListener('click', () => {
+            panel.classList.toggle('d-none');
+
+            const expanded = !panel.classList.contains('d-none');
+            toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        });
+    };
+
+    setupFilterToggle('toggleOrganizationFilters', 'organizationAdvancedFilters');
+    setupFilterToggle('togglePeopleFilters', 'peopleAdvancedFilters');
+});

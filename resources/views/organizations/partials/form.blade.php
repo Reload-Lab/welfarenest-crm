@@ -136,6 +136,54 @@
                 </div>
             </div>
         </div>
+
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body p-4">
+                <h2 class="h6 mb-3">Ruolo organizzazione</h2>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                name="roles[]"
+                                id="role_client"
+                                value="client"
+                                {{ in_array('client', old('roles', isset($organization) ? $organization->organizationRoles->pluck('code')->all() : []), true) ? 'checked' : '' }}
+                            >
+                            <label class="form-check-label fw-semibold" for="role_client">
+                                Cliente
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                name="roles[]"
+                                id="role_supplier"
+                                value="supplier"
+                                {{ in_array('supplier', old('roles', isset($organization) ? $organization->organizationRoles->pluck('code')->all() : []), true) ? 'checked' : '' }}
+                            >
+                            <label class="form-check-label fw-semibold" for="role_supplier">
+                                Fornitore
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                @error('roles')
+                    <div class="text-danger small mt-2">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        
     </div>
 
     <div class="card-footer bg-white border-0 px-4 py-3">

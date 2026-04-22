@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Department;
 use App\Models\Organization;
 use App\Models\OrganizationType;
+use App\Models\OrganizationRole;
 use App\Models\Person;
 use App\Models\Qualification;
+use App\Models\ContactType;
+use App\Models\ContactUsage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -35,51 +38,86 @@ class OrganizationController extends Controller
         return response()->json($organizations);
     }
 
-    public function show(Request $request, Organization $organization)
+public function show(Request $request, Organization $organization)
+{
+    $organization->load([
+        'organizationType',
+        'personOrganizationRelations' => function ($query) {
+            $query->with([
+                'person',
+                'qualification',
+                'department',
+            ])->orderByDesc('is_active')
+              ->orderBy('id');
+        },
+        'contactPoints' => function ($query) {
+            $query->with([
+                'contactType',
+                'contactUsage',
+            ])->orderByDesc('is_primary')
+              ->orderByDesc('is_active')
+              ->orderBy('id');
+        },
+        // 'addresses.addressType',
+        // 'notes.author',
+    ]);
+
+    $selectedPerson = null;
+
+    if ($personId = $request->old('person_id')) {
+        $selectedPerson = Person::query()->find($personId);
+    }
+
+    $qualifications = Qualification::query()
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->orderBy('name')
+        ->get();
+
+    $departments = Department::query()
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->orderBy('name')
+        ->get();
+
+    $contactTypes = ContactType::query()
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->orderBy('name')
+        ->get();
+
+    $contactUsages = ContactUsage::query()
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->orderBy('name')
+        ->get();
+
+    return view('organizations.show', compact(
+        'organization',
+        'selectedPerson',
+        'qualifications',
+        'departments',
+        'contactTypes',
+        'contactUsages'
+    ));
+}
+
+    public function clients(Request $request)
     {
-        $organization->load([
-            'organizationType',
-            'personOrganizationRelations' => function ($query) {
-                $query->with([
-                    'person',
-                    'qualification',
-                    'department',
-                ])->orderByDesc('is_active')
-                    ->orderBy('id');
-            },
-            // 'contactPoints.contactType',
-            // 'contactPoints.contactUsage',
-            // 'addresses.addressType',
-            // 'notes.author',
-        ]);
+        return $this->organizationIndexByScope($request, 'client');
+    }
 
-        $selectedPerson = null;
-
-        if ($personId = $request->old('person_id')) {
-            $selectedPerson = Person::query()->find($personId);
-        }
-
-        $qualifications = Qualification::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
-
-        $departments = Department::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
-
-        return view('organizations.show', compact(
-            'organization',
-            'selectedPerson',
-            'qualifications',
-            'departments'
-        ));
+    public function suppliers(Request $request)
+    {
+        return $this->organizationIndexByScope($request, 'supplier');
     }
 
     public function index(Request $request)
+    {
+        return $this->organizationIndexByScope($request, null);
+    }
+
+    protected function organizationIndexByScope(Request $request, ?string $scope = null)
     {
         $search = trim((string) $request->input('search', ''));
         $status = $request->input('status');
@@ -108,7 +146,21 @@ class OrganizationController extends Controller
             $perPage = 10;
         }
 
-        $organizations = Organization::query()
+        $query = Organization::query();
+
+        if ($scope === 'client') {
+            $query->whereHas('organizationRoles', function ($q) {
+                $q->where('code', 'client');
+            });
+        }
+
+        if ($scope === 'supplier') {
+            $query->whereHas('organizationRoles', function ($q) {
+                $q->where('code', 'supplier');
+            });
+        }
+
+        $organizations = $query
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -131,15 +183,43 @@ class OrganizationController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
+        $pageTitle = 'Organizzazioni';
+        $pageSubtitle = 'Gestione anagrafiche organizzazioni';
+        $pageHeading = 'Organizzazioni';
+        $createLabel = 'Nuova organizzazione';
+        $indexRoute = 'organizations.index';
+
+        if ($scope === 'client') {
+            $pageTitle = 'Clienti';
+            $pageSubtitle = 'Gestione anagrafiche clienti';
+            $pageHeading = 'Anagrafiche clienti';
+            $createLabel = 'Nuovo cliente';
+            $indexRoute = 'clients.index';
+        }
+
+        if ($scope === 'supplier') {
+            $pageTitle = 'Fornitori';
+            $pageSubtitle = 'Gestione anagrafiche fornitori';
+            $pageHeading = 'Anagrafiche fornitori';
+            $createLabel = 'Nuovo fornitore';
+            $indexRoute = 'suppliers.index';
+        }
+
         return view('organizations.index', compact(
             'organizations',
             'search',
             'status',
             'sort',
             'direction',
-            'perPage'
+            'perPage',
+            'scope',
+            'pageTitle',
+            'pageSubtitle',
+            'pageHeading',
+            'createLabel',
+            'indexRoute'
         ));
-    }
+    }    
 
     public function create()
     {
@@ -160,6 +240,8 @@ class OrganizationController extends Controller
             'sdi_code' => ['nullable', 'string', 'max:20'],
             'is_split_payment' => ['nullable', 'boolean'],
             'is_active' => ['required', 'boolean'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['in:client,supplier'],
         ]);
 
         if (blank($validated['name'] ?? null) && blank($validated['legal_name'] ?? null)) {
@@ -174,6 +256,12 @@ class OrganizationController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
 
         $organization = Organization::create($validated);
+
+        $roleIds = OrganizationRole::query()
+            ->whereIn('code', $request->input('roles', []))
+            ->pluck('id');
+
+        $organization->organizationRoles()->sync($roleIds);
 
         return redirect()
             ->route('organizations.show', $organization)
@@ -199,6 +287,8 @@ class OrganizationController extends Controller
             'sdi_code' => ['nullable', 'string', 'max:20'],
             'is_split_payment' => ['nullable', 'boolean'],
             'is_active' => ['required', 'boolean'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['in:client,supplier'],
         ]);
 
         if (blank($validated['name'] ?? null) && blank($validated['legal_name'] ?? null)) {
@@ -213,6 +303,12 @@ class OrganizationController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
 
         $organization->update($validated);
+
+        $roleIds = OrganizationRole::query()
+            ->whereIn('code', $request->input('roles', []))
+            ->pluck('id');
+
+        $organization->organizationRoles()->sync($roleIds);        
 
         return redirect()
             ->route('organizations.show', $organization)

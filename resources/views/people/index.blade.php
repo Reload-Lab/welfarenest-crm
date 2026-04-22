@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    $hasAdvancedFilters = false;
+@endphp
+
 @section('topbar_title', 'Persone')
 @section('topbar_subtitle', 'Gestione anagrafiche persone')
 
@@ -32,55 +36,90 @@
         </div>
     @endif
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ route('people.index') }}">
-                <div class="row g-3 align-items-end">
-                    <div class="col-12 col-lg-7">
-                        <label for="search" class="form-label fw-semibold">Ricerca</label>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ route('people.index') }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg">
+                    <label for="search" class="form-label fw-semibold">Ricerca</label>
+                    <div class="position-relative">
+                        <span class="crm-filter-search-icon">
+                            <x-icon group="actions" name="search" />
+                        </span>
+
                         <input
                             type="text"
                             name="search"
                             id="search"
-                            class="form-control"
-                            placeholder="Nome o cognome"
                             value="{{ $search }}"
+                            class="form-control crm-filter-search-input"
+                            placeholder="Nome o cognome"
                         >
-                    </div>
-
-                    <div class="col-12 col-md-4 col-lg-2">
-                        <label for="per_page" class="form-label fw-semibold">Righe</label>
-                        <select name="per_page" id="per_page" class="form-select">
-                            <option value="10" {{ (int) $perPage === 10 ? 'selected' : '' }}>10</option>
-                            <option value="20" {{ (int) $perPage === 20 ? 'selected' : '' }}>20</option>
-                            <option value="50" {{ (int) $perPage === 50 ? 'selected' : '' }}>50</option>
-                        </select>
-                    </div>
-
-                    <div class="col-12 col-md-8 col-lg-3">
-                        <div class="d-flex gap-2">
-
-                            <x-crm.button 
-                                type="submit"
-                                icon="filter"
-                            >
-                                Filtra
-                            </x-crm.button>
-
-
-                            <a href="{{ route('people.index') }}" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2">
-                                <x-icon group="actions" name="reset" />
-                                <span>Reset</span>
-                            </a>
-                        </div>
                     </div>
                 </div>
 
-                <input type="hidden" name="sort" value="{{ $sort }}">
-                <input type="hidden" name="direction" value="{{ $direction }}">
-            </form>
-        </div>
+                <div class="col-12 col-lg-auto">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary btn-inline"
+                            id="togglePeopleFilters"
+                            aria-expanded="{{ $hasAdvancedFilters ? 'true' : 'false' }}"
+                            aria-controls="peopleAdvancedFilters"
+                        >
+                            <x-icon group="actions" name="filter" />
+                            <span>Filtri</span>
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <div
+                id="peopleAdvancedFilters"
+                class="mt-3 {{ $hasAdvancedFilters ? '' : 'd-none' }}"
+            >
+                <div class="crm-filters-panel">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12 col-md-4 col-lg-2">
+                            <label for="per_page" class="form-label fw-semibold">Righe</label>
+                            <select name="per_page" id="per_page" class="form-select">
+                                <option value="10" {{ (int) $perPage === 10 ? 'selected' : '' }}>10</option>
+                                <option value="20" {{ (int) $perPage === 20 ? 'selected' : '' }}>20</option>
+                                <option value="50" {{ (int) $perPage === 50 ? 'selected' : '' }}>50</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-lg">
+                            <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                                <x-crm.button
+                                    type="submit"
+                                    icon="filter"
+                                    variant="primary"
+                                >
+                                    Applica filtri
+                                </x-crm.button>
+
+                                <x-crm.button
+                                    href="{{ route('people.index') }}"
+                                    icon="reset"
+                                    variant="outline-secondary"
+                                >
+                                    Reset
+                                </x-crm.button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" name="sort" value="{{ $sort }}">
+            <input type="hidden" name="direction" value="{{ $direction }}">
+        </form>
     </div>
+</div>
+
 
     <div class="crm-table-card">
         <div class="crm-table-card__header">

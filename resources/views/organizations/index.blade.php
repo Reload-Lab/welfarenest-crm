@@ -1,19 +1,26 @@
 @extends('layouts.app')
 
+@php
+    $hasAdvancedFilters = filled($status);
+@endphp
+
+@section('topbar_title', $pageTitle)
+@section('topbar_subtitle', $pageSubtitle)
 
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <h1 class="h3 mb-1">Organizzazioni</h1>
-            <p class="text-muted mb-0">Gestione anagrafiche clienti e organizzazioni</p>
+            <h1 class="h3 mb-1">{{ $pageTitle }}</h1>
+            <p class="text-muted mb-0">{{ $pageSubtitle }}</p>
         </div>
 
-        <a href="{{ route('organizations.create') }}"
-           class="btn btn-primary d-inline-flex align-items-center gap-2">
-            <x-icon group="actions" name="add" />
-            <span>Nuova organizzazione</span>
-        </a>
+        <x-crm.button
+            href="{{ route('organizations.create') }}"
+            icon="add"
+        >
+            {{ $createLabel }}
+        </x-crm.button>
     </div>
 
     @if(session('success'))
@@ -22,66 +29,104 @@
         </div>
     @endif
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ route('organizations.index') }}">
-                <div class="row g-3 align-items-end">
-                    <div class="col-12 col-lg-4">
-                        <label for="search" class="form-label fw-semibold">Cerca</label>
-                        <input type="text"
-                               name="search"
-                               id="search"
-                               value="{{ $search }}"
-                               class="form-control"
-                               placeholder="Nome, ragione sociale, P.IVA, codice fiscale...">
-                    </div>
 
-                    <div class="col-12 col-md-4 col-lg-2">
-                        <label for="status" class="form-label fw-semibold">Stato</label>
-                        <select name="status" id="status" class="form-select">
-                            <option value="">Tutti</option>
-                            <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Attivi</option>
-                            <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Non attivi</option>
-                        </select>
-                    </div>
 
-                    <div class="col-12 col-md-4 col-lg-2">
-                        <label for="per_page" class="form-label fw-semibold">Righe</label>
-                        <select name="per_page" id="per_page" class="form-select">
-                            <option value="10" {{ (int) $perPage === 10 ? 'selected' : '' }}>10</option>
-                            <option value="20" {{ (int) $perPage === 20 ? 'selected' : '' }}>20</option>
-                            <option value="50" {{ (int) $perPage === 50 ? 'selected' : '' }}>50</option>
-                        </select>
-                    </div>
 
-                    <div class="col-12 col-md-4 col-lg-4">
-                        <div class="d-flex flex-wrap gap-2">
-                            <button type="submit"
-                                    class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2">
-                                <x-icon group="actions" name="filter" />
-                                <span>Filtra</span>
-                            </button>
 
-                            <a href="{{ route('organizations.index') }}"
-                               class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2">
-                                <x-icon group="actions" name="reset" />
-                                <span>Reset</span>
-                            </a>
-                        </div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ route($indexRoute) }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg">
+                    <label for="search" class="form-label fw-semibold">Ricerca</label>
+                    <div class="position-relative">
+                        <span class="crm-filter-search-icon">
+                            <x-icon group="actions" name="search" />
+                        </span>
+
+                        <input
+                            type="text"
+                            name="search"
+                            id="search"
+                            value="{{ $search }}"
+                            class="form-control crm-filter-search-input"
+                            placeholder="Nome, ragione sociale, P.IVA, codice fiscale..."
+                        >
                     </div>
                 </div>
 
-                <input type="hidden" name="sort" value="{{ $sort }}">
-                <input type="hidden" name="direction" value="{{ $direction }}">
-            </form>
+                <div class="col-12 col-lg-auto">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary btn-inline"
+                            id="toggleOrganizationFilters"
+                            aria-expanded="{{ $hasAdvancedFilters ? 'true' : 'false' }}"
+                            aria-controls="organizationAdvancedFilters"
+                        >
+                            <x-icon group="actions" name="filter" />
+                            <span>Filtri</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+<div
+    id="organizationAdvancedFilters"
+    class="mt-3 {{ $hasAdvancedFilters ? '' : 'd-none' }}"
+>
+    <div class="crm-filters-panel">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-4 col-lg-3">
+                <label for="status" class="form-label fw-semibold">Stato</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">Tutti</option>
+                    <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Attivi</option>
+                    <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Non attivi</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-4 col-lg-2">
+                <label for="per_page" class="form-label fw-semibold">Righe</label>
+                <select name="per_page" id="per_page" class="form-select">
+                    <option value="10" {{ (int) $perPage === 10 ? 'selected' : '' }}>10</option>
+                    <option value="20" {{ (int) $perPage === 20 ? 'selected' : '' }}>20</option>
+                    <option value="50" {{ (int) $perPage === 50 ? 'selected' : '' }}>50</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                    <x-crm.button type="submit" icon="filter" variant="primary">
+                        Applica filtri
+                    </x-crm.button>
+
+                    <x-crm.button
+                        href="{{ route($indexRoute) }}"
+                        icon="reset"
+                        variant="outline-secondary"
+                    >
+                        Reset
+                    </x-crm.button>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+            <input type="hidden" name="sort" value="{{ $sort }}">
+            <input type="hidden" name="direction" value="{{ $direction }}">
+        </form>
+    </div>
+</div>
+
+
 
     <div class="crm-table-card">
         <div class="crm-table-card__header">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                 <div>
-                    <h2 class="crm-table-card__title">Anagrafiche clienti</h2>
+                    <h2 class="crm-table-card__title">{{ $pageHeading }}</h2>
                     <p class="crm-table-card__subtitle">
                         {{ $organizations->total() }} risultati trovati
                     </p>
@@ -200,15 +245,19 @@
                                     <div class="crm-empty-state__icon">
                                         <x-icon group="actions" name="search" />
                                     </div>
-                                    <h3 class="crm-empty-state__title">Nessun cliente trovato</h3>
+                                    <h3 class="crm-empty-state__title">Nessuna organizzazione trovata</h3>
                                     <p class="crm-empty-state__text">
                                         Non ci sono organizzazioni da mostrare con i filtri correnti.
                                     </p>
 
                                     <div class="mt-3">
-                                        <a href="{{ route('organizations.create') }}" class="btn btn-primary btn-sm">
-                                            Crea la prima organizzazione
-                                        </a>
+                                        <x-crm.button
+                                            href="{{ route('organizations.create') }}"
+                                            icon="add"
+                                            variant="primary"
+                                        >
+                                            {{ $createLabel }}
+                                        </x-crm.button>
                                     </div>
                                 </div>
                             </td>

@@ -9,17 +9,17 @@
         ],
         [
             'label' => 'Clienti',
-            'route' => 'organizations.index',
+            'route' => 'clients.index',
             'icon_group' => 'entities',
             'icon_name' => 'client',
-            'patterns' => ['organizations.*'],
+            'patterns' => ['clients.*'],
         ],
         [
             'label' => 'Fornitori',
-            'route' => null,
+            'route' => 'suppliers.index',
             'icon_group' => 'entities',
             'icon_name' => 'supplier',
-            'patterns' => [],
+            'patterns' => ['suppliers.*'],
         ],
         [
             'label' => 'Persone',
