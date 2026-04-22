@@ -1,3 +1,11 @@
+@php
+    $resolvedTitle = $crmPage['title'] ?? null;
+    $resolvedBreadcrumbs = $crmPage['breadcrumbs'] ?? [];
+
+    $topbarTitle = trim($__env->yieldContent('topbar_title', $resolvedTitle ?: 'Dashboard'));
+    $topbarSubtitle = trim($__env->yieldContent('topbar_subtitle'));
+@endphp
+
 <header class="crm-topbar">
     <div class="crm-topbar-left">
         <button type="button" class="crm-topbar-menu-btn d-lg-none" id="sidebarToggleMobile" aria-label="Apri menu">
@@ -5,9 +13,48 @@
         </button>
 
         <div class="crm-topbar-heading">
-            <h1 class="crm-topbar-title">@yield('topbar_title', 'Dashboard')</h1>
-            @hasSection('topbar_subtitle')
-                <p class="crm-topbar-subtitle">@yield('topbar_subtitle')</p>
+            <h1 class="crm-topbar-title">{{ $topbarTitle }}</h1>
+
+            @if(! empty($resolvedBreadcrumbs))
+                <nav class="crm-breadcrumb" aria-label="Breadcrumb">
+                    <ol class="crm-breadcrumb__list">
+                        @foreach($resolvedBreadcrumbs as $crumb)
+                            <li class="crm-breadcrumb__item">
+                                @if(! empty($crumb['url']) && ! $loop->last)
+                                    <a href="{{ $crumb['url'] }}" class="crm-breadcrumb__link">
+                                        @if(! empty($crumb['icon']))
+                                            <x-icon
+                                                :group="$crumb['icon']['group']"
+                                                :name="$crumb['icon']['name']"
+                                                class="icon-sm"
+                                            />
+                                        @endif
+
+                                        <span>{{ $crumb['label'] }}</span>
+                                    </a>
+                                @else
+                                    <span class="crm-breadcrumb__current">
+                                        @if(! empty($crumb['icon']))
+                                            <x-icon
+                                                :group="$crumb['icon']['group']"
+                                                :name="$crumb['icon']['name']"
+                                                class="icon-sm"
+                                            />
+                                        @endif
+
+                                        <span>{{ $crumb['label'] }}</span>
+                                    </span>
+                                @endif
+
+                                @unless($loop->last)
+                                    <span class="crm-breadcrumb__separator" aria-hidden="true">›</span>
+                                @endunless
+                            </li>
+                        @endforeach
+                    </ol>
+                </nav>
+            @elseif($topbarSubtitle !== '')
+                <p class="crm-topbar-subtitle">{{ $topbarSubtitle }}</p>
             @endif
         </div>
     </div>
@@ -53,5 +100,3 @@
         </div>
     </div>
 </header>
-
-

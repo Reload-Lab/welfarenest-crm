@@ -14,8 +14,8 @@
         <div class="crm-sidebar-backdrop" id="crmSidebarBackdrop"></div>
 
         <div class="crm-main">
-            @include('layouts.partials.topbar')
-
+            @php($crmPage = \App\Support\CrmPage::resolve())
+            @include('layouts.partials.topbar', ['crmPage' => $crmPage])
             <main class="crm-content">
 
                 @hasSection('pageHeader')

@@ -4,8 +4,6 @@
     $hasAdvancedFilters = filled($status);
 @endphp
 
-@section('topbar_title', $pageTitle)
-@section('topbar_subtitle', $pageSubtitle)
 
 @section('content')
 <div class="container-fluid py-4">
