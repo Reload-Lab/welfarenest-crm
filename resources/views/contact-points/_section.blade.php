@@ -8,18 +8,51 @@
                 </p>
             </div>
 
-            <button
+            <x-crm.button
                 type="button"
-                class="btn btn-primary"
-                data-bs-toggle="collapse"
-                data-bs-target="#{{ $collapseId }}"
-                aria-expanded="{{ $errors->hasBag($errorBag) ? 'true' : 'false' }}"
-                aria-controls="{{ $collapseId }}"
+                icon="add"
+                data-bs-toggle="modal"
+                data-bs-target="#{{ $collapseId }}Modal"
             >
-                <x-icon group="actions" name="plus" class="me-1" />
-                Nuovo recapito
-            </button>
+                {{ $createLabel }}
+            </x-crm.button>
         </div>
+
+
+
+<div class="modal fade"
+     id="{{ $collapseId }}Modal"
+     tabindex="-1"
+     aria-labelledby="{{ $collapseId }}ModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ $collapseId }}ModalLabel">
+                    Nuovo recapito
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Chiudi"></button>
+            </div>
+
+            <div class="modal-body">
+                @include('contact-points._form', [
+                    'action' => $storeRoute,
+                    'contactPoint' => null,
+                    'contactTypes' => $contactTypes,
+                    'contactUsages' => $contactUsages,
+                    'formIdPrefix' => $formIdPrefix,
+                    'errorBag' => $errorBag,
+                ])
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--
 
         <div id="{{ $collapseId }}" class="collapse {{ $errors->hasBag($errorBag) ? 'show' : '' }}">
             <div class="border rounded-3 p-3 p-lg-4 mb-4 bg-body-tertiary">
@@ -33,6 +66,9 @@
                 ])
             </div>
         </div>
+-->
+
+
 
         @include('contact-points._list', [
             'contactPoints' => $contactPoints,

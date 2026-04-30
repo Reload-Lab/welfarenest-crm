@@ -1,0 +1,79 @@
+.crm-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .32rem .62rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.crm-status-badge .icon {
+    font-size: .9em;
+}
+
+.crm-status-badge--success {
+    color: #fff;
+    background: var(--bs-success);
+}
+
+.crm-status-badge--primary {
+    color: #fff;
+    background: var(--bs-primary);
+}
+
+.crm-status-badge--danger {
+    color: #fff;
+    background: var(--bs-danger);
+}
+
+.crm-status-badge--warning {
+    color: #212529;
+    background: var(--bs-warning);
+}
+
+.crm-status-badge--muted {
+    color: var(--bs-secondary-color);
+    background: var(--bs-tertiary-bg);
+}
+
+.crm-status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: .55rem;
+    font-size: .9rem;
+}
+
+.crm-status-icon .icon {
+    font-size: 1em;
+}
+
+.crm-status-icon--success {
+    color: var(--bs-success);
+    background: rgba(var(--bs-success-rgb), .12);
+}
+
+.crm-status-icon--primary {
+    color: var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), .12);
+}
+
+.crm-status-icon--danger {
+    color: var(--bs-danger);
+    background: rgba(var(--bs-danger-rgb), .12);
+}
+
+.crm-status-icon--warning {
+    color: #8a6100;
+    background: rgba(var(--bs-warning-rgb), .18);
+}
+
+.crm-status-icon--muted {
+    color: var(--bs-secondary-color);
+    background: var(--bs-tertiary-bg);
+}

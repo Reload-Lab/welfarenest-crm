@@ -34,6 +34,9 @@ return [
         'lead'         => 'icons.entities.lead',
         'note'         => 'icons.entities.note',
         'consent'      => 'icons.entities.consent',
+        'qualification'=> 'icons.entities.qualification',
+        'department'   => 'icons.entities.department',
+
     ],
 
     'contact' => [

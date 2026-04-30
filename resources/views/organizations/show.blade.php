@@ -4,38 +4,24 @@
 
 @section('content')
 <div class="container-fluid py-4">
+
+
     <div class="d-flex flex-column gap-4">
 
         {{-- Breadcrumb / toolbar --}}
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-2">
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('dashboard') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('organizations.index') }}">Organizzazioni</a>
+            
+        <x-crm.button
+            href="{{ route('organizations.index') }}"
+            icon-group="navigation"
+            icon="menu"
+            class="ms-auto"
+        >
+            Torna all'elenco
+        </x-crm.button>
 
+        
 
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            {{ $organization->name ?: $organization->legal_name ?: 'Scheda organizzazione' }}
-                        </li>
-                    </ol>
-                </nav>
-
-                <h1 class="h3 mb-0">
-                    Scheda organizzazione
-                </h1>
-            </div>
-
-            <div class="d-flex gap-2">
-                <a href="{{ route('organizations.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i>
-                    <span class="ms-1">Torna all'elenco</span>
-                </a>
-            </div>
         </div>
 
         @include('organizations.partials.show.header')

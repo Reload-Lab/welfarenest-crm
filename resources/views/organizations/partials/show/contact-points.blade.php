@@ -9,4 +9,5 @@
     'formIdPrefix' => 'organization-contact-point',
     'collapseId' => 'organization-contact-point-create',
     'errorBag' => 'storeContactPoint',
+    'createLabel' => 'Nuovo recapito',
 ])

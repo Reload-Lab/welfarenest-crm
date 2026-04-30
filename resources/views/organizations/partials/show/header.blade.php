@@ -14,9 +14,13 @@
                     @endif
 
                     @if($organization->organizationType)
-                        <span class="badge text-bg-light border">
-                            {{ $organization->organizationType->name }}
-                        </span>
+
+                        <x-crm.tag
+                            :label="$organization->organizationType?->name"
+                            icon-group="entities"
+                            icon-name="organization"
+                            variant="primary"
+                        />
                     @endif
                 </div>
 
@@ -49,18 +53,32 @@
             </div>
 
             <div class="d-flex flex-wrap align-items-start gap-2">
-                <a href="{{ route('organizations.edit', $organization) }}" class="btn btn-primary">
-                    Modifica
-                </a>
 
-                <form action="{{ route('organizations.destroy', $organization) }}" method="POST" onsubmit="return confirm('Vuoi eliminare questa organizzazione?');">
+                <x-crm.button
+                    href="{{ route('organizations.edit', $organization) }}"
+                    icon="edit"
+                >
+                    Modifica
+                </x-crm.button>
+
+
+                <form action="{{ route('organizations.destroy', $organization) }}" method="POST">
                     @csrf
                     @method('DELETE')
 
-                    <button type="submit" class="btn btn-outline-danger">
+                    <x-crm.button
+                        type="submit"
+                        variant="outline-danger"
+                        icon-group="navigation"
+                        icon="trash"
+                        confirm="Vuoi eliminare questa organizzazione?"
+                    >
                         Elimina
-                    </button>
+                    </x-crm.button>
                 </form>
+
+
+
             </div>
         </div>
     </div>

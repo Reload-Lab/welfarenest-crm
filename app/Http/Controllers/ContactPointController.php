@@ -137,4 +137,57 @@ class ContactPointController extends Controller
             default => url()->previous(),
         };
     }
+
+    public function update(Request $request, ContactPoint $contactPoint): RedirectResponse
+    {
+        $validated = $request->validateWithBag('updateContactPoint', [
+            'contact_type_id' => ['required', 'exists:contact_types,id'],
+            'value' => ['required', 'string', 'max:255'],
+            'label' => ['nullable', 'string', 'max:255'],
+            'contact_usage_id' => ['nullable', 'exists:contact_usages,id'],
+            'is_primary' => ['nullable', 'boolean'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $contactType = ContactType::query()->findOrFail($validated['contact_type_id']);
+
+        $error = $this->validateValueByCategory(
+            $contactType->category,
+            $validated['value']
+        );
+
+        if ($error) {
+            return back()
+                ->withErrors(['value' => $error], 'updateContactPoint')
+                ->withInput();
+        }
+
+        $isPrimary = $request->boolean('is_primary');
+        $isActive = $request->boolean('is_active', true);
+
+        if ($isPrimary) {
+            ContactPoint::query()
+                ->where('owner_type', $contactPoint->owner_type)
+                ->where('owner_id', $contactPoint->owner_id)
+                ->where('contact_type_id', $validated['contact_type_id'])
+                ->whereKeyNot($contactPoint->id)
+                ->update(['is_primary' => false]);
+        }
+
+        $contactPoint->update([
+            'contact_type_id' => $validated['contact_type_id'],
+            'contact_usage_id' => $validated['contact_usage_id'] ?? null,
+            'value' => trim($validated['value']),
+            'label' => filled($validated['label'] ?? null) ? trim($validated['label']) : null,
+            'is_primary' => $isPrimary,
+            'is_active' => $isActive,
+        ]);
+
+        return redirect(
+            $this->resolveOwnerShowRoute($contactPoint->owner_type, $contactPoint->owner_id)
+        )->with('success', 'Recapito aggiornato con successo.');
+    }
+
+
+
 }

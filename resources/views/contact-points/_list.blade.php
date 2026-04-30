@@ -1,122 +1,132 @@
-@if ($contactPoints->isEmpty())
-    <div class="text-center py-4 text-muted">
-        <div class="mb-2">
-            <x-icon group="contact" name="contact_point" />
+<div class="crm-contact-point-list">
+    @foreach ($contactPoints as $contactPoint)
+        @php
+            $type = $contactPoint->contactType;
+            $usage = $contactPoint->contactUsage;
+            $code = $type?->code;
+            $category = $type?->category;
+            $value = $contactPoint->value;
+
+            $iconGroup = 'contact';
+            $iconName = 'contact_point';
+
+            if (in_array($code, ['email', 'pec', 'phone', 'mobile', 'website'], true)) {
+                $iconName = $code;
+            } elseif (in_array($code, ['linkedin', 'facebook', 'instagram'], true)) {
+                $iconGroup = 'social';
+                $iconName = $code;
+            }
+
+            $href = null;
+
+            if ($category === 'email') {
+                $href = 'mailto:' . $value;
+            } elseif ($category === 'phone') {
+                $href = 'tel:' . preg_replace('/\s+/', '', $value);
+            } elseif ($category === 'web') {
+                $href = $value;
+            }
+        @endphp
+
+        <div class="crm-contact-point-row d-flex align-items-start gap-3 py-3">
+
+            {{-- ICONA --}}
+            <div class="crm-contact-point-row__icon">
+                <x-icon :group="$iconGroup" :name="$iconName" />
+            </div>
+
+            {{-- CONTENUTO --}}
+            <div class="flex-grow-1 min-w-0">
+
+                {{-- RIGA PRINCIPALE --}}
+                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                    <div class="min-w-0">
+
+                        {{-- VALORE --}}
+                        <div class="crm-contact-point-row__value">
+                            @if ($href)
+                                <a href="{{ $href }}" @if($category === 'web') target="_blank" @endif>
+                                    {{ $value }}
+                                </a>
+                            @else
+                                {{ $value }}
+                            @endif
+                        </div>
+
+                        {{-- META --}}
+                        <div class="crm-contact-point-row__meta">
+                            <span>{{ $type?->name ?? '—' }}</span>
+
+                            @if($usage?->name)
+                                <span>•</span>
+                                <span>{{ $usage->name }}</span>
+                            @endif
+
+                            @if($contactPoint->label)
+                                <span>•</span>
+                                <span>{{ $contactPoint->label }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- AZIONI --}}
+                    <div class="d-flex align-items-center gap-2">
+                        @if($contactPoint->is_primary)
+                            <span class="badge bg-primary">Primario</span>
+                        @endif
+
+                        @if($contactPoint->is_active)
+                            <span class="badge bg-success">Attivo</span>
+                        @else
+                            <span class="badge bg-secondary">Non attivo</span>
+                        @endif
+
+                        @include('components.crm.row-actions', [
+                            'editModalTarget' => '#contactPointEditModal-' . $contactPoint->id,
+                            'delete' => route($destroyRouteName, $contactPoint),
+                            'deleteConfirm' => 'Confermi l\'eliminazione di questo recapito?',
+                        ])
+                    </div>
+
+                </div>
+            </div>
         </div>
-        <p class="mb-0">Nessun recapito inserito.</p>
-    </div>
-@else
-    <div class="row g-3">
-        @foreach ($contactPoints as $contactPoint)
-            @php
-                $type = $contactPoint->contactType;
-                $usage = $contactPoint->contactUsage;
-                $code = $type?->code;
-                $category = $type?->category;
-                $value = $contactPoint->value;
 
-                $iconGroup = 'contact';
-                $iconName = 'contact_point';
+        <div class="modal fade"
+            id="contactPointEditModal-{{ $contactPoint->id }}"
+            tabindex="-1"
+            aria-labelledby="contactPointEditModalLabel-{{ $contactPoint->id }}"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="contactPointEditModalLabel-{{ $contactPoint->id }}">
+                            Modifica recapito
+                        </h5>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Chiudi"></button>
+                    </div>
 
-                if (in_array($code, ['email', 'pec', 'phone', 'mobile', 'website'], true)) {
-                    $iconName = $code;
-                } elseif (in_array($code, ['linkedin', 'facebook', 'instagram'], true)) {
-                    $iconGroup = 'social';
-                    $iconName = $code;
-                }
-
-                $href = null;
-
-                if ($category === 'email') {
-                    $href = 'mailto:' . $value;
-                } elseif ($category === 'phone') {
-                    $href = 'tel:' . preg_replace('/\s+/', '', $value);
-                } elseif ($category === 'web') {
-                    $href = $value;
-                }
-            @endphp
-
-            <div class="col-12 col-md-6 col-xl-4">
-                <div class="crm-contact-point-card h-100">
-                    <div class="d-flex align-items-start gap-3">
-                        <div class="crm-contact-point-card__icon">
-                            <x-icon :group="$iconGroup" :name="$iconName" />
-                        </div>
-
-                        <div class="flex-grow-1 min-w-0">
-                            <div class="d-flex justify-content-between align-items-start gap-2">
-                                <div class="min-w-0 flex-grow-1">
-                                    <div class="crm-contact-point-card__value">
-                                        @if ($href)
-                                            <a
-                                                href="{{ $href }}"
-                                                @if($category === 'web') target="_blank" rel="noopener noreferrer" @endif
-                                            >
-                                                {{ $value }}
-                                            </a>
-                                        @else
-                                            {{ $value }}
-                                        @endif
-                                    </div>
-
-                                    <div class="crm-contact-point-card__meta">
-                                        <span>{{ $type?->name ?? '—' }}</span>
-
-                                        @if($usage?->name)
-                                            <span class="crm-contact-point-card__separator">•</span>
-                                            <span>{{ $usage->name }}</span>
-                                        @endif
-
-                                        @if($contactPoint->label)
-                                            <span class="crm-contact-point-card__separator">•</span>
-                                            <span>{{ $contactPoint->label }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <form
-                                    action="{{ route($destroyRouteName, $contactPoint) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Eliminare questo recapito?')"
-                                >
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-sm btn-outline-danger"
-                                        title="Elimina"
-                                        aria-label="Elimina"
-                                    >
-                                        <x-icon group="actions" name="trash" />
-                                    </button>
-                                </form>
-                            </div>
-
-                            <div class="d-flex flex-wrap gap-2 mt-3">
-                                @if($contactPoint->is_primary)
-                                    <span class="crm-inline-badge crm-inline-badge--primary">
-                                        <x-icon group="status" name="primary" />
-                                        Primario
-                                    </span>
-                                @endif
-
-                                @if($contactPoint->is_active)
-                                    <span class="crm-inline-badge crm-inline-badge--success">
-                                        <x-icon group="status" name="active" />
-                                        Attivo
-                                    </span>
-                                @else
-                                    <span class="crm-inline-badge crm-inline-badge--muted">
-                                        <x-icon group="status" name="inactive" />
-                                        Non attivo
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
+                    <div class="modal-body">
+                        @include('contact-points._form', [
+                            'action' => route('contact-points.update', $contactPoint),
+                            'method' => 'PUT',
+                            'contactPoint' => $contactPoint,
+                            'contactTypes' => $contactTypes,
+                            'contactUsages' => $contactUsages,
+                            'formIdPrefix' => 'contact-point-edit-' . $contactPoint->id,
+                            'errorBag' => 'updateContactPoint',
+                        ])
                     </div>
                 </div>
             </div>
-        @endforeach
-    </div>
-@endif
+        </div>
+
+
+        {{-- SEPARATORE --}}
+        <hr class="my-0">
+    @endforeach
+</div>

@@ -6,19 +6,17 @@
 
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <h1 class="h3 mb-1">{{ $pageTitle }}</h1>
-            <p class="text-muted mb-0">{{ $pageSubtitle }}</p>
-        </div>
 
         <x-crm.button
             href="{{ route('organizations.create') }}"
             icon="add"
+            class="ms-auto"
         >
             {{ $createLabel }}
         </x-crm.button>
+        
     </div>
 
     @if(session('success'))

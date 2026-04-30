@@ -100,6 +100,7 @@
 /* Dimensione più elegante per i bottoni principali */
 .btn-primary,
 .btn-outline-secondary,
+.btn-outline-danger,
 .btn-light {
     min-height: 2.75rem;
     padding-inline: 1rem;

@@ -43,6 +43,14 @@
                             <tr>
                                 <td>
                                     @if($relation->person)
+
+                                    <x-crm.avatar
+                                        :name="$relation->person->display_name"
+                                        :image="$relation->person->avatar_url"
+                                        type="person"
+                                        size="sm"
+                                    />
+
                                         <a
                                             href="{{ route('people.show', $relation->person) }}"
                                             class="text-decoration-none fw-semibold"
@@ -53,8 +61,20 @@
                                         -
                                     @endif
                                 </td>
-                                <td>{{ $relation->qualification?->name ?: '-' }}</td>
-                                <td>{{ $relation->department?->name ?: '-' }}</td>
+                                <td>
+                                    <x-crm.tag
+                                        :label="$relation->qualification?->name"
+                                        icon-group="entities"
+                                        icon-name="qualification"
+                                    />
+                                </td>
+                                <td>
+                                    <x-crm.tag
+                                        :label="$relation->department?->name"
+                                        icon-group="entities"
+                                        icon-name="department"
+                                    /> 
+                                </td>
                                 <td>
                                     @if($relation->start_date || $relation->end_date)
                                         {{ $relation->start_date?->format('d/m/Y') ?: '-' }}

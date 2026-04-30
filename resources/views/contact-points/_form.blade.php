@@ -6,6 +6,10 @@
 <form action="{{ $action }}" method="POST" class="row g-3">
     @csrf
 
+    @if(!empty($method))
+        @method($method)
+    @endif
+
     <div class="col-md-3">
         <label for="{{ $formIdPrefix }}_contact_type_id" class="form-label">Tipo *</label>
         <select

@@ -3,6 +3,7 @@
     'edit' => null,
     'delete' => null,
     'deleteConfirm' => 'Confermi l\'eliminazione di questo elemento?',
+    'editModalTarget' => null,
 ])
 
 <div class="crm-row-actions">
@@ -15,7 +16,16 @@
         </a>
     @endif
 
-    @if($edit)
+    @if($editModalTarget)
+        <button type="button"
+                class="btn btn-icon"
+                data-bs-toggle="modal"
+                data-bs-target="{{ $editModalTarget }}"
+                title="Modifica"
+                aria-label="Modifica">
+            <x-icon group="actions" name="edit" />
+        </button>
+    @elseif($edit)
         <a href="{{ $edit }}"
            class="btn btn-icon"
            title="Modifica"

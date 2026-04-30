@@ -31,6 +31,9 @@ Route::middleware('auth')->group(function () {
     Route::post('people/{person}/contact-points', [ContactPointController::class, 'storeForPerson'])->name('people.contact-points.store');   
     Route::delete('contact-points/{contactPoint}', [ContactPointController::class, 'destroy'])->name('contact-points.destroy');
 
+    Route::put('contact-points/{contactPoint}', [ContactPointController::class, 'update'])->name('contact-points.update');
+
+
 });
 
 

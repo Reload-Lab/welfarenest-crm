@@ -73,9 +73,29 @@
                     <tbody>
                         @foreach($person->organizationRelations as $relation)
                             <tr>
-                                <td>{{ $relation->organization?->name ?: $relation->organization?->legal_name ?: '—' }}</td>
-                                <td>{{ $relation->qualification?->name ?: '—' }}</td>
-                                <td>{{ $relation->department?->name ?: '—' }}</td>
+                                <td>
+                                                                        <x-crm.avatar
+                                        :name="$relation->organization->display_name"
+                                        :image="$relation->organization->avatar_url"
+                                        type="organization"
+                                        size="sm"
+                                    />    
+                                    {{ $relation->organization?->name ?: $relation->organization?->legal_name ?: '—' }}
+                                </td>
+                                <td>
+                                    <x-crm.tag
+                                        :label="$relation->qualification?->name"
+                                        icon-group="entities"
+                                        icon-name="qualification"
+                                    /> 
+                                </td>
+                                <td>
+                                    <x-crm.tag
+                                        :label="$relation->department?->name"
+                                        icon-group="entities"
+                                        icon-name="department"
+                                    /> 
+                                </td>
                                 <td>
                                     @if($relation->start_date || $relation->end_date)
                                         {{ $relation->start_date?->format('d/m/Y') ?: '—' }}

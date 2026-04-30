@@ -6,6 +6,7 @@
     'iconGroup' => 'actions',
     'href' => null,
     'fullWidth' => false,
+    'confirm' => null,
 ])
 
 @php
@@ -25,7 +26,9 @@
         <span>{{ $slot }}</span>
     </a>
 @else
-    <button type="{{ $type }}" {{ $attributes->merge(['class' => $classes]) }}>
+    <button type="{{ $type }}" 
+    @if($confirm) onclick="return confirm('{{ $confirm }}')" @endif
+    {{ $attributes->merge(['class' => $classes]) }}>
         @if($icon)
             <x-icon :group="$iconGroup" :name="$icon" />
         @endif
