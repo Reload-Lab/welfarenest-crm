@@ -74,6 +74,35 @@ class PersonOrganizationRelationController extends Controller
             ->with('success', 'Relazione aggiornata con successo.');
     }
 
+
+    public function destroy(Person $person, PersonOrganizationRelation $relation)
+    {
+        abort_unless($relation->person_id === $person->id, 404);
+
+        $organizationId = $relation->organization_id;
+
+        $relation->delete();
+
+        return redirect()
+            ->to($this->redirectUrl(request(), $person, $organizationId))
+            ->with('success', 'Relazione eliminata con successo.');
+    }
+
+    public function destroyFromOrganization(Organization $organization, PersonOrganizationRelation $relation)
+    {
+        abort_unless($relation->organization_id === $organization->id, 404);
+
+        $person = $relation->person;
+        $organizationId = $organization->id;
+
+        $relation->delete();
+
+        return redirect()
+            ->to($this->redirectUrl(request(), $person, $organizationId))
+            ->with('success', 'Relazione eliminata con successo.');
+    }
+
+
     protected function validateRelation(Request $request, Person $person, ?Organization $organization = null): array
     {
         $organizationIdRules = ['required', 'exists:organizations,id'];

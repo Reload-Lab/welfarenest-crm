@@ -10,6 +10,7 @@ use App\Models\Person;
 use App\Models\Qualification;
 use App\Models\ContactType;
 use App\Models\ContactUsage;
+use App\Models\AddressType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -58,8 +59,13 @@ public function show(Request $request, Organization $organization)
               ->orderByDesc('is_active')
               ->orderBy('id');
         },
-        // 'addresses.addressType',
-        // 'notes.author',
+        'addresses' => function ($query) {
+            $query->with('addressType')
+                ->orderByDesc('is_primary')
+                ->orderBy('address_type_id')
+                ->orderBy('city')
+                ->orderBy('id');
+        },
     ]);
 
     $selectedPerson = null;
@@ -92,13 +98,21 @@ public function show(Request $request, Organization $organization)
         ->orderBy('name')
         ->get();
 
+    $addressTypes = AddressType::query()
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->orderBy('name')
+        ->get();
+
+
     return view('organizations.show', compact(
         'organization',
         'selectedPerson',
         'qualifications',
         'departments',
         'contactTypes',
-        'contactUsages'
+        'contactUsages',
+        'addressTypes'
     ));
 }
 

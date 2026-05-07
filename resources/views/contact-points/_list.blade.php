@@ -72,6 +72,7 @@
 
                     {{-- AZIONI --}}
                     <div class="d-flex align-items-center gap-2">
+<!--
                         @if($contactPoint->is_primary)
                             <span class="badge bg-primary">Primario</span>
                         @endif
@@ -81,6 +82,24 @@
                         @else
                             <span class="badge bg-secondary">Non attivo</span>
                         @endif
+-->
+                        @if($contactPoint->is_primary)
+                        <x-crm.status
+                            label="Primario"
+                            variant="primary"
+                            icon-group="status"
+                            icon-name="primary"
+                            mode="icon"
+                        />                       
+                        @endif
+
+                        <x-crm.status
+                            :label="$contactPoint->is_active ? 'Attiva' : 'Non attiva'"
+                            :variant="$contactPoint->is_active ? 'success' : 'muted'"
+                            icon-group="status"
+                            :icon-name="$contactPoint->is_active ? 'active' : 'inactive'"
+                            mode="icon"
+                        />
 
                         @include('components.crm.row-actions', [
                             'editModalTarget' => '#contactPointEditModal-' . $contactPoint->id,

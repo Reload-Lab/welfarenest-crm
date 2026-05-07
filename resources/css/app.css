@@ -9,6 +9,8 @@
 @import './components/contact-points.css';
 @import './components/tags.css';
 @import './components/status.css';
+@import './components/relations.css';
+@import './components/addresses.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

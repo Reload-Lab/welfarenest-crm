@@ -1,0 +1,43 @@
+.crm-address-item {
+    padding: 1rem 1.25rem;
+}
+
+.crm-address-meta {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+
+    font-size: .72rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+
+.crm-address-primary {
+    color: var(--bs-primary);
+    font-weight: 600;
+}
+
+.crm-address-actions {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.crm-inline-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+
+    font-size: .85rem;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+}
+
+.crm-inline-link:hover {
+    color: var(--bs-primary);
+}
+
+.crm-inline-link.is-copied {
+    color: var(--bs-success);
+}

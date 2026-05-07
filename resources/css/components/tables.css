@@ -51,6 +51,10 @@
     -webkit-overflow-scrolling: touch;
 }
 
+.table-responsive--dropdown-visible {
+    overflow: visible;
+}
+
 /* Tabella */
 .crm-table {
     width: 100%;
@@ -131,20 +135,14 @@
     color: var(--crm-table-muted);
 }
 
-/* Azioni riga */
 .crm-row-actions {
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
     gap: 0.25rem;
-    opacity: 0.72;
-    transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-.crm-table__row:hover .crm-row-actions {
-    opacity: 1;
-}
-
+/*
 .btn.btn-icon {
     width: var(--crm-action-size);
     height: var(--crm-action-size);
@@ -180,6 +178,7 @@
     color: #dc3545;
     border-color: rgba(220, 53, 69, 0.1);
 }
+*/
 
 /* Badge */
 .crm-badge {
@@ -310,6 +309,29 @@
     top: 0;
     z-index: 2;
 }
+
+/* Dropdown azioni */
+
+.crm-row-actions .dropdown-menu {
+    background-color: #fff !important; /* oppure var(--bs-body-bg) se è pieno */
+    border: 1px solid var(--bs-border-color);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border-radius: .75rem;
+    padding: .35rem;
+}
+
+.crm-row-actions .dropdown-menu {
+    z-index: 1080;
+}
+
+.crm-row-actions .dropdown-item {
+    border-radius: .5rem;
+}
+
+.crm-row-actions .dropdown-item:hover {
+    background: var(--bs-tertiary-bg);
+}
+
 
 /* Mobile / tablet */
 @media (max-width: 991.98px) {

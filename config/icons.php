@@ -12,6 +12,7 @@ return [
         'search' => 'icons.actions.search',
         'filter' => 'icons.actions.filter',
         'more'   => 'icons.actions.more',
+        'more-vertical' => 'icons.actions.more-vertical',
         'close'  => 'icons.actions.close',
         'reset'  => 'icons.actions.reset',
         'sidebar-collapse' => 'icons.actions.sidebar-collapse',
@@ -23,6 +24,9 @@ return [
         'chevron-up' => 'icons.actions.chevron-up',
         'sort' => 'icons.actions.sort',
         'logout' => 'icons.actions.logout',
+        'map' => 'icons.actions.map',
+        'copy' => 'icons.actions.copy',
+
     ],
 
     'entities' => [

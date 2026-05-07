@@ -24,6 +24,33 @@
 
         </div>
 
+        
+        
+        @include('organizations.partials.show.header')
+
+        <div class="row g-4">
+            <div class="col-12 col-xl-7">
+                @include('organizations.partials.show.main-data')
+            </div>
+
+            <div class="col-12 col-xl-5">
+                @include('organizations.partials.show.contact-points')
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-xl-7">
+                @include('organizations.partials.show.addresses')
+            </div>
+
+            <div class="col-12 col-xl-5">
+                @include('organizations.partials.show.notes')
+            </div>
+        </div>
+
+        @include('organizations.partials.show.people')        
+        
+              
         @include('organizations.partials.show.header')
         
         <div class="row g-4">

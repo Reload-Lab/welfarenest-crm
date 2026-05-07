@@ -5,6 +5,7 @@ use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PersonOrganizationRelationController;
 use App\Http\Controllers\ContactPointController;
+use App\Http\Controllers\AddressController;
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -27,11 +28,31 @@ Route::middleware('auth')->group(function () {
     Route::put('people/{person}/relations/{relation}', [PersonOrganizationRelationController::class, 'update'])->name('people.relations.update');
     Route::put('organizations/{organization}/relations/{relation}', [PersonOrganizationRelationController::class, 'updateFromOrganization'])->name('organizations.relations.update');
 
+    Route::delete(
+        'organizations/{organization}/relations/{relation}',
+        [PersonOrganizationRelationController::class, 'destroyFromOrganization']
+    )->name('organizations.relations.destroy');
+
+    Route::delete(
+        'people/{person}/relations/{relation}',
+        [PersonOrganizationRelationController::class, 'destroy']
+    )->name('people.relations.destroy');
+
     Route::post('organizations/{organization}/contact-points', [ContactPointController::class, 'storeForOrganization'])->name('organizations.contact-points.store');
     Route::post('people/{person}/contact-points', [ContactPointController::class, 'storeForPerson'])->name('people.contact-points.store');   
     Route::delete('contact-points/{contactPoint}', [ContactPointController::class, 'destroy'])->name('contact-points.destroy');
 
     Route::put('contact-points/{contactPoint}', [ContactPointController::class, 'update'])->name('contact-points.update');
+
+
+    Route::post('/organizations/{organization}/addresses', [AddressController::class, 'storeForOrganization'])
+        ->name('organizations.addresses.store');
+
+    Route::put('/organizations/{organization}/addresses/{address}', [AddressController::class, 'updateForOrganization'])
+        ->name('organizations.addresses.update');
+
+    Route::delete('/organizations/{organization}/addresses/{address}', [AddressController::class, 'destroyForOrganization'])
+        ->name('organizations.addresses.destroy');
 
 
 });

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\OrganizationType;
 use App\Models\OrganizationRole;
 use App\Models\ContactPoint;
+use App\Models\Address;
 
 
 class Organization extends Model
@@ -72,7 +73,15 @@ class Organization extends Model
             : null;
     }
 
-
+    public function addresses()
+    {
+        return $this->hasMany(Address::class, 'owner_id')
+            ->where('owner_type', 'organization')
+            ->with('addressType')
+            ->orderByDesc('is_primary')
+            ->orderBy('address_type_id')
+            ->orderBy('city');
+    }
 
 }
 
