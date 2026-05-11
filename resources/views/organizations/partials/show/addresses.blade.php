@@ -25,10 +25,11 @@
             <ul class="list-group list-group-flush">
 
                 @foreach($organization->addresses as $address)
-                    <li class="list-group-item d-flex justify-content-between align-items-start">
+
+                    <li class="list-group-item crm-address-item d-flex justify-content-between align-items-start gap-3">
 
                         {{-- LEFT --}}
-                        <div class="me-3">
+                        <div class="crm-address-content">
 
                             {{-- TAG + PRIMARY --}}
                             <div class="mb-1 d-flex align-items-center gap-2 flex-wrap">
@@ -66,63 +67,65 @@
                                 </div>
 
                                 @if($address->region || $address->country)
-@php
-    $mapsQuery = urlencode(
-        trim(
-            ($address->street ?? '') . ' ' .
-            ($address->street_number ?? '') . ', ' .
-            ($address->postal_code ?? '') . ' ' .
-            ($address->city ?? '')
-        )
-    );
+                                @php
+                                    $mapsQuery = urlencode(
+                                        trim(
+                                            ($address->street ?? '') . ' ' .
+                                            ($address->street_number ?? '') . ', ' .
+                                            ($address->postal_code ?? '') . ' ' .
+                                            ($address->city ?? '')
+                                        )
+                                    );
 
-    $fullAddress = trim(
-        ($address->street ?? '') . ' ' .
-        ($address->street_number ?? '') . "\n" .
-        ($address->postal_code ?? '') . ' ' .
-        ($address->city ?? '') . ' (' . ($address->province ?? '') . ')' . "\n" .
-        ($address->region ?? '') . ' ' .
-        ($address->country ?? '')
-    );
-@endphp
+                                    $fullAddress = trim(
+                                        ($address->street ?? '') . ' ' .
+                                        ($address->street_number ?? '') . "\n" .
+                                        ($address->postal_code ?? '') . ' ' .
+                                        ($address->city ?? '') . ' (' . ($address->province ?? '') . ')' . "\n" .
+                                        ($address->region ?? '') . ' ' .
+                                        ($address->country ?? '')
+                                    );
+                                @endphp
 
-<div class="crm-address-actions mt-2">
-
-    <a
-        href="https://www.google.com/maps/search/?api=1&query={{ $mapsQuery }}"
-        target="_blank"
-        class="crm-inline-link"
-    >
-        <x-icon group="actions" name="map" />
-        <span>Mappa</span>
-    </a>
-
-    <button
-        type="button"
-        class="crm-inline-link border-0 bg-transparent p-0"
-        data-copy-text="{{ $fullAddress }}"
-        onclick="copyCrmText(this)"
-    >
-        <x-icon group="actions" name="copy" />
-
-        <span class="crm-copy-label">
-            Copia
-        </span>
-    </button>
-
-</div>
                                 @endif
-
                             </div>
+
+                                <div class="crm-address-actions">
+
+                                    <a
+                                        href="https://www.google.com/maps/search/?api=1&query={{ $mapsQuery }}"
+                                        target="_blank"
+                                        class="crm-address-action"
+                                    >
+                                        <x-icon group="actions" name="map" />
+                                        <span>Mappa</span>
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="crm-address-action"
+                                        data-copy-text="{{ $fullAddress }}"
+                                        onclick="copyCrmText(this)"
+                                    >
+                                        <x-icon group="actions" name="copy" />
+                                        <span class="crm-copy-label">Copia</span>
+                                    </button>
+
+                                </div>
+
+
 
                         </div>
 
-                        {{-- RIGHT ACTIONS --}}
-                        @include('components.crm.row-actions', [
-                            'editModalTarget' => '#addressEditModal-' . $address->id,
-                            'delete' => route('organizations.addresses.destroy', [$organization, $address]),
-                            'deleteConfirm' => 'Confermi l\'eliminazione di questo indirizzo?',
-                        ])
+
+
+
+
+@include('components.crm.row-actions', [
+    'edit' => route('organizations.edit', $organization),
+    'delete' => route('organizations.destroy', $organization),
+    'deleteConfirm' => 'Confermi l\'eliminazione di questa organizzazione?',
+])
 
                     </li>
 

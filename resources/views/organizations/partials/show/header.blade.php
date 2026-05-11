@@ -54,6 +54,13 @@
 
             <div class="d-flex flex-wrap align-items-start gap-2">
 
+@include('components.crm.row-actions', [
+    'edit' => route('organizations.edit', $organization),
+    'delete' => route('organizations.destroy', $organization),
+    'deleteConfirm' => 'Confermi l\'eliminazione di questa organizzazione?',
+])
+
+
                 <x-crm.button
                     href="{{ route('organizations.edit', $organization) }}"
                     icon="edit"
