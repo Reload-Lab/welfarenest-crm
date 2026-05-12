@@ -23,17 +23,19 @@ class AddressTypeSeeder extends Seeder
         $data = [];
 
         foreach ($items as $index => $item) {
-            $data[] = [
-                'code' => $item['code'],
-                'name' => $item['name'],
-                'description' => null,
-                'sort_order' => $index + 1,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }
 
-        DB::table('address_types')->insert($data);
+            DB::table('address_types')->updateOrInsert(
+                ['code' => $item['code']],
+                [
+                    'name' => $item['name'],
+                    'description' => null,
+                    'sort_order' => $index + 1,
+                    'is_active' => true,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+
+        }
     }
 }

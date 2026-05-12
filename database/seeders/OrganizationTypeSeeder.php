@@ -40,20 +40,29 @@ class OrganizationTypeSeeder extends Seeder
         $data = [];
 
         foreach ($types as $index => $type) {
+
             $code = strtolower($type['name']);
-            $code = str_replace(['à','è','é','ì','ò','ù'], ['a','e','e','i','o','u'], $code);
+            $code = str_replace(
+                ['à','è','é','ì','ò','ù'],
+                ['a','e','e','i','o','u'],
+                $code
+            );
+
             $code = preg_replace('/[^a-z0-9]+/', '_', $code);
             $code = trim($code, '_');
 
-            $data[] = [
-                'code' => $code,
-                'name' => $type['name'],
-                'description' => null,
-                'sort_order' => $index + 1,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            DB::table('organization_types')->updateOrInsert(
+                ['code' => $code],
+                [
+                    'name' => $type['name'],
+                    'description' => null,
+                    'sort_order' => $index + 1,
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+
         }
 
         DB::table('organization_types')->insert($data);

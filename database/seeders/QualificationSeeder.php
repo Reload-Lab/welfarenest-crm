@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class QualificationSeeder extends Seeder
 {
+
     public function run(): void
     {
         $items = [
@@ -24,20 +25,22 @@ class QualificationSeeder extends Seeder
             ['code' => 'responsabile_ufficio_area', 'name' => 'Responsabile Ufficio/Area'],
         ];
 
-        $data = [];
-
         foreach ($items as $index => $item) {
-            $data[] = [
-                'code' => $item['code'],
-                'name' => $item['name'],
-                'description' => null,
-                'sort_order' => $index + 1,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }
 
-        DB::table('qualifications')->insert($data);
+            DB::table('qualifications')->updateOrInsert(
+                ['code' => $item['code']],
+                [
+                    'name' => $item['name'],
+                    'description' => null,
+                    'sort_order' => $index + 1,
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+
+        }
     }
+
+
 }

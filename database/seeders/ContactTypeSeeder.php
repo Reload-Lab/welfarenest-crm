@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class ContactTypeSeeder extends Seeder
 {
+
     public function run(): void
     {
         $items = [
@@ -20,21 +21,23 @@ class ContactTypeSeeder extends Seeder
             ['code' => 'website', 'name' => 'Sito web', 'category' => 'web'],
         ];
 
-        $data = [];
-
         foreach ($items as $index => $item) {
-            $data[] = [
-                'code' => $item['code'],
-                'name' => $item['name'],
-                'category' => $item['category'],
-                'description' => null,
-                'sort_order' => $index + 1,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }
 
-        DB::table('contact_types')->insert($data);
+            DB::table('contact_types')->updateOrInsert(
+                ['code' => $item['code']],
+                [
+                    'name' => $item['name'],
+                    'category' => $item['category'],
+                    'description' => null,
+                    'sort_order' => $index + 1,
+                    'is_active' => true,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+
+        }
     }
+
+
 }
