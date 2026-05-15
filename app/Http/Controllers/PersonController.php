@@ -6,8 +6,12 @@ use App\Models\Department;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Qualification;
+use App\Models\ContactType;
+use App\Models\ContactUsage;
+
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
 
 class PersonController extends Controller
 {
@@ -108,6 +112,8 @@ class PersonController extends Controller
             'organizationRelations.organization',
             'organizationRelations.qualification',
             'organizationRelations.department',
+            'contactPoints.contactType',
+            'contactPoints.contactUsage',
         ]);
 
         $organizations = Organization::query()
@@ -126,11 +132,25 @@ class PersonController extends Controller
             ->orderBy('name')
             ->get();
 
+        $contactTypes = ContactType::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $contactUsages = ContactUsage::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
         return view('people.show', compact(
             'person',
             'organizations',
             'qualifications',
-            'departments'
+            'departments',
+            'contactTypes',
+            'contactUsages'
         ));
     }
 
@@ -152,4 +172,14 @@ class PersonController extends Controller
             ->route('people.show', $person)
             ->with('success', 'Persona aggiornata con successo.');
     }
+
+    public function destroy(Person $person)
+    {
+        $person->delete();
+
+        return redirect()
+            ->route('people.index')
+            ->with('success', 'Persona eliminata con successo.');
+    }
+
 }

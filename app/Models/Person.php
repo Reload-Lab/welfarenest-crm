@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\ContactPoint;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 
 class Person extends Model
 {
@@ -40,5 +43,12 @@ class Person extends Model
             ? asset('storage/' . $this->avatar_path)
             : null;
     }
+
+    public function contactPoints()
+    {
+        return $this->hasMany(ContactPoint::class, 'owner_id')
+            ->where('owner_type', 'person');
+    }
+        
 
 }

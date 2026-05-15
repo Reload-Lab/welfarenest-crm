@@ -5,6 +5,7 @@ return [
     'actions' => [
         'create' => 'icons.actions.create',
         'add'    => 'icons.actions.add',
+        'plus'    => 'icons.actions.plus',
         'edit'   => 'icons.actions.edit',
         'delete' => 'icons.actions.delete',
         'view'   => 'icons.actions.view',

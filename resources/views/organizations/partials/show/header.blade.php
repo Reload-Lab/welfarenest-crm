@@ -54,37 +54,11 @@
 
             <div class="d-flex flex-wrap align-items-start gap-2">
 
-@include('components.crm.row-actions', [
-    'edit' => route('organizations.edit', $organization),
-    'delete' => route('organizations.destroy', $organization),
-    'deleteConfirm' => 'Confermi l\'eliminazione di questa organizzazione?',
-])
-
-
-                <x-crm.button
-                    href="{{ route('organizations.edit', $organization) }}"
-                    icon="edit"
-                >
-                    Modifica
-                </x-crm.button>
-
-
-                <form action="{{ route('organizations.destroy', $organization) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-
-                    <x-crm.button
-                        type="submit"
-                        variant="outline-danger"
-                        icon-group="navigation"
-                        icon="trash"
-                        confirm="Vuoi eliminare questa organizzazione?"
-                    >
-                        Elimina
-                    </x-crm.button>
-                </form>
-
-
+                @include('components.crm.row-actions', [
+                    'edit' => route('organizations.edit', $organization),
+                    'delete' => route('organizations.destroy', $organization),
+                    'deleteConfirm' => 'Confermi l\'eliminazione di questa organizzazione?',
+                ])
 
             </div>
         </div>

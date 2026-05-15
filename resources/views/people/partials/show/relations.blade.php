@@ -3,14 +3,17 @@
     <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
         <h3 class="h5 mb-0">Relazioni con organizzazioni</h3>
 
-        <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#personRelationModal"
-        >
-            Nuova relazione
-        </button>
+            <x-crm.icon-button
+                icon="add"
+                icon-group="actions"
+                title="Nuova relazione"
+                class="crm-tooltip"
+                data-bs-toggle="modal"
+                data-bs-target="#personRelationModal"
+            />
+
+
+
     </div>
 
     @foreach($person->organizationRelations as $relation)
@@ -58,82 +61,86 @@
                 </p>
             </div>
         @else
-            <div class="table-responsive">
-                <table class="table table-sm align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Organizzazione</th>
-                            <th>Qualifica</th>
-                            <th>Dipartimento</th>
-                            <th>Periodo</th>
-                            <th>Stato</th>
-                            <th class="text-end">Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($person->organizationRelations as $relation)
-                            <tr>
-                                <td>
-                                                                        <x-crm.avatar
-                                        :name="$relation->organization->display_name"
-                                        :image="$relation->organization->avatar_url"
-                                        type="organization"
-                                        size="sm"
-                                    />    
-                                    {{ $relation->organization?->name ?: $relation->organization?->legal_name ?: '—' }}
-                                </td>
-                                <td>
-                                    <x-crm.tag
-                                        :label="$relation->qualification?->name"
-                                        icon-group="entities"
-                                        icon-name="qualification"
-                                    /> 
-                                </td>
-                                <td>
-                                    <x-crm.tag
-                                        :label="$relation->department?->name"
-                                        icon-group="entities"
-                                        icon-name="department"
-                                    /> 
-                                </td>
-                                <td>
-                                    @if($relation->start_date || $relation->end_date)
-                                        {{ $relation->start_date?->format('d/m/Y') ?: '—' }}
-                                        -
-                                        {{ $relation->end_date?->format('d/m/Y') ?: '—' }}
-                                    @else
-                                        —
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-column align-items-start gap-1">
-                                        @if($relation->is_active)
-                                            <span class="badge text-bg-success">Attiva</span>
-                                        @else
-                                            <span class="badge text-bg-secondary">Non attiva</span>
-                                        @endif
 
-                                        @if($relation->is_primary)
-                                            <span class="badge text-bg-light border text-dark">Principale</span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td class="text-end">
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-outline-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editRelationModal-{{ $relation->id }}"
-                                        onclick="event.preventDefault(); event.stopPropagation();"
+
+<div class="row g-3">
+    @foreach($person->organizationRelations as $relation)
+        <div class="col-12">
+            <div class="crm-relation-card h-100">
+                <div class="d-flex align-items-start gap-3">
+                    @if($relation->organization)
+                        <x-crm.avatar
+                            :name="$relation->organization->display_name"
+                            :image="$relation->organization->avatar_url"
+                            type="organization"
+                            size="sm"
+                        />
+                    @endif
+
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div class="min-w-0">
+                                @if($relation->organization)
+                                    <a
+                                        href="{{ route('organizations.show', $relation->organization) }}"
+                                        class="crm-relation-card__name"
                                     >
-                                        Modifica
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                        {{ $relation->organization->display_name }}
+                                    </a>
+                                @else
+                                    <span class="crm-relation-card__name">Organizzazione non disponibile</span>
+                                @endif
+
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                <x-crm.status
+                                    :label="$relation->is_active ? 'Attiva' : 'Non attiva'"
+                                    :variant="$relation->is_active ? 'success' : 'muted'"
+                                    icon-group="status"
+                                    :icon-name="$relation->is_active ? 'active' : 'inactive'"
+                                    mode="icon"
+                                />
+
+                                @include('components.crm.row-actions', [
+                                    'editModalTarget' => '#editRelationModal-' . $relation->id,
+                                    'delete' => route('people.relations.destroy', [$person, $relation]),
+                                    'deleteConfirm' => 'Confermi l\'eliminazione di questa relazione?',
+                                ])
+                            </div>
+                        </div>
+
+                        <div class="crm-relation-card__tags mt-2">
+                            <x-crm.tag
+                                :label="$relation->qualification?->name"
+                                icon-group="entities"
+                                icon-name="qualification"
+                            />
+
+                            <x-crm.tag
+                                :label="$relation->department?->name"
+                                icon-group="entities"
+                                icon-name="department"
+                            />
+
+                            @if($relation->is_primary)
+                                <x-crm.tag
+                                    label="Principale"
+                                    icon-group="status"
+                                    icon-name="star"
+                                />
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+    @endforeach
+</div>
+
+
+
+
         @endif
     </div>
 </div>

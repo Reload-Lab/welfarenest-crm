@@ -333,6 +333,11 @@
 }
 
 
+
+
+
+
+
 /* Mobile / tablet */
 @media (max-width: 991.98px) {
     .crm-table-card__header {
@@ -354,4 +359,102 @@
     .crm-row-actions {
         opacity: 1;
     }
+}
+
+
+
+/* Footer tabella / paginazione */
+
+/* Footer tabella / paginazione */
+.crm-table-footer {
+    background: #fff;
+    border-top: 1px solid var(--crm-table-border);
+    padding: 0.875rem 1.25rem;
+}
+
+.crm-table-footer > .d-flex {
+    min-height: 2.75rem;
+}
+
+.crm-table-footer__left,
+.crm-table-footer__right {
+    display: flex;
+    align-items: center;
+}
+
+.crm-table-footer__left .form-select {
+    min-width: 7rem;
+    height: 2.35rem;
+    border-radius: 0.65rem;
+    font-size: 0.875rem;
+}
+
+/* Wrapper Laravel pagination */
+.crm-pagination {
+    display: flex;
+    align-items: center;
+}
+
+/* Laravel bootstrap-5 genera un flex interno */
+.crm-pagination > div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem;
+}
+
+/* Testo “11 a 20 di...” */
+.crm-pagination p {
+    margin: 0 !important;
+    line-height: 1 !important;
+    white-space: nowrap;
+    color: var(--crm-table-muted);
+    font-size: 0.875rem;
+}
+
+/* Nav paginazione */
+.crm-pagination nav {
+    display: flex;
+    align-items: center;
+}
+
+.crm-pagination .pagination {
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.crm-pagination .page-item {
+    margin: 0 !important;
+}
+
+.crm-pagination .page-link {
+    width: 2.35rem;
+    height: 2.35rem;
+    padding: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.65rem !important;
+    border: 0 !important;
+    background: transparent;
+    color: var(--crm-table-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1 !important;
+}
+
+.crm-pagination .page-item.active .page-link {
+    background: var(--crm-table-text);
+    color: #fff;
+}
+
+.crm-pagination .page-link:hover {
+    background: #f1f5f9;
+    color: var(--crm-table-text);
+}
+
+.crm-pagination .page-item.disabled .page-link {
+    background: transparent;
+    color: #cbd5e1;
 }

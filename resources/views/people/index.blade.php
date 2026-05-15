@@ -9,12 +9,6 @@
 
 @section('pageHeader')
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-        <div>
-            <h1 class="crm-page-title">Persone</h1>
-            <p class="crm-page-subtitle mb-0">
-                Elenco e gestione delle anagrafiche personali
-            </p>
-        </div>
 
         <div class="d-flex align-items-center gap-2">
             <x-crm.button
@@ -29,13 +23,6 @@
 @endsection
 
 @section('content')
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
-        </div>
-    @endif
-
 
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
@@ -197,10 +184,11 @@
                             </td>
 
                             <td class="text-end crm-cell-end">
-                                <x-crm.row-actions
-                                    :view="route('people.show', $person)"
-                                    :edit="route('people.edit', $person)"
-                                />
+                                @include('components.crm.row-actions', [
+                                    'edit' => route('people.edit', $person),
+                                    'delete' => route('people.destroy', $person),
+                                    'deleteConfirm' => 'Confermi l\'eliminazione di questa persona?',
+                                ])
                             </td>
                         </tr>
                     @empty

@@ -174,3 +174,65 @@
     height: 1rem;
     flex: 0 0 auto;
 }
+
+
+
+/* ---------------------------------------------------------
+   CRM ICON BUTTONS (specifici per le icone add - menu contestuale - ecc)
+   --------------------------------------------------------- */
+.crm-icon-button {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: .85rem;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--crm-muted, #64748b);
+    background: transparent;
+    transition: all .15s ease;
+}
+
+.crm-icon-button svg {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+.crm-icon-button-light {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.crm-icon-button-light:hover {
+    background: #eef6f8;
+    color: #0E354D;
+    border-color: #cbdde3;
+}
+
+.crm-icon-button-ghost:hover {
+    background: #f1f5f9;
+    color: #0E354D;
+}
+
+.crm-icon-button-danger:hover {
+    background: #fff1f2;
+    color: #be123c;
+}
+
+
+
+.crm-tooltip {
+    --bs-tooltip-bg: #0E354D;
+    --bs-tooltip-color: #fff;
+    --bs-tooltip-border-radius: .7rem;
+    --bs-tooltip-padding-x: .65rem;
+    --bs-tooltip-padding-y: .45rem;
+    --bs-tooltip-font-size: .8rem;
+    --bs-tooltip-opacity: 1;
+}
+
+.crm-tooltip .tooltip-inner {
+    box-shadow:
+        0 4px 12px rgba(15, 23, 42, .12);
+    font-weight: 500;
+}

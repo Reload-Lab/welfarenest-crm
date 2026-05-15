@@ -3,14 +3,14 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Indirizzi</h5>
 
-        <x-crm.button
-            href="#"
-            icon="plus"
+        <x-crm.icon-button
+            icon="add"
+            icon-group="actions"
+            title="Nuovo recapito"
             data-bs-toggle="modal"
             data-bs-target="#modalCreateAddress"
-        >
-            Nuovo
-        </x-crm.button>
+        />
+       
     </div>
 
     {{-- BODY --}}

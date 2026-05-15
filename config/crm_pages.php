@@ -99,6 +99,60 @@ return [
         ],
     ],
 
+'people.show' => [
+    'title' => 'Persone',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Persone',
+            'route' => 'people.index',
+        ],
+        [
+            'label' => fn (array $params) => $params['person']->full_name ?: 'Scheda persona',
+        ],
+    ],
+],
+
+'people.create' => [
+    'title' =>  'Nuova persona',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Persone',
+            'route' => 'people.index',
+        ],
+        [
+            'label' => 'Nuova persona',
+        ],
+    ],
+],
+
+
+'people.edit' => [
+    'title' =>  'Nuova persona',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Persone',
+            'route' => 'people.index',
+        ],
+        [
+             'label' => fn (array $params) => $params['person']->full_name ?: 'Scheda persona',
+        ],
+    ],
+],
 
 'clients.index' => [
     'title' => 'Clienti',

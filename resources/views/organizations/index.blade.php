@@ -82,15 +82,6 @@
                 </select>
             </div>
 
-            <div class="col-12 col-md-4 col-lg-2">
-                <label for="per_page" class="form-label fw-semibold">Righe</label>
-                <select name="per_page" id="per_page" class="form-select">
-                    <option value="10" {{ (int) $perPage === 10 ? 'selected' : '' }}>10</option>
-                    <option value="20" {{ (int) $perPage === 20 ? 'selected' : '' }}>20</option>
-                    <option value="50" {{ (int) $perPage === 50 ? 'selected' : '' }}>50</option>
-                </select>
-            </div>
-
             <div class="col-12 col-lg">
                 <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
                     <x-crm.button type="submit" icon="filter" variant="primary">
@@ -117,157 +108,141 @@
 </div>
 
 
+<div class="crm-table-card">
+    <div class="crm-table-responsive">
+        <table class="table crm-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="crm-cell-start">
+                        @include('components.crm.sortable-th', [
+                            'label' => 'Nome',
+                            'field' => 'name'
+                        ])
+                    </th>
 
-    <div class="crm-table-card">
-        <div class="crm-table-card__header">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                <div>
-                    <h2 class="crm-table-card__title">{{ $pageHeading }}</h2>
-                    <p class="crm-table-card__subtitle">
-                        {{ $organizations->total() }} risultati trovati
-                    </p>
-                </div>
-            </div>
-        </div>
+                    <th>Tipologia organizzazione</th>
 
-        <div class="crm-table-responsive">
-            <table class="table crm-table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="crm-cell-start">
-                            @include('components.crm.sortable-th', [
-                            
-                                'label' => 'Nome',
-                                'field' => 'name'
-                            ])
-                        </th>
+                    <th class="text-center">
+                        @include('components.crm.sortable-th', [
+                            'label' => 'Relazioni',
+                            'field' => 'relations_count'
+                        ])
+                    </th>
 
-                        <th>
-                            @include('components.crm.sortable-th', [
-                                'label' => 'Ragione sociale',
-                                'field' => 'legal_name'
-                            ])
-                        </th>
+                    <th class="text-end crm-cell-end">Azioni</th>
+                </tr>
+            </thead>
 
-                        <th>
-                            @include('components.crm.sortable-th', [
-                                'label' => 'P.IVA',
-                                'field' => 'vat_number'
-                            ])
-                        </th>
-
-                        <th>
-                            @include('components.crm.sortable-th', [
-                                'label' => 'Codice fiscale',
-                                'field' => 'tax_code'
-                            ])
-                        </th>
-
-                        <th>
-                            @include('components.crm.sortable-th', [
-                                'label' => 'Stato',
-                                'field' => 'is_active'
-                            ])
-                        </th>
-
-                        <th class="text-end crm-cell-end">Azioni</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @forelse($organizations as $organization)
-                        <tr class="crm-table__row">
-                            <td class="crm-cell-start">
-                                <div class="d-flex align-items-center gap-3">
-                                    <x-crm.avatar
-                                        :name="$organization->display_name"
-                                        :image="$organization->avatar_url"
-                                        type="organization"
-                                        size="sm"
-                                    />
-
-                                    <div class="min-w-0">
-                                        <a href="{{ route('organizations.show', $organization) }}"
-                                        class="crm-entity-link d-inline-block text-truncate">
-                                            {{ $organization->display_name }}
-                                        </a>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <td>
-                                <span class="crm-text-muted">
-                                    {{ $organization->legal_name ?: '—' }}
-                                </span>
-                            </td>
-
-                            <td>
-                                <span class="crm-text-muted">
-                                    {{ $organization->vat_number ?: '—' }}
-                                </span>
-                            </td>
-
-                            <td>
-                                <span class="crm-text-muted">
-                                    {{ $organization->tax_code ?: '—' }}
-                                </span>
-                            </td>
-
-                            <td>
-                                @if($organization->is_active)
-                                    <span class="crm-badge crm-badge--success">
-                                        Attivo
-                                    </span>
-                                @else
-                                    <span class="crm-badge crm-badge--muted">
-                                        Non attivo
-                                    </span>
-                                @endif
-                            </td>
-
-                            <td class="text-end crm-cell-end">
-                                <x-crm.row-actions
-                                    :view="route('organizations.show', $organization)"
-                                    :edit="route('organizations.edit', $organization)"
-                                    :delete="route('organizations.destroy', $organization)"
-                                    delete-confirm="Confermi l'eliminazione di questa organizzazione?"
+            <tbody>
+                @forelse($organizations as $organization)
+                    <tr class="crm-table__row">
+                        <td class="crm-cell-start">
+                            <div class="d-flex align-items-center gap-3">
+                                <x-crm.avatar
+                                    :name="$organization->display_name"
+                                    :image="$organization->avatar_url"
+                                    type="organization"
+                                    size="sm"
                                 />
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="p-0">
-                                <div class="crm-empty-state">
-                                    <div class="crm-empty-state__icon">
-                                        <x-icon group="actions" name="search" />
-                                    </div>
-                                    <h3 class="crm-empty-state__title">Nessuna organizzazione trovata</h3>
-                                    <p class="crm-empty-state__text">
-                                        Non ci sono organizzazioni da mostrare con i filtri correnti.
-                                    </p>
 
-                                    <div class="mt-3">
-                                        <x-crm.button
-                                            href="{{ route('organizations.create') }}"
-                                            icon="add"
-                                            variant="primary"
-                                        >
-                                            {{ $createLabel }}
-                                        </x-crm.button>
-                                    </div>
+                                <div class="min-w-0">
+                                    <a href="{{ route('organizations.show', $organization) }}"
+                                       class="crm-entity-link d-inline-block text-truncate">
+                                        {{ $organization->display_name }}
+                                    </a>
                                 </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                            </div>
+                        </td>
 
-        @if($organizations->hasPages())
-            <div class="card-footer bg-white border-0 px-4 py-3">
-                {{ $organizations->links() }}
-            </div>
-        @endif
+                        <td>
+                            <span class="crm-text-muted">
+                                {{ $organization->organizationType?->name ?? '—' }}
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            <span class="crm-badge crm-badge--muted">
+                                {{ $organization->relations_count ?? 0 }}
+                            </span>
+                        </td>
+
+                        <td class="text-end crm-cell-end">
+                            <x-crm.row-actions
+                                :view="route('organizations.show', $organization)"
+                                :edit="route('organizations.edit', $organization)"
+                                :delete="route('organizations.destroy', $organization)"
+                                delete-confirm="Confermi l'eliminazione di questa organizzazione?"
+                            />
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="p-0">
+                            <div class="crm-empty-state">
+                                <div class="crm-empty-state__icon">
+                                    <x-icon group="actions" name="search" />
+                                </div>
+                                <h3 class="crm-empty-state__title">Nessuna organizzazione trovata</h3>
+                                <p class="crm-empty-state__text">
+                                    Non ci sono organizzazioni da mostrare con i filtri correnti.
+                                </p>
+
+                                <div class="mt-3">
+                                    <x-crm.button
+                                        href="{{ route('organizations.create') }}"
+                                        icon="add"
+                                        variant="primary"
+                                    >
+                                        {{ $createLabel }}
+                                    </x-crm.button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+
+    <div class="card-footer crm-table-footer">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+            <form method="GET" action="{{ route($indexRoute) }}" class="d-flex align-items-center gap-2">
+                <input type="hidden" name="search" value="{{ $search }}">
+                <input type="hidden" name="status" value="{{ $status }}">
+                <input type="hidden" name="sort" value="{{ $sort }}">
+                <input type="hidden" name="direction" value="{{ $direction }}">
+
+                <select
+                    name="per_page"
+                    id="per_page_footer"
+                    class="form-select form-select-sm"
+                    onchange="this.form.submit()"
+                >
+                    <option value="10" {{ (int) $perPage === 10 ? 'selected' : '' }}>10 righe</option>
+                    <option value="20" {{ (int) $perPage === 20 ? 'selected' : '' }}>20 righe</option>
+                    <option value="50" {{ (int) $perPage === 50 ? 'selected' : '' }}>50 righe</option>
+                </select>
+            </form>
+
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                @if($organizations->hasPages())
+                    <div class="crm-pagination">
+                        {{ $organizations->links() }}
+                    </div>
+                @else
+                     <span class="crm-text-muted small">
+                        {{ $organizations->total() }} risultati trovati
+                    </span>
+                @endif
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+
 </div>
 @endsection

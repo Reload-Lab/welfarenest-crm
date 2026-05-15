@@ -37,8 +37,6 @@ class OrganizationTypeSeeder extends Seeder
             ['name' => 'Utility'],
         ];
 
-        $data = [];
-
         foreach ($types as $index => $type) {
 
             $code = strtolower($type['name']);
@@ -64,7 +62,5 @@ class OrganizationTypeSeeder extends Seeder
             );
 
         }
-
-        DB::table('organization_types')->insert($data);
     }
 }

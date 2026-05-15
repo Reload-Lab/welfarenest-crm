@@ -150,3 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFilterToggle('toggleOrganizationFilters', 'organizationAdvancedFilters');
     setupFilterToggle('togglePeopleFilters', 'peopleAdvancedFilters');
 });
+
+document.querySelectorAll('.crm-tooltip').forEach(el => {
+    new bootstrap.Tooltip(el);
+});

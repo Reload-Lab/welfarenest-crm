@@ -22,7 +22,9 @@ Route::middleware('auth')->group(function () {
     Route::get('organizations/search', [OrganizationController::class, 'search'])->name('organizations.search');
     Route::resource('organizations', OrganizationController::class);
     Route::get('people/search', [PersonController::class, 'search'])->name('people.search');
-    Route::resource('people', PersonController::class)->except(['destroy']);
+    //Route::resource('people', PersonController::class)->except(['destroy']);
+    Route::resource('people', PersonController::class);
+
     Route::post('people/{person}/relations', [PersonOrganizationRelationController::class, 'store'])->name('people.relations.store');
     Route::post('organizations/{organization}/relations', [PersonOrganizationRelationController::class, 'storeFromOrganization'])->name('organizations.relations.store');
     Route::put('people/{person}/relations/{relation}', [PersonOrganizationRelationController::class, 'update'])->name('people.relations.update');

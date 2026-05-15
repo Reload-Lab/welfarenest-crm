@@ -146,6 +146,7 @@ public function show(Request $request, Organization $organization)
             'tax_code',
             'is_active',
             'created_at',
+            'relations_count',
         ];
 
         if (! in_array($sort, $allowedSorts, true)) {
@@ -160,7 +161,11 @@ public function show(Request $request, Organization $organization)
             $perPage = 10;
         }
 
-        $query = Organization::query();
+        $query = Organization::query()
+            ->with('organizationType')
+            ->withCount([
+                'personOrganizationRelations as relations_count',
+            ]);
 
         if ($scope === 'client') {
             $query->whereHas('organizationRoles', function ($q) {

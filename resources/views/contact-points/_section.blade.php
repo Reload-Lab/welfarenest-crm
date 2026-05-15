@@ -8,14 +8,14 @@
                 </p>
             </div>
 
-            <x-crm.button
-                type="button"
+            <x-crm.icon-button
                 icon="add"
+                icon-group="actions"
+                title="Nuovo recapito"
                 data-bs-toggle="modal"
                 data-bs-target="#{{ $collapseId }}Modal"
-            >
-                {{ $createLabel }}
-            </x-crm.button>
+            />
+
         </div>
 
 
