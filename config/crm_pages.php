@@ -254,4 +254,40 @@ return [
     ],
 ],
 
+'clients.show' => [
+    'title' => fn (array $params) => $params['organization']->display_name,
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Clienti',
+            'route' => 'clients.index',
+        ],
+        [
+            'label' => fn (array $params) => $params['organization']->display_name,
+        ],
+    ],
+],
+
+'suppliers.show' => [
+    'title' => fn (array $params) => $params['organization']->display_name,
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Fornitori',
+            'route' => 'suppliers.index',
+        ],
+        [
+            'label' => fn (array $params) => $params['organization']->display_name,
+        ],
+    ],
+],
+
 ];

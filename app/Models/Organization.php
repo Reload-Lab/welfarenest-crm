@@ -83,5 +83,12 @@ class Organization extends Model
             ->orderBy('city');
     }
 
+    public function notes()
+    {
+        return $this->hasMany(\App\Models\Note::class, 'owner_id')
+            ->where('owner_type', 'organization')
+            ->latest('created_at');
+    }
+
 }
 

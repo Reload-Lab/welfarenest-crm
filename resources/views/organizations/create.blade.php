@@ -15,6 +15,7 @@
 @endsection
 
 @section('content')
+    {{--
     @if ($errors->any())
         <div class="alert alert-danger border-0 shadow-sm">
             <div class="fw-semibold mb-1">Controlla i dati inseriti</div>
@@ -25,7 +26,7 @@
             </ul>
         </div>
     @endif
-
+    --}}
     <form method="POST" action="{{ route('organizations.store') }}">
         @csrf
 

@@ -1,10 +1,17 @@
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
-        <h3 class="h5 mb-0">Note</h3>
+<div class="card h-100 shadow-sm">
+    <div class="card-header">
+        <div>
+            <h5>Note</h5>
+        </div>
 
-        <button type="button" class="btn btn-sm btn-outline-primary" disabled>
-            Nuova nota
-        </button>
+        <x-crm.icon-button
+            icon="add"
+            icon-group="actions"
+            title="Nuova nota"
+            data-bs-toggle="modal"
+            data-bs-target="#modalCreateNote"
+        />
+       
     </div>
 
     <div class="card-body p-4">

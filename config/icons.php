@@ -27,7 +27,10 @@ return [
         'logout' => 'icons.actions.logout',
         'map' => 'icons.actions.map',
         'copy' => 'icons.actions.copy',
-
+        'archive' => 'icons.actions.archive',
+        'archive-restore' => 'icons.actions.archive-restore',
+        'pin' => 'icons.actions.pin',
+        'unpin' => 'icons.actions.unpin',
     ],
 
     'entities' => [

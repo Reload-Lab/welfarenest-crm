@@ -90,3 +90,23 @@
     background: #fff7ed;
     color: #f97316;
 }
+
+.crm-stat-card--link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.crm-stat-card--link:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+.crm-stat-card--green .crm-stat-card__icon {
+    background: #ecfdf5;
+    color: #16a34a;
+}
+
+.crm-stat-card--purple .crm-stat-card__icon {
+    background: #f5f3ff;
+    color: #7c3aed;
+}

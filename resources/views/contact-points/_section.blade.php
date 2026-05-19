@@ -1,11 +1,7 @@
 <div class="card crm-card">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+    <div class="card-header">
             <div>
-                <h2 class="h5 mb-1">Recapiti</h2>
-                <p class="text-muted small mb-0">
-                    Email, telefoni, siti web e altri recapiti associati.
-                </p>
+                <h5>Recapiti</h5>
             </div>
 
             <x-crm.icon-button
@@ -15,8 +11,16 @@
                 data-bs-toggle="modal"
                 data-bs-target="#{{ $collapseId }}Modal"
             />
+    </div>
 
-        </div>
+    <div class="card-body">
+        @include('contact-points._list', [
+            'contactPoints' => $contactPoints,
+            'destroyRouteName' => $destroyRouteName,
+        ])
+    </div>
+</div>
+
 
 
 
@@ -48,31 +52,5 @@
                 ])
             </div>
         </div>
-    </div>
-</div>
-
-
-<!--
-
-        <div id="{{ $collapseId }}" class="collapse {{ $errors->hasBag($errorBag) ? 'show' : '' }}">
-            <div class="border rounded-3 p-3 p-lg-4 mb-4 bg-body-tertiary">
-                @include('contact-points._form', [
-                    'action' => $storeRoute,
-                    'contactPoint' => null,
-                    'contactTypes' => $contactTypes,
-                    'contactUsages' => $contactUsages,
-                    'formIdPrefix' => $formIdPrefix,
-                    'errorBag' => $errorBag,
-                ])
-            </div>
-        </div>
--->
-
-
-
-        @include('contact-points._list', [
-            'contactPoints' => $contactPoints,
-            'destroyRouteName' => $destroyRouteName,
-        ])
     </div>
 </div>

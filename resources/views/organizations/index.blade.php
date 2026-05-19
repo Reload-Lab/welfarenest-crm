@@ -2,22 +2,33 @@
 
 @php
     $hasAdvancedFilters = filled($status);
+
+    $showRoute = match ($indexRoute) {
+        'clients.index' => 'clients.show',
+        'suppliers.index' => 'suppliers.show',
+        default => 'organizations.show',
+    };
 @endphp
 
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
 
-        <x-crm.button
-            href="{{ route('organizations.create') }}"
-            icon="add"
-            class="ms-auto"
-        >
-            {{ $createLabel }}
-        </x-crm.button>
-        
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div>
+            {{-- titolo / breadcrumb / altro --}}
+        </div>
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <x-crm.icon-button
+                icon="add"
+                icon-group="actions"
+                title="Nuova Organizzazione"
+                href="{{ route('organizations.create') }}"
+            />
+        </div>
     </div>
+
 
     @if(session('success'))
         <div class="alert alert-success border-0 shadow-sm" role="alert">
@@ -146,7 +157,7 @@
                                 />
 
                                 <div class="min-w-0">
-                                    <a href="{{ route('organizations.show', $organization) }}"
+                                    <a href="{{ route($showRoute, $organization) }}"
                                        class="crm-entity-link d-inline-block text-truncate">
                                         {{ $organization->display_name }}
                                     </a>
@@ -168,7 +179,7 @@
 
                         <td class="text-end crm-cell-end">
                             <x-crm.row-actions
-                                :view="route('organizations.show', $organization)"
+                                :view="route($showRoute, $organization)"
                                 :edit="route('organizations.edit', $organization)"
                                 :delete="route('organizations.destroy', $organization)"
                                 delete-confirm="Confermi l'eliminazione di questa organizzazione?"

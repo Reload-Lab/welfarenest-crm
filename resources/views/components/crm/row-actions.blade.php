@@ -5,6 +5,7 @@
     'deleteConfirm' => 'Confermi l\'eliminazione di questo elemento?',
     'editModalTarget' => null,
     'mode' => 'dropdown', // dropdown | inline
+    'actions' => [],
 ])
 
 @if($mode === 'inline')
@@ -29,6 +30,26 @@
                 <x-icon group="actions" name="edit" />
             </a>
         @endif
+
+        @foreach($actions as $action)
+            @if($action['show'] ?? true)
+                <form action="{{ $action['route'] }}"
+                      method="POST"
+                      class="d-inline">
+                    @csrf
+                    @method($action['method'] ?? 'POST')
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            title="{{ $action['label'] }}"
+                            aria-label="{{ $action['label'] }}">
+                        @if(!empty($action['icon']))
+                            <x-icon group="actions" :name="$action['icon']" />
+                        @endif
+                    </button>
+                </form>
+            @endif
+        @endforeach
 
         @if($delete)
             <form action="{{ $delete }}"
@@ -80,14 +101,32 @@
                 </a>
             @endif
 
-            @if(($view || $edit || $editModalTarget) && $delete)
+            @foreach($actions as $action)
+                @if($action['show'] ?? true)
+                    <form action="{{ $action['route'] }}" method="POST">
+                        @csrf
+                        @method($action['method'] ?? 'POST')
+
+                        <button type="submit"
+                                class="dropdown-item d-flex align-items-center gap-2">
+                            @if(!empty($action['icon']))
+                                <x-icon group="actions" :name="$action['icon']" />
+                            @endif
+
+                            <span>{{ $action['label'] }}</span>
+                        </button>
+                    </form>
+                @endif
+            @endforeach
+
+            @if(($view || $edit || $editModalTarget || count($actions)) && $delete)
                 <hr class="dropdown-divider">
             @endif
 
             @if($delete)
-            <form action="{{ $delete }}"
-                method="POST"
-                onsubmit="return confirm(@js($deleteConfirm))">
+                <form action="{{ $delete }}"
+                      method="POST"
+                      onsubmit="return confirm(@js($deleteConfirm))">
                     @csrf
                     @method('DELETE')
 

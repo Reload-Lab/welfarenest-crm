@@ -6,7 +6,8 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PersonOrganizationRelationController;
 use App\Http\Controllers\ContactPointController;
 use App\Http\Controllers\AddressController;
-
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NoteController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -19,43 +20,13 @@ Route::get('/login', function () {
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/', function () {
-        $stats = [
-            [
-                'label' => 'Organizzazioni',
-                'value' => Organization::count(),
-                'icon_group' => 'entities',
-                'icon_name' => 'organization',
-                'tone' => 'blue',
-            ],
-            [
-                'label' => 'Persone',
-                'value' => Person::count(),
-                'icon_group' => 'entities',
-                'icon_name' => 'person',
-                'tone' => 'teal',
-            ],
-            [
-                'label' => 'Relazioni',
-                'value' => PersonOrganizationRelation::count(),
-                'icon_group' => 'entities',
-                'icon_name' => 'relation',
-                'tone' => 'indigo',
-            ],
-            [
-                'label' => 'Recapiti',
-                'value' => ContactPoint::count(),
-                'icon_group' => 'contact',
-                'icon_name' => 'contact_point',
-                'tone' => 'orange',
-            ],
-        ];
-
-        return view('dashboard', compact('stats'));
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/clients', [OrganizationController::class, 'clients'])->name('clients.index');
+    Route::get('/clients/{organization}', [OrganizationController::class, 'show'])->name('clients.show');
+
     Route::get('/suppliers', [OrganizationController::class, 'suppliers'])->name('suppliers.index');
+    Route::get('/suppliers/{organization}', [OrganizationController::class, 'show'])->name('suppliers.show');
 
     Route::get('organizations/search', [OrganizationController::class, 'search'])->name('organizations.search');
     Route::resource('organizations', OrganizationController::class);
@@ -93,6 +64,18 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/organizations/{organization}/addresses/{address}', [AddressController::class, 'destroyForOrganization'])
         ->name('organizations.addresses.destroy');
+
+    Route::post('/organizations/{organization}/notes', [NoteController::class, 'store'])
+        ->name('organizations.notes.store');
+
+    Route::patch('/notes/{note}/archive', [NoteController::class, 'archive'])
+        ->name('notes.archive');
+
+    Route::patch('/notes/{note}/toggle-pinned', [NoteController::class, 'togglePinned'])
+        ->name('notes.toggle-pinned');
+
+    Route::delete('/notes/{note}', [NoteController::class, 'destroy'])
+        ->name('notes.destroy');
 
 
 });

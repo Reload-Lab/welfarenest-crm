@@ -178,7 +178,9 @@
                 </div>
 
                 @error('roles')
-                    <div class="text-danger small mt-2">{{ $message }}</div>
+                    <div class="text-danger small mt-2">
+                        Seleziona almeno un ruolo tra Cliente e Fornitore.
+                    </div>
                 @enderror
             </div>
         </div>

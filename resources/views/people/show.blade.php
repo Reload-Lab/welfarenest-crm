@@ -11,7 +11,15 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
                     <div>
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                            <h2 class="h4 mb-0">{{ $person->full_name ?: '—' }}</h2>
+                            @if($person->full_name)
+                            <x-crm.avatar
+                                :name="$person->full_name"
+                                :image="$person->avatar_url"
+                                type="person"
+                                size="sm"
+                            />
+                            @endif    
+                        <h2 class="h4 mb-0">{{ $person->full_name ?: '—' }}</h2>
                         </div>
 
                     </div>

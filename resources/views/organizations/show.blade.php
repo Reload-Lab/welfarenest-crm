@@ -17,6 +17,12 @@
 
             <div class="col-12 col-xl-5">
                 @include('organizations.partials.show.contact-points')
+                
+                @include('notes._section', [
+                    'organization' => $organization,
+                    'notes' => $organization->notes,
+                ])
+
             </div>
         </div>
 
@@ -26,7 +32,10 @@
             </div>
 
             <div class="col-12 col-xl-5">
-                @include('organizations.partials.show.notes')
+                @include('notes._section', [
+                    'organization' => $organization,
+                    'notes' => $organization->notes,
+                ])
             </div>
         </div>
 

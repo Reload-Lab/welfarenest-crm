@@ -1,12 +1,14 @@
-<div class="card h-100">
+<div class="card h-100 shadow-sm">
     {{-- HEADER --}}
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Indirizzi</h5>
+    <div class="card-header">
+        <div>
+            <h5>Indirizzi</h5>
+        </div>
 
         <x-crm.icon-button
             icon="add"
             icon-group="actions"
-            title="Nuovo recapito"
+            title="Nuovo indirizzo"
             data-bs-toggle="modal"
             data-bs-target="#modalCreateAddress"
         />

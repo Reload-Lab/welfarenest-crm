@@ -12,25 +12,29 @@
         </div>
 
         <div class="row g-4">
+
             @foreach($stats as $stat)
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="crm-stat-card crm-stat-card--{{ $stat['tone'] }}">
+                <div class="col-12 col-md-6 col-xl-4">
+                    @php
+                        $hasRoute = !empty($stat['route']) && Route::has($stat['route']);
+                    @endphp
+
+                    <{{ $hasRoute ? 'a' : 'div' }}
+                        @if($hasRoute) href="{{ route($stat['route']) }}" @endif
+                        class="crm-stat-card crm-stat-card--{{ $stat['tone'] }} {{ $hasRoute ? 'crm-stat-card--link' : '' }}"
+                    >
                         <div class="crm-stat-card__icon">
                             <x-icon :group="$stat['icon_group']" :name="$stat['icon_name']" />
                         </div>
 
                         <div>
                             <div class="crm-stat-card__label">{{ $stat['label'] }}</div>
-                            <div
-                                class="crm-stat-card__value js-counter"
-                                data-target="{{ $stat['value'] }}"
-                            >
-                                0
-                            </div>
+                            <div class="crm-stat-card__value js-counter" data-target="{{ $stat['value'] }}">0</div>
                         </div>
-                    </div>
+                    </{{ $hasRoute ? 'a' : 'div' }}>
                 </div>
             @endforeach
+
         </div>
     </div>
 @endsection

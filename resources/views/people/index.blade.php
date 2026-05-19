@@ -8,18 +8,23 @@
 @section('topbar_subtitle', 'Gestione anagrafiche persone')
 
 @section('pageHeader')
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
 
-        <div class="d-flex align-items-center gap-2">
-            <x-crm.button
-                href="{{ route('people.create') }}"
-                icon="add"
-            >
-                Nuova Persona
-            </x-crm.button>
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div>
+            {{-- titolo / breadcrumb / altro --}}
         </div>
 
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <x-crm.icon-button
+                icon="add"
+                icon-group="actions"
+                title="Nuova Persona"
+                href="{{ route('people.create') }}"
+            />
+        </div>
     </div>
+
 @endsection
 
 @section('content')

@@ -43,6 +43,13 @@ public function show(Request $request, Organization $organization)
 {
     $organization->load([
         'organizationType',
+
+        'notes' => function ($query) {
+            $query->with('author')
+                ->orderByDesc('is_pinned')
+                ->orderByDesc('created_at');
+        },
+
         'personOrganizationRelations' => function ($query) {
             $query->with([
                 'person',
@@ -259,7 +266,7 @@ public function show(Request $request, Organization $organization)
             'sdi_code' => ['nullable', 'string', 'max:20'],
             'is_split_payment' => ['nullable', 'boolean'],
             'is_active' => ['required', 'boolean'],
-            'roles' => ['nullable', 'array'],
+            'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['in:client,supplier'],
         ]);
 
@@ -306,8 +313,13 @@ public function show(Request $request, Organization $organization)
             'sdi_code' => ['nullable', 'string', 'max:20'],
             'is_split_payment' => ['nullable', 'boolean'],
             'is_active' => ['required', 'boolean'],
-            'roles' => ['nullable', 'array'],
+            'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['in:client,supplier'],
+        ], [
+            'roles.required' => 'Seleziona almeno un ruolo tra Cliente e Fornitore.',
+            'roles.array' => 'Il ruolo selezionato non è valido.',
+            'roles.min' => 'Seleziona almeno un ruolo tra Cliente e Fornitore.',
+            'roles.*.in' => 'Il ruolo selezionato non è valido.',
         ]);
 
         if (blank($validated['name'] ?? null) && blank($validated['legal_name'] ?? null)) {

@@ -1,11 +1,14 @@
 <div class="card border-0 shadow-sm">
+    
     @php
         $editingRelationId = (int) old('relation_id');
         $shouldOpenCreateRelationModal = $errors->any() && ! $editingRelationId;
     @endphp
 
-    <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
-        <h3 class="h5 mb-0">Persone</h3>
+    <div class="card-header">
+        <div>
+            <h5>Persone</h5>
+        </div>
 
         <x-crm.icon-button
             icon="add"
