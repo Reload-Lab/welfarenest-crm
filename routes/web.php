@@ -7,13 +7,51 @@ use App\Http\Controllers\PersonOrganizationRelationController;
 use App\Http\Controllers\ContactPointController;
 use App\Http\Controllers\AddressController;
 
+
+use App\Models\Organization;
+use App\Models\Person;
+use App\Models\PersonOrganizationRelation;
+use App\Models\ContactPoint;
+
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
 Route::middleware('auth')->group(function () {
+
     Route::get('/', function () {
-        return view('dashboard');
+        $stats = [
+            [
+                'label' => 'Organizzazioni',
+                'value' => Organization::count(),
+                'icon_group' => 'entities',
+                'icon_name' => 'organization',
+                'tone' => 'blue',
+            ],
+            [
+                'label' => 'Persone',
+                'value' => Person::count(),
+                'icon_group' => 'entities',
+                'icon_name' => 'person',
+                'tone' => 'teal',
+            ],
+            [
+                'label' => 'Relazioni',
+                'value' => PersonOrganizationRelation::count(),
+                'icon_group' => 'entities',
+                'icon_name' => 'relation',
+                'tone' => 'indigo',
+            ],
+            [
+                'label' => 'Recapiti',
+                'value' => ContactPoint::count(),
+                'icon_group' => 'contact',
+                'icon_name' => 'contact_point',
+                'tone' => 'orange',
+            ],
+        ];
+
+        return view('dashboard', compact('stats'));
     })->name('dashboard');
 
     Route::get('/clients', [OrganizationController::class, 'clients'])->name('clients.index');

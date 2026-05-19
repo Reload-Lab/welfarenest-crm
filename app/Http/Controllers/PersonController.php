@@ -51,6 +51,7 @@ class PersonController extends Controller
             'first_name',
             'last_name',
             'created_at',
+            'organization_relations_count',
         ];
 
         if (! in_array($sort, $allowedSorts, true)) {
