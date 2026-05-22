@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @php
-    $hasAdvancedFilters = filled($status);
+    $hasAdvancedFilters = filled($status) || filled($organizationTypeId);
 
     $showRoute = match ($indexRoute) {
         'clients.index' => 'clients.show',
@@ -71,9 +71,17 @@
                             aria-expanded="{{ $hasAdvancedFilters ? 'true' : 'false' }}"
                             aria-controls="organizationAdvancedFilters"
                         >
-                            <x-icon group="actions" name="filter" />
+                            <x-icon group="actions" name="sliders" />
                             <span>Filtri</span>
                         </button>
+                        <x-crm.button
+                            type="submit"
+                            icon="search"
+                            variant="primary"
+                        >
+                            Cerca
+                        </x-crm.button>
+
                     </div>
                 </div>
             </div>
@@ -93,11 +101,29 @@
                 </select>
             </div>
 
+            <div class="col-12 col-md-4 col-lg-3">
+                <label for="organization_type_id" class="form-label fw-semibold">
+                    Tipologia
+                </label>
+
+                <select name="organization_type_id" id="organization_type_id" class="form-select">
+                    <option value="">Tutte</option>
+
+                    @foreach($organizationTypes as $organizationType)
+                        <option
+                            value="{{ $organizationType->id }}"
+                            {{ (string) $organizationTypeId === (string) $organizationType->id ? 'selected' : '' }}
+                        >
+                            {{ $organizationType->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+
+
             <div class="col-12 col-lg">
                 <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
-                    <x-crm.button type="submit" icon="filter" variant="primary">
-                        Applica filtri
-                    </x-crm.button>
 
                     <x-crm.button
                         href="{{ route($indexRoute) }}"
@@ -223,6 +249,7 @@
                 <input type="hidden" name="status" value="{{ $status }}">
                 <input type="hidden" name="sort" value="{{ $sort }}">
                 <input type="hidden" name="direction" value="{{ $direction }}">
+                <input type="hidden" name="organization_type_id" value="{{ $organizationTypeId }}">
 
                 <select
                     name="per_page"

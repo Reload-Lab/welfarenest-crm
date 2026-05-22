@@ -125,30 +125,26 @@
         @endif
     </div>
 @endif
-
-        <div class="col-12 col-md-6 col-lg-3">
-            <label for="qualification_id" class="form-label fw-semibold">Qualifica</label>
+        <div class="col-12 col-md-6 col-lg-6">
+            <label for="is_active" class="form-label fw-semibold">Stato</label>
             <select
-                name="qualification_id"
-                id="qualification_id"
-                class="form-select @error('qualification_id') is-invalid @enderror"
+                name="is_active"
+                id="is_active"
+                class="form-select @error('is_active') is-invalid @enderror"
             >
-                <option value="">Nessuna</option>
-                    @foreach($qualifications as $qualification)
-                    <option
-                        value="{{ $qualification->id }}"
-                        {{ (string) old('qualification_id', $relation?->qualification_id) === (string) $qualification->id ? 'selected' : '' }}
-                    >
-                        {{ $qualification->name }}
-                    </option>
-                @endforeach
+                <option value="1" {{ (int) old('is_active', $relation?->is_active ?? 1) === 1 ? 'selected' : '' }}>
+                    Attiva
+                </option>
+                <option value="0" {{ (int) old('is_active', $relation?->is_active ?? 1) === 0 ? 'selected' : '' }}>
+                    Non attiva
+                </option>
             </select>
-            @error('qualification_id')
+            @error('is_active')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
-        <div class="col-12 col-md-6 col-lg-3">
+        <div class="col-12 col-md-6 col-lg-6">
             <label for="department_id" class="form-label fw-semibold">Dipartimento</label>
             <select
                 name="department_id"
@@ -170,54 +166,30 @@
             @enderror
         </div>
 
-        <div class="col-12 col-md-6 col-lg-3">
-            <label for="start_date" class="form-label fw-semibold">Data inizio</label>
-            <input
-                type="date"
-                name="start_date"
-                id="start_date"
-                class="form-control @error('start_date') is-invalid @enderror"
-                value="{{ old('start_date', optional($relation?->start_date)->format('Y-m-d')) }}"
-            >
-            @error('start_date')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-3">
-            <label for="end_date" class="form-label fw-semibold">Data fine</label>
-            <input
-                type="date"
-                name="end_date"
-                id="end_date"
-                class="form-control @error('end_date') is-invalid @enderror"
-                value="{{ old('end_date', optional($relation?->end_date)->format('Y-m-d')) }}"
-            >
-            @error('end_date')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-3">
-            <label for="is_active" class="form-label fw-semibold">Stato</label>
+        <div class="col-12 col-md-6 col-lg-6">
+            <label for="qualification_id" class="form-label fw-semibold">Qualifica</label>
             <select
-                name="is_active"
-                id="is_active"
-                class="form-select @error('is_active') is-invalid @enderror"
+                name="qualification_id"
+                id="qualification_id"
+                class="form-select @error('qualification_id') is-invalid @enderror"
             >
-                <option value="1" {{ (int) old('is_active', $relation?->is_active ?? 1) === 1 ? 'selected' : '' }}>
-                    Attiva
-                </option>
-                <option value="0" {{ (int) old('is_active', $relation?->is_active ?? 1) === 0 ? 'selected' : '' }}>
-                    Non attiva
-                </option>
+                <option value="">Nessuna</option>
+                    @foreach($qualifications as $qualification)
+                    <option
+                        value="{{ $qualification->id }}"
+                        {{ (string) old('qualification_id', $relation?->qualification_id) === (string) $qualification->id ? 'selected' : '' }}
+                    >
+                        {{ $qualification->name }}
+                    </option>
+                @endforeach
             </select>
-            @error('is_active')
+            @error('qualification_id')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
-
-        <div class="col-12 col-md-6 col-lg-3 d-flex align-items-end">
+        
+        {{--
+        <div class="col-12 col-md-6 col-lg-4 d-flex align-items-end">
             <div class="form-check form-switch mb-2">
                 <input
                     class="form-check-input"
@@ -233,6 +205,41 @@
                 </label>
             </div>
         </div>
+        --}}
+
+        {{-- Date per ora non disponibili --}}
+        {{--
+        <div class="col-12 col-md-6 col-lg-6">
+            <label for="start_date" class="form-label fw-semibold">Data inizio</label>
+            <input
+                type="date"
+                name="start_date"
+                id="start_date"
+                class="form-control @error('start_date') is-invalid @enderror"
+                value="{{ old('start_date', optional($relation?->start_date)->format('Y-m-d')) }}"
+            >
+            @error('start_date')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-6">
+            <label for="end_date" class="form-label fw-semibold">Data fine</label>
+            <input
+                type="date"
+                name="end_date"
+                id="end_date"
+                class="form-control @error('end_date') is-invalid @enderror"
+                value="{{ old('end_date', optional($relation?->end_date)->format('Y-m-d')) }}"
+            >
+            @error('end_date')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        --}}
+
+
+
     </div>
 
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">

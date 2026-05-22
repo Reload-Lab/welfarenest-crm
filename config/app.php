@@ -13,7 +13,9 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'CRM Welfare Nest'),
+
+    'version' => env('APP_VERSION', '0.4'),
 
     /*
     |--------------------------------------------------------------------------

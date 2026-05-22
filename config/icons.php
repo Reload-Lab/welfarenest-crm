@@ -31,6 +31,11 @@ return [
         'archive-restore' => 'icons.actions.archive-restore',
         'pin' => 'icons.actions.pin',
         'unpin' => 'icons.actions.unpin',
+        'sliders' => 'icons.actions.sliders',
+        'send' => 'icons.actions.send',
+        'call' => 'icons.actions.call',
+        'link' => 'icons.actions.link',
+        
     ],
 
     'entities' => [

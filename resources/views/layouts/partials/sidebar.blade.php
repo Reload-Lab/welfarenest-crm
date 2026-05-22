@@ -120,7 +120,6 @@
                     </span>
                     <span class="sidebar-link-text">
                         {{ $item['label'] }}
-                        <small class="d-block text-white-50">Presto disponibile</small>
                     </span>
                 </a>
             @endif
@@ -129,9 +128,10 @@
 
     <div class="sidebar-footer">
         <div class="sidebar-footer-text">
-            <div class="fw-semibold text-white">Reload CRM</div>
-            <div>Versione iniziale</div>
+            <div class="fw-semibold text-white">Welfare Nest CRM</div>
+            CRM v{{ config('app.version') }}
         </div>
+        
 
         <div class="sidebar-footer-toggle">
             <button

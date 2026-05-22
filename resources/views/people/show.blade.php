@@ -6,7 +6,7 @@
 <div class="container-fluid py-4">
     <div class="d-flex flex-column gap-4">
 
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm crm-card--header-actions">
             <div class="card-body p-4">
                 <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
                     <div>

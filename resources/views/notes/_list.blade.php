@@ -1,12 +1,15 @@
+
+<div class="d-flex flex-column gap-3">
+
 @if($notes->isEmpty())
 
-    <div class="text-muted small">
+    <div class="p-3 text-muted small">
         Nessuna nota presente.
     </div>
 
 @else
 
-    <div class="d-flex flex-column gap-3">
+
 
         @foreach($notes as $note)
 
@@ -73,6 +76,7 @@
 
         @endforeach
 
-    </div>
-
 @endif
+
+</div>
+

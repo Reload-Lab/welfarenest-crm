@@ -7,9 +7,6 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
         <div>
             <h1 class="crm-page-title">Modifica cliente</h1>
-            <p class="crm-page-subtitle mb-0">
-                Aggiorna i dati principali dell'organizzazione
-            </p>
         </div>
     </div>
 @endsection

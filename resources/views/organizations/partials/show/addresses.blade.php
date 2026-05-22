@@ -1,4 +1,4 @@
-<div class="card h-100 shadow-sm">
+<div class="card  shadow-sm">
     {{-- HEADER --}}
     <div class="card-header">
         <div>
@@ -119,15 +119,11 @@
 
                         </div>
 
-
-
-
-
-@include('components.crm.row-actions', [
-    'edit' => route('organizations.edit', $organization),
-    'delete' => route('organizations.destroy', $organization),
-    'deleteConfirm' => 'Confermi l\'eliminazione di questa organizzazione?',
-])
+                        @include('components.crm.row-actions', [
+                            'edit' => route('organizations.edit', $organization),
+                            'delete' => route('organizations.destroy', $organization),
+                            'deleteConfirm' => 'Confermi l\'eliminazione di questa organizzazione?',
+                        ])
 
                     </li>
 
@@ -314,61 +310,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 </script>
 
-<script>
-function copyCrmText(button) {
-
-    const text = button.dataset.copyText || '';
-
-    if (!text) {
-        return;
-    }
-
-    const label = button.querySelector('.crm-copy-label');
-
-    const showCopiedState = () => {
-
-        if (!label) {
-            return;
-        }
-
-        const original = label.dataset.originalText || label.textContent;
-
-        label.dataset.originalText = original;
-        label.textContent = 'Copiato ✓';
-
-        button.classList.add('is-copied');
-
-        clearTimeout(button._copyTimeout);
-
-        button._copyTimeout = setTimeout(() => {
-            label.textContent = original;
-            button.classList.remove('is-copied');
-        }, 1500);
-    };
-
-    if (navigator.clipboard && window.isSecureContext) {
-
-        navigator.clipboard.writeText(text)
-            .then(showCopiedState);
-
-        return;
-    }
-
-    const textarea = document.createElement('textarea');
-
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-
-    document.body.appendChild(textarea);
-
-    textarea.focus();
-    textarea.select();
-
-    document.execCommand('copy');
-
-    document.body.removeChild(textarea);
-
-    showCopiedState();
-}
-</script>

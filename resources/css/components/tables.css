@@ -22,8 +22,17 @@
     background: #fff;
     border: 1px solid var(--crm-table-border);
     border-radius: var(--crm-table-card-radius);
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 0.125rem 0.5rem rgba(15, 23, 42, 0.04);
+}
+
+.crm-table-card {
+    overflow: visible;
+}
+
+.crm-table-card__header {
+    border-top-left-radius: var(--crm-table-card-radius);
+    border-top-right-radius: var(--crm-table-card-radius);
 }
 
 .crm-table-card__header {
@@ -135,50 +144,6 @@
     color: var(--crm-table-muted);
 }
 
-.crm-row-actions {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.25rem;
-}
-
-/*
-.btn.btn-icon {
-    width: var(--crm-action-size);
-    height: var(--crm-action-size);
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid transparent;
-    border-radius: 0.75rem;
-    background: transparent;
-    color: #64748b;
-    transition:
-        background-color 0.18s ease,
-        color 0.18s ease,
-        border-color 0.18s ease,
-        transform 0.18s ease;
-}
-
-.btn.btn-icon:hover {
-    background: #eef6ff;
-    color: var(--bs-primary);
-    border-color: rgba(13, 110, 253, 0.1);
-    transform: translateY(-1px);
-}
-
-.btn.btn-icon:focus-visible {
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
-}
-
-.btn.btn-icon-danger:hover {
-    background: #fff1f2;
-    color: #dc3545;
-    border-color: rgba(220, 53, 69, 0.1);
-}
-*/
 
 /* Badge */
 .crm-badge {
@@ -312,16 +277,28 @@
 
 /* Dropdown azioni */
 
-.crm-row-actions .dropdown-menu {
-    background-color: #fff !important; /* oppure var(--bs-body-bg) se è pieno */
-    border: 1px solid var(--bs-border-color);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    border-radius: .75rem;
-    padding: .35rem;
+/* Dropdown azioni */
+.crm-row-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    opacity: 1;
 }
 
 .crm-row-actions .dropdown-menu {
+    background-color: #fff !important;
+    border: 1px solid var(--bs-border-color);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    border-radius: .75rem;
+    padding: .35rem;
     z-index: 1080;
+}
+
+.crm-row-actions  .dropdown-menu {
+    --bs-dropdown-font-size: 0.8125rem;
+    --bs-dropdown-padding-y: 0.5rem;
+    --bs-dropdown-item-padding-y: 0.4rem;
 }
 
 .crm-row-actions .dropdown-item {
@@ -332,10 +309,14 @@
     background: var(--bs-tertiary-bg);
 }
 
+body.crm-dropdown-open .crm-row-actions:not(.is-open) {
+    opacity: 0;
+    pointer-events: none;
+}
 
-
-
-
+body.crm-dropdown-open .crm-row-actions.is-open {
+    opacity: 1;
+}
 
 
 /* Mobile / tablet */
@@ -458,3 +439,4 @@
     background: transparent;
     color: #cbd5e1;
 }
+

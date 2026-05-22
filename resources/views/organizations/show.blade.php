@@ -6,32 +6,26 @@
 <div class="container-fluid py-4">
 
 
-    <div class="d-flex flex-column gap-4">
-        
-        @include('organizations.partials.show.header')
+<div class="d-flex flex-column gap-4">
 
-        <div class="row g-4">
-            <div class="col-12 col-xl-7">
+    @include('organizations.partials.show.header')
+
+    <div class="row g-4 align-items-start">
+
+        {{-- COLONNA SINISTRA --}}
+        <div class="col-12 col-xl-7">
+            <div class="d-flex flex-column gap-4">
                 @include('organizations.partials.show.main-data')
-            </div>
 
-            <div class="col-12 col-xl-5">
-                @include('organizations.partials.show.contact-points')
-                
-                @include('notes._section', [
-                    'organization' => $organization,
-                    'notes' => $organization->notes,
-                ])
-
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-12 col-xl-7">
                 @include('organizations.partials.show.addresses')
             </div>
+        </div>
 
-            <div class="col-12 col-xl-5">
+        {{-- COLONNA DESTRA --}}
+        <div class="col-12 col-xl-5">
+            <div class="d-flex flex-column gap-4">
+                @include('organizations.partials.show.contact-points')
+
                 @include('notes._section', [
                     'organization' => $organization,
                     'notes' => $organization->notes,
@@ -39,8 +33,10 @@
             </div>
         </div>
 
-        @include('organizations.partials.show.people')        
-
     </div>
+
+    @include('organizations.partials.show.people')
+
+</div>
 </div>
 @endsection

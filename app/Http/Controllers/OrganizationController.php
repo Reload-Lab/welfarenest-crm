@@ -142,9 +142,10 @@ public function show(Request $request, Organization $organization)
     {
         $search = trim((string) $request->input('search', ''));
         $status = $request->input('status');
+        $organizationTypeId = $request->input('organization_type_id');
         $sort = $request->input('sort', 'name');
         $direction = $request->input('direction', 'asc');
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 50);
 
         $allowedSorts = [
             'name',
@@ -203,6 +204,8 @@ public function show(Request $request, Organization $organization)
                 if ($status === 'inactive') {
                     $query->where('is_active', false);
                 }
+            })->when($organizationTypeId !== null && $organizationTypeId !== '', function ($query) use ($organizationTypeId) {
+                $query->where('organization_type_id', $organizationTypeId);
             })
             ->orderBy($sort, $direction)
             ->orderBy('id', 'desc')
@@ -231,6 +234,13 @@ public function show(Request $request, Organization $organization)
             $indexRoute = 'suppliers.index';
         }
 
+        $organizationTypes = OrganizationType::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+
         return view('organizations.index', compact(
             'organizations',
             'search',
@@ -243,7 +253,9 @@ public function show(Request $request, Organization $organization)
             'pageSubtitle',
             'pageHeading',
             'createLabel',
-            'indexRoute'
+            'indexRoute',
+            'organizationTypeId',
+            'organizationTypes',
         ));
     }    
 

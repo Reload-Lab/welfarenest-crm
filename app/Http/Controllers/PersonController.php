@@ -43,9 +43,13 @@ class PersonController extends Controller
     public function index(Request $request)
     {
         $search = trim((string) $request->input('search', ''));
+        $qualificationId = $request->input('qualification_id');
+        $departmentId = $request->input('department_id');
         $sort = $request->input('sort', 'last_name');
         $direction = $request->input('direction', 'asc');
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 50);
+        $qualificationId = $request->input('qualification_id');
+        $departmentId = $request->input('department_id');
 
         $allowedSorts = [
             'first_name',
@@ -73,18 +77,46 @@ class PersonController extends Controller
                     $q->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%");
                 });
+            })->when($qualificationId !== null && $qualificationId !== '', function ($query) use ($qualificationId) {
+                $query->whereHas('organizationRelations', function ($q) use ($qualificationId) {
+                    $q->where('qualification_id', $qualificationId);
+                });
+            })
+            ->when($departmentId !== null && $departmentId !== '', function ($query) use ($departmentId) {
+                $query->whereHas('organizationRelations', function ($q) use ($departmentId) {
+                    $q->where('department_id', $departmentId);
+                });
             })
             ->orderBy($sort, $direction)
             ->orderBy('id', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
+
+
+        $qualifications = Qualification::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $departments = Department::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+
         return view('people.index', compact(
             'people',
             'search',
             'sort',
             'direction',
-            'perPage'
+            'perPage',
+            'qualificationId',
+            'departmentId',
+            'qualifications',
+            'departments',
         ));
     }
 
@@ -151,7 +183,8 @@ class PersonController extends Controller
             'qualifications',
             'departments',
             'contactTypes',
-            'contactUsages'
+            'contactUsages',
+
         ));
     }
 

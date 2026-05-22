@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @php
-    $hasAdvancedFilters = false;
+    $hasAdvancedFilters = filled($qualificationId) || filled($departmentId);
 @endphp
 
 @section('topbar_title', 'Persone')
@@ -51,8 +51,12 @@
                     </div>
                 </div>
 
+
+
+
                 <div class="col-12 col-lg-auto">
                     <div class="d-flex flex-wrap gap-2">
+
                         <button
                             type="button"
                             class="btn btn-outline-secondary btn-inline"
@@ -60,9 +64,17 @@
                             aria-expanded="{{ $hasAdvancedFilters ? 'true' : 'false' }}"
                             aria-controls="peopleAdvancedFilters"
                         >
-                            <x-icon group="actions" name="filter" />
+                            <x-icon group="actions" name="sliders" />
                             <span>Filtri</span>
                         </button>
+
+                        <x-crm.button
+                            type="submit"
+                            icon="search"
+                            variant="primary"
+                        >
+                            Cerca
+                        </x-crm.button>
 
                     </div>
                 </div>
@@ -75,15 +87,48 @@
                 <div class="crm-filters-panel">
                     <div class="row g-3 align-items-end">
 
+                        <div class="col-12 col-md-4 col-lg-3">
+                            <label for="qualification_id" class="form-label fw-semibold">
+                                Qualifica
+                            </label>
+
+                            <select name="qualification_id" id="qualification_id" class="form-select">
+                                <option value="">Tutte</option>
+
+                                @foreach($qualifications as $qualification)
+                                    <option
+                                        value="{{ $qualification->id }}"
+                                        {{ (string) $qualificationId === (string) $qualification->id ? 'selected' : '' }}
+                                    >
+                                        {{ $qualification->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-lg-3">
+                            <label for="department_id" class="form-label fw-semibold">
+                                Dipartimento
+                            </label>
+
+                            <select name="department_id" id="department_id" class="form-select">
+                                <option value="">Tutti</option>
+
+                                @foreach($departments as $department)
+                                    <option
+                                        value="{{ $department->id }}"
+                                        {{ (string) $departmentId === (string) $department->id ? 'selected' : '' }}
+                                    >
+                                        {{ $department->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+
                         <div class="col-12 col-lg">
                             <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
-                                <x-crm.button
-                                    type="submit"
-                                    icon="filter"
-                                    variant="primary"
-                                >
-                                    Applica filtri
-                                </x-crm.button>
+
 
                                 <x-crm.button
                                     href="{{ route('people.index') }}"
@@ -199,6 +244,8 @@
                     <input type="hidden" name="search" value="{{ $search }}">
                     <input type="hidden" name="sort" value="{{ $sort }}">
                     <input type="hidden" name="direction" value="{{ $direction }}">
+                    <input type="hidden" name="qualification_id" value="{{ $qualificationId }}">
+                    <input type="hidden" name="department_id" value="{{ $departmentId }}">
 
                     <select
                         name="per_page"

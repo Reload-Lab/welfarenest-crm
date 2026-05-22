@@ -3,15 +3,8 @@
    ========================================================= */
 
 :root {
-    --crm-primary: #0E354D;
-    --crm-primary-hover: #12425f;
-    --crm-primary-active: #0b2d42;
-    --crm-primary-soft: rgba(14, 53, 77, 0.08);
-    --crm-primary-border: rgba(14, 53, 77, 0.16);
-
-    --crm-btn-radius: 0.875rem;
-    --crm-btn-shadow: 0 6px 18px rgba(14, 53, 77, 0.10);
-    --crm-btn-shadow-hover: 0 10px 24px rgba(14, 53, 77, 0.16);
+    --crm-btn-radius: 12px;
+    --crm-transition: all .22s ease;
 }
 
 /* Base comune */
@@ -27,7 +20,7 @@
 }
 
 .btn:focus-visible {
-    box-shadow: 0 0 0 .22rem rgba(14, 53, 77, 0.16);
+    box-shadow: 0 0 0 .22rem var(--crm-primary-border);
 }
 
 /* Primary */
@@ -53,16 +46,17 @@
     transform: translateY(0);
 }
 
-/* Outline secondary */
 .btn-outline-secondary {
     --bs-btn-color: #475569;
     --bs-btn-border-color: rgba(15, 23, 42, 0.12);
+
     --bs-btn-hover-color: var(--crm-primary);
     --bs-btn-hover-bg: #fff;
-    --bs-btn-hover-border-color: rgba(14, 53, 77, 0.22);
+    --bs-btn-hover-border-color: var(--crm-primary-border);
+
     --bs-btn-active-color: var(--crm-primary);
-    --bs-btn-active-bg: rgba(14, 53, 77, 0.04);
-    --bs-btn-active-border-color: rgba(14, 53, 77, 0.22);
+    --bs-btn-active-bg: var(--crm-primary-soft);
+    --bs-btn-active-border-color: var(--crm-primary-border);
 
     background-color: #fff;
 }
@@ -134,7 +128,7 @@
     background-color: var(--crm-primary-soft);
     border-color: var(--crm-primary-border);
     color: var(--crm-primary);
-    box-shadow: 0 4px 10px rgba(14, 53, 77, 0.08);
+    box-shadow: 0 4px 10px rgba(15, 130, 120, 0.10);
     transform: translateY(-1px);
 }
 
@@ -204,14 +198,14 @@
 }
 
 .crm-icon-button-light:hover {
-    background: #eef6f8;
-    color: #0E354D;
-    border-color: #cbdde3;
+    background: var(--crm-primary-soft);
+    color: var(--crm-primary);
+    border-color: var(--crm-primary-border);
 }
 
 .crm-icon-button-ghost:hover {
-    background: #f1f5f9;
-    color: #0E354D;
+    background: var(--crm-primary-soft);
+    color: var(--crm-primary);
 }
 
 .crm-icon-button-danger:hover {
@@ -222,7 +216,7 @@
 
 
 .crm-tooltip {
-    --bs-tooltip-bg: #0E354D;
+    --bs-tooltip-bg: var(--crm-primary-active);
     --bs-tooltip-color: #fff;
     --bs-tooltip-border-radius: .7rem;
     --bs-tooltip-padding-x: .65rem;

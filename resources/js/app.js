@@ -129,10 +129,11 @@ const initOrganizationSearchSelect = (element) => {
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.js-person-search').forEach(initPersonSearchSelect);
     document.querySelectorAll('.js-organization-search').forEach(initOrganizationSearchSelect);
-});
 
+    document.querySelectorAll('.crm-tooltip').forEach(el => {
+        new bootstrap.Tooltip(el);
+    });
 
-document.addEventListener('DOMContentLoaded', () => {
     const setupFilterToggle = (buttonId, panelId) => {
         const toggleBtn = document.getElementById(buttonId);
         const panel = document.getElementById(panelId);
@@ -151,6 +152,95 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFilterToggle('togglePeopleFilters', 'peopleAdvancedFilters');
 });
 
-document.querySelectorAll('.crm-tooltip').forEach(el => {
-    new bootstrap.Tooltip(el);
+
+
+/* =========================================================
+ * CRM UTILITIES
+ * ========================================================= */
+
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-copy-text]');
+
+    if (!button) return;
+
+    copyCrmText(button);
+});
+
+function copyCrmText(button) {
+
+    const text = button.dataset.copyText || '';
+
+    if (!text) {
+        return;
+    }
+ 
+    const label = button.querySelector('.crm-copy-label');
+
+    const showCopiedState = () => {
+
+        if (!label) {
+            return;
+        }
+
+        const original = label.dataset.originalText || label.textContent;
+
+        label.dataset.originalText = original;
+        label.textContent = 'Copiato ✓';
+
+        button.classList.add('is-copied');
+
+        clearTimeout(button._copyTimeout);
+
+        button._copyTimeout = setTimeout(() => {
+            label.textContent = original;
+            button.classList.remove('is-copied');
+        }, 1500);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+
+        navigator.clipboard.writeText(text)
+            .then(showCopiedState);
+
+        return;
+    }
+
+    const textarea = document.createElement('textarea');
+
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+
+    document.body.appendChild(textarea);
+
+    textarea.focus();
+    textarea.select();
+
+    document.execCommand('copy');
+
+    document.body.removeChild(textarea);
+
+    showCopiedState();
+}
+
+document.addEventListener('shown.bs.dropdown', function (event) {
+    document.querySelectorAll('.crm-row-actions.is-open').forEach((el) => {
+        el.classList.remove('is-open');
+    });
+
+    const rowActions = event.target.closest('.crm-row-actions');
+
+    if (rowActions) {
+        rowActions.classList.add('is-open');
+    }
+
+    document.body.classList.add('crm-dropdown-open');
+});
+
+document.addEventListener('hidden.bs.dropdown', function () {
+    document.querySelectorAll('.crm-row-actions.is-open').forEach((el) => {
+        el.classList.remove('is-open');
+    });
+
+    document.body.classList.remove('crm-dropdown-open');
 });

@@ -8,7 +8,7 @@
 @php
     $cleanName = trim($name ?? '');
 
-    $stopWords = ['fondo', 'pensione', 'srl', 'spa', 'di', 'del', 'della', 'dei', 'degli', 'delle', 'e', 'ed', 'per'];
+    $stopWords = ['fondo', 'pensione', 'sanitario', 'srl', 'spa', 'di', 'del', 'della', 'dei', 'degli', 'delle', 'e', 'ed', 'per'];
     $words = preg_split('/\s+/', $cleanName, -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
     if ($type === 'organization') {

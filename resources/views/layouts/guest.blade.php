@@ -10,7 +10,7 @@
     <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
         <div class="w-100" style="max-width: 420px;">
             <div class="text-center mb-4">
-                <div class="fw-bold fs-4">Reload CRM</div>
+                <div class="fw-bold fs-4"><img src="/images/logo-wn.png" alt="Logo" class="img-fluid"></div>
             </div>
 
             @yield('content')

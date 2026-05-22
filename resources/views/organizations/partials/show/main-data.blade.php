@@ -1,4 +1,4 @@
-<div class="card h-100 shadow-sm">
+<div class="card shadow-sm">
     <div class="card-header">
         <div>
             <h5>Dati principali</h5>

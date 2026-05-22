@@ -1,7 +1,9 @@
-<div class="card border-0 shadow-sm h-100">
+<div class="card border-0 shadow-sm">
 
-    <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
-        <h3 class="h5 mb-0">Relazioni con organizzazioni</h3>
+    <div class="card-header">
+        <div>
+            <h5>Relazioni</h5>
+        </div>
 
             <x-crm.icon-button
                 icon="add"
@@ -11,9 +13,6 @@
                 data-bs-toggle="modal"
                 data-bs-target="#personRelationModal"
             />
-
-
-
     </div>
 
     @foreach($person->organizationRelations as $relation)

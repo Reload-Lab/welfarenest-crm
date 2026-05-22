@@ -26,6 +26,13 @@
         transform 0.75s ease;
 }
 
+.crm-sidebar {
+    position: fixed;
+    overflow: visible;
+}
+
+
+
 /* Brand */
 .sidebar-brand {
     position: relative;
@@ -193,7 +200,6 @@
 .sidebar-footer {
     margin-top: auto;
     padding: 1rem 1rem 1.25rem;
-    border-top: 1px solid #f1f5f9;
     color: #64748b;
     font-size: 0.9rem;
     background: #ffffff;
@@ -289,54 +295,42 @@
         justify-content: flex-start;
         flex: 1;
     }
-}
 
-
-/* Toggle nel footer */
-.sidebar-footer {
-    margin-top: auto;
-    padding: 0;
-    border-top: 1px solid #f1f5f9;
-    color: #64748b;
-    font-size: 0.9rem;
-    background: #ffffff;
-}
-
-.sidebar-footer-toggle {
-    display: flex;
-    justify-content: flex-end;
-    margin: 0;
+    .sidebar-toggle-btn {
+        display: none !important;
+    }
 }
 
 .sidebar-toggle-btn {
-    border: 0;
-    border-top: 1px solid #e2e8f0;
-    border-left: 1px solid #e2e8f0;
-    background: #ffffff;
     color: #64748b;
-    width: 52px;
-    height: 52px;
-    padding: 0;
-    border-radius: 4px 0 0 0;
-    display: inline-flex;
-    align-items: center;
+    z-index: 1040;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-left: 0;
+    border-radius: 0 18px 0 0;
     justify-content: center;
-    line-height: 1;
-    transition: background-color 0.18s ease, color 0.75s ease, border-color 0.18s ease;
-    box-shadow: none;
+    align-items: center;
+    width: 30px;
+    height: 48px;
+    transition: background-color .2s,color .2s,right .3s;
+    display: flex;
+    position: absolute;
+    bottom: 1px;
+    right: -30px;
+    padding-right: 4px;
+    box-shadow: 4px 0 14px #0f172a14;
 }
+
+
 
 .sidebar-toggle-btn:hover {
     background: #f8fafc;
-    border-top-color: #cbd5e1;
-    border-left-color: #cbd5e1;
     color: #0f172a;
 }
 
 .sidebar-toggle-btn .icon {
-    --icon-size: 2.2rem;
-    display: inline-flex;
-    transition: transform 0.25s ease;
+    --icon-size: 1.8rem;
+    transition: transform 0.3s ease;
 }
 
 .crm-app.sidebar-collapsed .sidebar-toggle-btn .icon {

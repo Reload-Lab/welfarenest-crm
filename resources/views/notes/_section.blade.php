@@ -15,7 +15,7 @@
     </div>
 
 
-     <div class="card-body p-0">
+     <div class="card-body">
         @include('notes._list', ['notes' => $notes])
     </div>
 </div>

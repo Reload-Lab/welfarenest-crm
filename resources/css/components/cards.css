@@ -1,10 +1,22 @@
 .crm-content .card {
+    background: var(--crm-card-bg);
     border: 1px solid var(--crm-border);
     border-radius: 1rem;
     overflow: hidden;
     box-shadow:
-    0 1px 2px rgba(0,0,0,.04),
-    0 4px 12px rgba(0,0,0,.03);
+        0 1px 2px rgba(0,0,0,.04),
+        0 4px 12px rgba(0,0,0,.03);
+    margin-bottom: 1.5rem;
+}
+
+.crm-content .card-header {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.crm-content .card-body:last-child {
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
 }
 
 .crm-content .card-header {
@@ -44,10 +56,12 @@
     flex-shrink: 0;
 }
 
-.crm-content .card {
-    background: var(--crm-card-bg);
-}
-
 .crm-content .card-header {
     background: var(--crm-card-header-bg);
+}
+
+.crm-content .card.crm-card--header-actions {
+    overflow: visible;
+    position: relative;
+    z-index: 10;
 }
