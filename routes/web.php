@@ -55,6 +55,10 @@ Route::middleware('auth')->group(function () {
 
     Route::put('contact-points/{contactPoint}', [ContactPointController::class, 'update'])->name('contact-points.update');
 
+    Route::post(
+        'people/{person}/relations/{relation}/contact-points',
+        [ContactPointController::class, 'storeForRelation']
+    )->name('people.relations.contact-points.store');    
 
     Route::post('/organizations/{organization}/addresses', [AddressController::class, 'storeForOrganization'])
         ->name('organizations.addresses.store');
@@ -71,11 +75,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/notes/{note}/archive', [NoteController::class, 'archive'])
         ->name('notes.archive');
 
+    Route::patch('/notes/{note}/restore', [NoteController::class, 'restore'])
+        ->name('notes.restore');
+
+
     Route::patch('/notes/{note}/toggle-pinned', [NoteController::class, 'togglePinned'])
         ->name('notes.toggle-pinned');
 
     Route::delete('/notes/{note}', [NoteController::class, 'destroy'])
         ->name('notes.destroy');
+
+
 
 
 });

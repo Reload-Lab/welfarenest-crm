@@ -13,6 +13,7 @@
 @import './components/addresses.css';
 @import './components/dashboard.css';
 @import './components/cards.css';
+@import './components/notes.css';
 
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -57,7 +58,7 @@
 body {
     background-color: var(--crm-bg);
     font-family: var(--crm-font-body);
-    font-size:  0.8125rem;;
+    font-size:  0.9rem;;
 }
 
 .crm-page-title,

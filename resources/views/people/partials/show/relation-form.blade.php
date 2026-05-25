@@ -67,7 +67,7 @@
             <select
                 name="person_id"
                 id="person_id"
-                class="form-select js-person-search @error('person_id') is-invalid @enderror"
+                class="form-control js-person-search @error('person_id') is-invalid @enderror"
                 data-search-url="{{ route('people.search') }}"
                 data-placeholder="Cerca persona..."
                 data-selected-id="{{ $selectedPersonId }}"
@@ -105,7 +105,7 @@
             <select
                 name="organization_id"
                 id="organization_id"
-                class="form-select js-organization-search @error('organization_id') is-invalid @enderror"
+                class="form-control js-organization-search @error('organization_id') is-invalid @enderror"
                 data-search-url="{{ route('organizations.search') }}"
                 data-placeholder="Cerca organizzazione..."
                 data-selected-id="{{ $selectedOrganizationId }}"

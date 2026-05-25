@@ -9,7 +9,9 @@ class Note extends Model
     public const STATUS_ACTIVE = 'active';
     public const STATUS_ARCHIVED = 'archived';
 
-    public $timestamps = false;
+    public $timestamps = true;
+
+    const UPDATED_AT = null;
 
     protected $fillable = [
         'owner_type',

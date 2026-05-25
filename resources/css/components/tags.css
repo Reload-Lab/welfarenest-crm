@@ -39,9 +39,9 @@
 }
 
 .crm-tag--primary {
-    background: rgba(var(--bs-primary-rgb), .08);
-    color: var(--bs-primary);
-    border-color: rgba(var(--bs-primary-rgb), .18);
+    background: var(--crm-primary-soft);
+    color: var(--crm-primary);
+    border-color: var(--crm-primary-border);
 }
 
 .crm-tag--info {

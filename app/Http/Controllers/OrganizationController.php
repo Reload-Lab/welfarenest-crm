@@ -112,6 +112,19 @@ public function show(Request $request, Organization $organization)
         ->get();
 
 
+    $activeNotes = $organization->notes()
+        ->where('status', \App\Models\Note::STATUS_ACTIVE)
+        ->latest('created_at')
+        ->get();
+
+    $archivedNotes = $organization->notes()
+        ->where('status', \App\Models\Note::STATUS_ARCHIVED)
+        ->latest('created_at')
+        ->get();
+
+    $featuredNote = $activeNotes->firstWhere('is_pinned', true) ?? $activeNotes->first();
+
+
     return view('organizations.show', compact(
         'organization',
         'selectedPerson',
@@ -119,7 +132,10 @@ public function show(Request $request, Organization $organization)
         'departments',
         'contactTypes',
         'contactUsages',
-        'addressTypes'
+        'addressTypes',
+        'activeNotes',
+        'archivedNotes',
+        'featuredNote',
     ));
 }
 

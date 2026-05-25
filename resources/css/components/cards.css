@@ -20,8 +20,8 @@
 }
 
 .crm-content .card-header {
-    min-height: 66px;
-    padding: 1rem 1.25rem;
+    min-height: 50px;
+    padding: 0.5rem 1rem;
     background: #fff;
     border-bottom: 1px solid var(--crm-border);
 

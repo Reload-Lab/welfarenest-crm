@@ -35,7 +35,18 @@ class NoteController extends Controller
             'status' => Note::STATUS_ARCHIVED,
         ]);
 
-        return back()->with('success', 'Nota archiviata correttamente.');
+        return back()
+        ->with('success', 'Nota ripristinata correttamente.')
+        ->with('openNotesModal', true);
+    }
+
+    public function restore(Note $note)
+    {
+        $note->update([
+            'status' => Note::STATUS_ACTIVE,
+        ]);
+
+        return back()->with('success', 'Nota ripristinata correttamente.');
     }
 
     public function togglePinned(Note $note)

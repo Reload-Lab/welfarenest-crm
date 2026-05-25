@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\ContactPoint;
+
 class PersonOrganizationRelation extends Model
 {
     use HasFactory;
@@ -48,4 +50,12 @@ class PersonOrganizationRelation extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function contactPoints()
+    {
+        return $this->hasMany(ContactPoint::class, 'owner_id')
+            ->where('owner_type', 'person_organization_relation');
+    }
+
+
 }

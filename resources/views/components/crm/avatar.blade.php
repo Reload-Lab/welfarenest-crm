@@ -51,25 +51,31 @@
 
     $initials = mb_strtoupper($initials);
 
-    $personPalette = [
-        'avatar-person-1',
-        'avatar-person-2',
-        'avatar-person-3',
-        'avatar-person-4',
-        'avatar-person-5',
-    ];
-
-    $organizationPalette = [
-        'avatar-org-1',
-        'avatar-org-2',
-        'avatar-org-3',
-        'avatar-org-4',
-        'avatar-org-5',
-    ];
-
-    $palette = $type === 'organization' ? $organizationPalette : $personPalette;
     $hash = abs(crc32($cleanName ?: 'default'));
-    $colorClass = $palette[$hash % count($palette)];
+
+    if ($type === 'organization') {
+        // Blu / teal / cyan / indigo: più varietà ma sempre istituzionale
+        $orgHues = [195, 205, 215, 225, 235, 245, 185, 175];
+        $hue = $orgHues[$hash % count($orgHues)];
+
+        $saturation = 50 + ($hash % 22);  // 50–71
+        $lightness = 26 + ($hash % 20);   // 26–45
+
+        $background = "hsl({$hue}, {$saturation}%, {$lightness}%)";
+        $textColor = '#ffffff';
+    } else {
+        // Oro / ambra / arancio / lime caldo: più distinguibile
+        $personHues = [38, 42, 46, 50, 54, 58, 62, 32, 28, 68];
+        $hue = $personHues[$hash % count($personHues)];
+
+        $saturation = 62 + ($hash % 24);  // 62–85
+        $lightness = 42 + ($hash % 20);   // 42–61
+
+        $background = "hsl({$hue}, {$saturation}%, {$lightness}%)";
+
+        // Se è troppo scuro uso testo bianco, se è chiaro uso testo scuro
+        $textColor = $lightness < 48 ? '#ffffff' : '#1f2937';
+    }
 
     $sizeClass = match($size) {
         'xs' => 'crm-avatar-xs',
@@ -92,7 +98,8 @@
     >
 @else
     <span
-        class="crm-avatar {{ $sizeClass }} {{ $shapeClass }} {{ $colorClass }}"
+        class="crm-avatar {{ $sizeClass }} {{ $shapeClass }}"
+        style="background: {{ $background }}; color: {{ $textColor }};"
         title="{{ $cleanName }}"
         aria-label="{{ $cleanName }}"
     >

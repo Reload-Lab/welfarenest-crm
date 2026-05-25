@@ -119,6 +119,7 @@
 
                         </div>
 
+                        
                         @include('components.crm.row-actions', [
                             'edit' => route('organizations.edit', $organization),
                             'delete' => route('organizations.destroy', $organization),
