@@ -27,6 +27,8 @@ class DatabaseSeeder extends Seeder
             ContactTypeSeeder::class,
             ContactUsageSeeder::class,
             AddressTypeSeeder::class,
+            ConsentTypeSeeder::class,
+            ConsentVersionSeeder::class,
         ]);
     }
 }

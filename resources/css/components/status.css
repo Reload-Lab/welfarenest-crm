@@ -77,3 +77,27 @@
     color: var(--bs-secondary-color);
     background: var(--bs-tertiary-bg);
 }
+
+.crm-status-badge {
+    cursor: pointer;
+    border: none;
+}
+
+.crm-status-badge:hover {
+    opacity: .9;
+}
+
+
+.crm-status-badge--xl .icon {
+    font-size: 1rem;
+}
+
+.crm-status-badge--pending {
+    color: #fff;
+    background: var(--bs-info);
+}
+
+.crm-status-icon--pending {
+    color: var(--bs-info);
+    background: rgba(var(--bs-info-rgb), .12);
+}

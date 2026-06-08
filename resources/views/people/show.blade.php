@@ -2,6 +2,12 @@
 
 @section('title', $person->full_name ?: 'Scheda persona')
 
+@php
+    use App\Models\ConsentType;
+@endphp
+
+
+
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex flex-column gap-4">
@@ -23,7 +29,24 @@
                         </div>
 
                     </div>
-                    <div class="d-flex flex-wrap align-items-start gap-2">
+
+
+                    <div class="d-flex align-items-center gap-2">
+
+<button
+    type="button"
+    class="crm-status-badge crm-status-badge--{{ $person->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} crm-status-badge--xl border-0"
+    title="{{ $person->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+    aria-label="{{ $person->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+    data-bs-toggle="modal"
+    data-bs-target="#personConsentsModal">
+
+    <x-icon group="entities" name="consent" />
+
+</button>
+
+
+
                         @include('components.crm.row-actions', [
                             'edit' => route('people.edit', $person),
                             'delete' => route('people.destroy', $person),
@@ -48,4 +71,12 @@
 
     </div>
 </div>
+
+@include('people.partials.show.consents-modal', [
+    'person' => $person,
+])
+
+
 @endsection
+
+

@@ -6,11 +6,12 @@ use App\Models\ContactPoint;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Concerns\HasConsents;
 
 class Person extends Model
 {
     use HasFactory;
+    use HasConsents;
 
     protected $table = 'people';
 
@@ -49,6 +50,6 @@ class Person extends Model
         return $this->hasMany(ContactPoint::class, 'owner_id')
             ->where('owner_type', 'person');
     }
-        
+    
 
 }

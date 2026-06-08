@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasConsents;
 
 class ContactPoint extends Model
 {
     use HasFactory;
+    use HasConsents;
 
     protected $table = 'contact_points';
 
@@ -36,4 +38,5 @@ class ContactPoint extends Model
     {
         return $this->belongsTo(ContactUsage::class);
     }
+
 }

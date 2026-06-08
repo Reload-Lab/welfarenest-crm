@@ -147,6 +147,10 @@ class PersonController extends Controller
             'organizationRelations.department',
             'contactPoints.contactType',
             'contactPoints.contactUsage',
+            'consents.consentType',
+            'consents.consentVersion',
+            'contactPoints.consents.consentType',
+            'contactPoints.consents.consentVersion',
         ]);
 
         $organizations = Organization::query()

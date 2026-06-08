@@ -137,7 +137,19 @@
                                 {{-- AZIONI --}}
                                 <div class="d-flex align-items-center gap-2">
 
+@if($category === 'email')
+    <button
+        type="button"
+        class="crm-status-badge crm-status-badge--{{ $contactPoint->consentBadgeVariant(\App\Models\ConsentType::PROMOTIONAL_EMAILS) }} border-0"
+        title="{{ $contactPoint->consentStatusLabel(\App\Models\ConsentType::PROMOTIONAL_EMAILS) }}"
+        aria-label="{{ $contactPoint->consentStatusLabel(\App\Models\ConsentType::PROMOTIONAL_EMAILS) }}"
+        data-bs-toggle="modal"
+        data-bs-target="#personConsentsModal">
 
+        <x-icon group="entities" name="consent" />
+
+    </button>
+@endif
 
                                 
                                     <button
