@@ -7,6 +7,7 @@ use App\Models\ContactPoint;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\HasConsents;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Person extends Model
 {
@@ -50,6 +51,10 @@ class Person extends Model
         return $this->hasMany(ContactPoint::class, 'owner_id')
             ->where('owner_type', 'person');
     }
-    
+
+    public function wnPlusAccounts(): HasMany
+    {
+        return $this->hasMany(WnPlusAccount::class);
+    }    
 
 }

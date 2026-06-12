@@ -49,6 +49,7 @@ return [
         'consent'      => 'icons.entities.consent',
         'qualification'=> 'icons.entities.qualification',
         'department'   => 'icons.entities.department',
+        'welfarenestplus' => 'icons.entities.welfarenestplus',
 
     ],
 

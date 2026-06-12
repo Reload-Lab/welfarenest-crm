@@ -8,6 +8,8 @@ use App\Http\Controllers\ContactPointController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\WnPlusAccountController;
+use App\Http\Controllers\WnPlusInvitationController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -85,10 +87,23 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notes/{note}', [NoteController::class, 'destroy'])
         ->name('notes.destroy');
 
+    Route::resource('wn-plus/accounts', WnPlusAccountController::class)
+        ->names('wn-plus.accounts');
 
+    Route::get('/wn-plus/accounts/{account}/users/create', [WnPlusAccountController::class, 'createUser'])
+        ->name('wn-plus.accounts.users.create');
 
+    Route::post('/wn-plus/accounts/{account}/users', [WnPlusAccountController::class, 'storeUser'])
+        ->name('wn-plus.accounts.users.store');
+
+    Route::post('/wn-plus/accounts/{account}/invite', [WnPlusAccountController::class, 'sendInvitation'])
+        ->name('wn-plus.accounts.invite');
 
 });
+
+Route::get('/wn-plus/invitations/{token}', [WnPlusInvitationController::class, 'accept'])
+    ->name('wn-plus.invitations.accept');
+
 
 
 //DEV

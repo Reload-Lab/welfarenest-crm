@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OrganizationType;
 use App\Models\OrganizationRole;
 use App\Models\ContactPoint;
 use App\Models\Address;
-
+use App\Models\PersonOrganizationRelation;
 
 class Organization extends Model
 {
@@ -89,6 +90,17 @@ class Organization extends Model
             ->where('owner_type', 'organization')
             ->latest('created_at');
     }
+
+    public function wnPlusAccounts(): HasMany
+    {
+        return $this->hasMany(WnPlusAccount::class);
+    }
+
+    public function personRelations(): HasMany
+    {
+        return $this->hasMany(PersonOrganizationRelation::class);
+    }
+
 
 }
 

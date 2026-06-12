@@ -36,6 +36,13 @@
             'patterns' => [],
         ],
         [
+            'label' => 'WN+',
+            'route' => 'wn-plus.accounts.index',
+            'icon_group' => 'entities',
+            'icon_name' => 'welfarenestplus',
+            'patterns' => ['wn-plus.accounts.*'],
+        ],
+        [
             'label' => 'Invio Newsletter',
             'route' => null,
             'icon_group' => 'contact',

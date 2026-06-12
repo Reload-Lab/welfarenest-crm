@@ -290,4 +290,54 @@ return [
     ],
 ],
 
+'wn-plus.accounts.index' => [
+    'title' => 'Utenti Welfare Nest Plus',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Welfare Nest Plus',
+            'route' => 'wn-plus.accounts.index',
+        ],
+    ],
+],
+'wn-plus.accounts.create' => [
+    'title' => 'Utenti Welfare Nest Plus',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Welfare Nest Plus',
+            'route' => 'wn-plus.accounts.index',
+        ],
+        [
+            'label' => 'Nuovo utente',
+        ],
+    ],
+],
+'wn-plus.accounts.edit' => [
+    'title' => 'Utenti Welfare Nest Plus',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Welfare Nest Plus',
+            'route' => 'wn-plus.accounts.index',
+        ],
+        [
+            'label' => 'Modifica utente',
+        ],
+    ],
+],
+
+
 ];

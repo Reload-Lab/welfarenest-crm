@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Database\Seeders\WnPlusRoleSeeder;
+use Database\Seeders\WnPlusLevelSeeder;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +16,13 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Alessio Attanasio',
-            'email' => 'alessio.attanasio@reloadlab.it',
-            'password' => Hash::make('C4rt3s10'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'alessio.attanasio@reloadlab.it'],
+            [
+                'name' => 'Alessio Attanasio',
+                'password' => Hash::make('C4rt3s10'),
+            ]
+        );
 
         $this->call([
             OrganizationTypeSeeder::class,
@@ -29,6 +34,8 @@ class DatabaseSeeder extends Seeder
             AddressTypeSeeder::class,
             ConsentTypeSeeder::class,
             ConsentVersionSeeder::class,
+            WnPlusRoleSeeder::class,
+            WnPlusLevelSeeder::class,
         ]);
     }
 }
