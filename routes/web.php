@@ -104,6 +104,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/wn-plus/invitations/{token}', [WnPlusInvitationController::class, 'accept'])
     ->name('wn-plus.invitations.accept');
 
+Route::post('/wn-plus/invitations/{token}', [WnPlusInvitationController::class, 'complete'])
+    ->name('wn-plus.invitations.complete');
 
 
 //DEV

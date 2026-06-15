@@ -10,7 +10,9 @@ use App\Models\PersonOrganizationRelation;
 use App\Models\WnPlusLevel;
 use App\Models\WnPlusRole;
 use App\Models\WnPlusInvitation;
+use App\Mail\WnPlusInvitationMail;
 
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
 
@@ -234,8 +236,8 @@ class WnPlusAccountController extends Controller
 
     public function sendInvitation(WnPlusAccount $account)
     {
-        if (! in_array($account->status, ['invited', 'disabled'])) {
-            return back()->with('error', 'Questo account non può ricevere un nuovo invito.');
+        if ($account->status === 'active') {
+            return back()->with('error', 'Questo account è già attivo.');
         }
 
         $invitation = WnPlusInvitation::create([
@@ -245,9 +247,9 @@ class WnPlusAccountController extends Controller
             'sent_at' => now(),
         ]);
 
-        $inviteUrl = route('wn-plus.invitations.accept', $invitation->token);
+        Mail::to($account->email)->send(new WnPlusInvitationMail($invitation));
 
-        return back()->with('success', 'Invito generato: ' . $inviteUrl);
+        return back()->with('success', 'Invito generato e email preparata correttamente.');
     }
 
 }
