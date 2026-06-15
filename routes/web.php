@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\WnPlusAccountController;
 use App\Http\Controllers\WnPlusInvitationController;
+use App\Http\Controllers\WnPlusAuthController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -106,6 +107,24 @@ Route::get('/wn-plus/invitations/{token}', [WnPlusInvitationController::class, '
 
 Route::post('/wn-plus/invitations/{token}', [WnPlusInvitationController::class, 'complete'])
     ->name('wn-plus.invitations.complete');
+
+
+Route::get('/wn-plus/login', [WnPlusAuthController::class, 'showLogin'])
+    ->name('wn-plus.login');
+
+Route::post('/wn-plus/login', [WnPlusAuthController::class, 'login'])
+    ->name('wn-plus.login.post');
+
+Route::post('/wn-plus/logout', [WnPlusAuthController::class, 'logout'])
+    ->name('wn-plus.logout');
+
+
+Route::get('/wn-plus/portal', function () {
+    $account = App\Models\WnPlusAccount::with(['organization', 'role', 'level'])
+        ->findOrFail(session('wn_plus_account_id'));
+
+    return view('wn-plus.portal.dashboard', compact('account'));
+})->name('wn-plus.portal.dashboard');
 
 
 //DEV
