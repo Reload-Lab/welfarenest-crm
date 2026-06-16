@@ -40,6 +40,12 @@ class WnPlusAuthController extends Controller
             'last_login_at' => now(),
         ]);
 
+        $intendedOidcUrl = session()->pull('wn_plus_oidc_authorize_request');
+
+        if ($intendedOidcUrl) {
+            return redirect()->away($intendedOidcUrl);
+        }
+
         return redirect()->route('wn-plus.portal.dashboard');
     }
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\NoteController;
 use App\Http\Controllers\WnPlusAccountController;
 use App\Http\Controllers\WnPlusInvitationController;
 use App\Http\Controllers\WnPlusAuthController;
+use App\Http\Controllers\WnPlusOidcController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -125,6 +126,13 @@ Route::get('/wn-plus/portal', function () {
 
     return view('wn-plus.portal.dashboard', compact('account'));
 })->name('wn-plus.portal.dashboard');
+
+
+Route::get('/.well-known/openid-configuration', [WnPlusOidcController::class, 'configuration'])
+    ->name('wn-plus.oidc.configuration');
+
+Route::get('/wn-plus/oidc/authorize', [WnPlusOidcController::class, 'authorize'])
+    ->name('wn-plus.oidc.authorize');
 
 
 //DEV
