@@ -162,11 +162,19 @@ class WnPlusOidcController extends Controller
             'wn_plus_access_tokens.' . $accessToken => $account->id,
         ]);
 
+        $idToken = $this->makeIdToken($account, $client, $authCode);
+
+        \Log::info('OIDC token generated', [
+            'account_id' => $account->id,
+            'client_id' => $client->client_id,
+            'id_token_starts_with' => substr($idToken, 0, 30),
+        ]);
+
         return response()->json([
             'access_token' => $accessToken,
             'token_type' => 'Bearer',
             'expires_in' => 3600,
-            'id_token' => $this->makeIdToken($account, $client, $authCode),
+            'id_token' => $idToken,
         ]);
     }
 
