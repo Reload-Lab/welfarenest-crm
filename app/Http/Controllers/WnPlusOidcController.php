@@ -165,7 +165,7 @@ class WnPlusOidcController extends Controller
         }
 
         $authCode = WnPlusOidcAuthCode::query()
-            ->with(['client', 'account.role', 'account.level'])
+            ->with(['account.role', 'account.level'])
             ->where('code', $validated['code'])
             ->whereNull('used_at')
             ->first();
