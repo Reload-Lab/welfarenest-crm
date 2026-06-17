@@ -107,6 +107,28 @@ class WnPlusOidcController extends Controller
 
     public function token(Request $request)
     {
+
+        $clientId = $request->input('client_id');
+        $clientSecret = $request->input('client_secret');
+
+        if (! $clientId && $request->header('Authorization')) {
+            $authorization = $request->header('Authorization');
+
+            if (str_starts_with($authorization, 'Basic ')) {
+                $decoded = base64_decode(substr($authorization, 6));
+
+                if ($decoded && str_contains($decoded, ':')) {
+                    [$clientId, $clientSecret] = explode(':', $decoded, 2);
+                }
+            }
+        }
+
+        $request->merge([
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+        ]);
+
+
         $validated = $request->validate([
             'grant_type' => ['required', 'in:authorization_code'],
             'code' => ['required', 'string'],
