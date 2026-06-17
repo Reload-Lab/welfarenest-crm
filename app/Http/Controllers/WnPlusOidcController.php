@@ -147,6 +147,17 @@ class WnPlusOidcController extends Controller
             ->where('is_active', true)
             ->first();
 
+        \Log::info('OIDC client check', [
+            'client_found' => (bool) $client,
+            'request_client_id' => $validated['client_id'],
+            'db_client_id' => $client?->client_id,
+            'request_secret_len' => strlen($validated['client_secret']),
+            'db_secret_len' => strlen((string) $client?->client_secret),
+            'request_secret_hash' => substr(hash('sha256', $validated['client_secret']), 0, 12),
+            'db_secret_hash' => substr(hash('sha256', (string) $client?->client_secret), 0, 12),
+        ]);
+
+
         if (! $client || ! hash_equals($client->client_secret, $validated['client_secret'])) {
             return response()->json([
                 'error' => 'invalid_client',
