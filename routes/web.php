@@ -134,6 +134,12 @@ Route::get('/.well-known/openid-configuration', [WnPlusOidcController::class, 'c
 Route::get('/wn-plus/oidc/authorize', [WnPlusOidcController::class, 'authorize'])
     ->name('wn-plus.oidc.authorize');
 
+Route::post('/wn-plus/oidc/token', [WnPlusOidcController::class, 'token'])
+    ->name('wn-plus.oidc.token');
+
+Route::get('/wn-plus/oidc/jwks', [WnPlusOidcController::class, 'jwks'])
+    ->name('wn-plus.oidc.jwks');
+
 
 //DEV
 Route::middleware(['auth'])->get('/dev/icons', function () {

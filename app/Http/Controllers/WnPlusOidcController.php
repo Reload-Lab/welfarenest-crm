@@ -168,4 +168,11 @@ class WnPlusOidcController extends Controller
         ]);
     }
 
+    public function jwks()
+    {
+        return response()->json([
+            'keys' => [],
+        ]);
+    }
+
 }
