@@ -46,7 +46,13 @@ class WnPlusAuthController extends Controller
             return redirect()->away($intendedOidcUrl);
         }
 
-        return redirect()->intended(route('wn-plus.portal.dashboard'));
+        $oidcAuthorizeUrl = session()->pull('wn_plus_oidc_authorize_request');
+
+        if ($oidcAuthorizeUrl) {
+            return redirect()->to($oidcAuthorizeUrl);
+        }
+
+        return redirect()->route('wn-plus.portal.dashboard');
     }
 
     public function logout(Request $request)
