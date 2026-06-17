@@ -95,15 +95,7 @@ class WnPlusOidcController extends Controller
         return redirect()->away($redirectUrl);
     }
 
-    public function client()
-    {
-        return $this->belongsTo(WnPlusOidcClient::class, 'wn_plus_oidc_client_id');
-    }
 
-    public function account()
-    {
-        return $this->belongsTo(WnPlusAccount::class, 'wn_plus_account_id');
-    }
 
     public function token(Request $request)
     {

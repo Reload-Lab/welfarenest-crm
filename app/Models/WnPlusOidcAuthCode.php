@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 
 class WnPlusOidcAuthCode extends Model
 {
@@ -21,4 +23,16 @@ class WnPlusOidcAuthCode extends Model
         'expires_at' => 'datetime',
         'used_at' => 'datetime',
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(WnPlusOidcClient::class, 'wn_plus_oidc_client_id');
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(WnPlusAccount::class, 'wn_plus_account_id');
+    }
+
+
 }
