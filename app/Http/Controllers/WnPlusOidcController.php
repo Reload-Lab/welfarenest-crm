@@ -128,6 +128,11 @@ class WnPlusOidcController extends Controller
             'client_secret' => $clientSecret,
         ]);
 
+        \Log::info('OIDC token request received', [
+            'has_client_id' => (bool) $request->input('client_id'),
+            'has_client_secret' => (bool) $request->input('client_secret'),
+            'auth_header' => $request->header('Authorization') ? 'present' : 'missing',
+        ]);
 
         $validated = $request->validate([
             'grant_type' => ['required', 'in:authorization_code'],
