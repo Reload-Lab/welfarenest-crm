@@ -46,7 +46,7 @@ class WnPlusAuthController extends Controller
             return redirect()->away($intendedOidcUrl);
         }
 
-        return redirect()->route('wn-plus.portal.dashboard');
+        return redirect()->intended(route('wn-plus.portal.dashboard'));
     }
 
     public function logout(Request $request)
