@@ -63,7 +63,9 @@ class WnPlusOidcController extends Controller
         }
 
         if (! session()->has('wn_plus_account_id')) {
-            session(['url.intended' => $request->fullUrl()]);
+            session([
+                'wn_plus_oidc_authorize_request' => $request->fullUrl(),
+            ]);
 
             return redirect()->route('wn-plus.login');
         }
