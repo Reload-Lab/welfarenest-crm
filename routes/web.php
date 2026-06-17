@@ -140,6 +140,8 @@ Route::post('/wn-plus/oidc/token', [WnPlusOidcController::class, 'token'])
 Route::get('/wn-plus/oidc/jwks', [WnPlusOidcController::class, 'jwks'])
     ->name('wn-plus.oidc.jwks');
 
+Route::get('/wn-plus/oidc/userinfo', [WnPlusOidcController::class, 'userinfo'])
+    ->name('wn-plus.oidc.userinfo');
 
 //DEV
 Route::middleware(['auth'])->get('/dev/icons', function () {

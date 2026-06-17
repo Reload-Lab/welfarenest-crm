@@ -9,6 +9,8 @@ use App\Models\WnPlusOidcClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+
 
 use Firebase\JWT\JWT;
 
@@ -188,9 +190,7 @@ class WnPlusOidcController extends Controller
 
         $accessToken = base64_encode(Str::random(80));
 
-        session([
-            'wn_plus_access_tokens.' . $accessToken => $account->id,
-        ]);
+        Cache::put('wn_plus_access_token_' . $accessToken, $account->id, now()->addHour());
 
         $idToken = $this->makeIdToken($account, $client, $authCode);
 
@@ -260,5 +260,46 @@ class WnPlusOidcController extends Controller
         return JWT::encode($payload, $privateKey, 'RS256', 'wn-plus-oidc-key-1');
     }
 
+
+    public function userinfo(Request $request)
+    {
+        $authorization = $request->header('Authorization');
+
+        if (! $authorization || ! str_starts_with($authorization, 'Bearer ')) {
+            return response()->json([
+                'error' => 'invalid_token',
+            ], 401);
+        }
+
+        $token = substr($authorization, 7);
+
+        $accountId = Cache::get('wn_plus_access_token_' . $token);
+
+        if (! $accountId) {
+            return response()->json([
+                'error' => 'invalid_token',
+            ], 401);
+        }
+
+        $account = WnPlusAccount::query()
+            ->with(['role', 'level'])
+            ->where('id', $accountId)
+            ->where('status', 'active')
+            ->firstOrFail();
+
+        return response()->json([
+            'sub' => $account->uuid,
+            'name' => $account->full_name,
+            'nickname' => $account->full_name,
+            'preferred_username' => $account->email,
+            'given_name' => $account->first_name,
+            'family_name' => $account->last_name,
+            'email' => $account->email,
+            'email_verified' => (bool) $account->email_verified_at,
+            'wn_role' => $account->role?->code,
+            'wn_level' => $account->level?->code,
+            'organization_id' => $account->organization_id,
+        ]);
+    }
 
 }
