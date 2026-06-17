@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
+use Firebase\JWT\JWT;
+
 class WnPlusOidcController extends Controller
 {
     public function configuration()
@@ -164,15 +166,61 @@ class WnPlusOidcController extends Controller
             'access_token' => $accessToken,
             'token_type' => 'Bearer',
             'expires_in' => 3600,
-            'id_token' => 'TEMP_ID_TOKEN',
+            'id_token' => $this->makeIdToken($account, $client, $authCode),
         ]);
     }
 
     public function jwks()
     {
+        $publicKey = file_get_contents(storage_path('app/oidc/public.key'));
+
+        $details = openssl_pkey_get_details(openssl_pkey_get_public($publicKey));
+
+        $modulus = rtrim(strtr(base64_encode($details['rsa']['n']), '+/', '-_'), '=');
+        $exponent = rtrim(strtr(base64_encode($details['rsa']['e']), '+/', '-_'), '=');
+
         return response()->json([
-            'keys' => [],
+            'keys' => [
+                [
+                    'kty' => 'RSA',
+                    'use' => 'sig',
+                    'kid' => 'wn-plus-oidc-key-1',
+                    'alg' => 'RS256',
+                    'n' => $modulus,
+                    'e' => $exponent,
+                ],
+            ],
         ]);
     }
+
+    private function makeIdToken($account, $client, $authCode): string
+    {
+        $issuer = rtrim(config('app.url'), '/');
+
+        $payload = [
+            'iss' => $issuer,
+            'sub' => $account->uuid,
+            'aud' => $client->client_id,
+            'iat' => now()->timestamp,
+            'exp' => now()->addHour()->timestamp,
+            'auth_time' => now()->timestamp,
+            'nonce' => $authCode->nonce,
+
+            'name' => $account->full_name,
+            'given_name' => $account->first_name,
+            'family_name' => $account->last_name,
+            'email' => $account->email,
+            'email_verified' => (bool) $account->email_verified_at,
+
+            'wn_role' => $account->role?->code,
+            'wn_level' => $account->level?->code,
+            'organization_id' => $account->organization_id,
+        ];
+
+        $privateKey = file_get_contents(storage_path('app/oidc/private.key'));
+
+        return JWT::encode($payload, $privateKey, 'RS256', 'wn-plus-oidc-key-1');
+    }
+
 
 }
