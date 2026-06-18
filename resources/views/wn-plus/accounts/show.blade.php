@@ -80,9 +80,18 @@
                 </div>
 
                 <div class="card-body d-grid gap-2">
-                    <button type="button" class="btn btn-primary" disabled>
-                        Invia invito
-                    </button>
+@if($account->status !== 'active')
+    <form method="POST" action="{{ route('wn-plus.accounts.invite', $account) }}">
+        @csrf
+        <button type="submit" class="btn btn-primary w-100">
+            {{ $account->invitations->whereNull('accepted_at')->count() ? 'Reinvia invito' : 'Invia invito' }}
+        </button>
+    </form>
+@else
+    <button type="button" class="btn btn-outline-success w-100" disabled>
+        Account attivo
+    </button>
+@endif
 
                     <a href="{{ route('wn-plus.accounts.edit', $account) }}" class="btn btn-outline-secondary">
                         Modifica account

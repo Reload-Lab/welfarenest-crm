@@ -238,6 +238,13 @@ class WnPlusAccountController extends Controller
             return back()->with('error', 'Questo account è già attivo.');
         }
 
+        $account->invitations()
+            ->whereNull('accepted_at')
+            ->where('expires_at', '>', now())
+            ->update([
+                'expires_at' => now(),
+            ]);
+
         $invitation = WnPlusInvitation::create([
             'wn_plus_account_id' => $account->id,
             'token' => Str::random(64),
@@ -247,7 +254,7 @@ class WnPlusAccountController extends Controller
 
         Mail::to($account->email)->send(new WnPlusInvitationMail($invitation));
 
-        return back()->with('success', 'Invito generato e email preparata correttamente.');
+        return back()->with('success', 'Invito inviato correttamente.');
     }
 
 }

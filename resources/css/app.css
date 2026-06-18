@@ -14,7 +14,7 @@
 @import './components/dashboard.css';
 @import './components/cards.css';
 @import './components/notes.css';
-
+@import './components/wn-plus-auth.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
