@@ -24,7 +24,9 @@
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Organizzazione</dt>
-                        <dd class="col-sm-8">{{ $account->organization?->name ?? $account->organization?->legal_name ?? '—' }}</dd>
+                        <dd class="col-sm-8">
+                            {{ $account->organization?->name ?? $account->organization?->legal_name ?? '—' }}
+                        </dd>
 
                         <dt class="col-sm-4">Persona CRM</dt>
                         <dd class="col-sm-8">
@@ -41,11 +43,17 @@
                         <dt class="col-sm-4">Livello</dt>
                         <dd class="col-sm-8">{{ $account->level?->name ?? '—' }}</dd>
 
+                        <dt class="col-sm-4">Tipo account</dt>
+                        <dd class="col-sm-8">{{ $account->account_type === 'manager' ? 'Referente' : 'Utente semplice' }}</dd>
+
                         <dt class="col-sm-4">Stato</dt>
                         <dd class="col-sm-8">{{ ucfirst($account->status) }}</dd>
 
                         <dt class="col-sm-4">Max utenti</dt>
                         <dd class="col-sm-8">{{ $account->max_users ?? '—' }}</dd>
+
+                        <dt class="col-sm-4">Slot disponibili</dt>
+                        <dd class="col-sm-8">{{ $account->available_slots ?? '—' }}</dd>
 
                         <dt class="col-sm-4">Ultimo accesso</dt>
                         <dd class="col-sm-8">{{ $account->last_login_at?->format('d/m/Y H:i') ?? '—' }}</dd>
@@ -54,8 +62,14 @@
             </div>
 
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                     <strong>Utenti gestiti</strong>
+
+                    @if($account->account_type === 'manager' && $account->available_slots > 0)
+                        <a href="{{ route('wn-plus.accounts.users.create', $account) }}" class="btn btn-sm btn-primary">
+                            Nuovo utente
+                        </a>
+                    @endif
                 </div>
 
                 <div class="card-body">
@@ -63,6 +77,9 @@
                         <div class="border rounded p-3 mb-2">
                             <div class="fw-semibold">{{ $child->full_name }}</div>
                             <div class="text-muted small">{{ $child->email }}</div>
+                            <div class="small mt-1">
+                                Stato: {{ ucfirst($child->status) }}
+                            </div>
                         </div>
                     @empty
                         <div class="text-muted">
@@ -74,24 +91,15 @@
         </div>
 
         <div class="col-lg-4">
+            @include('wn-plus.accounts.partials.invitation-status', ['account' => $account])
+
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0">
                     <strong>Azioni</strong>
                 </div>
 
                 <div class="card-body d-grid gap-2">
-@if($account->status !== 'active')
-    <form method="POST" action="{{ route('wn-plus.accounts.invite', $account) }}">
-        @csrf
-        <button type="submit" class="btn btn-primary w-100">
-            {{ $account->invitations->whereNull('accepted_at')->count() ? 'Reinvia invito' : 'Invia invito' }}
-        </button>
-    </form>
-@else
-    <button type="button" class="btn btn-outline-success w-100" disabled>
-        Account attivo
-    </button>
-@endif
+                    @include('wn-plus.accounts.partials.invitation-actions', ['account' => $account])
 
                     <a href="{{ route('wn-plus.accounts.edit', $account) }}" class="btn btn-outline-secondary">
                         Modifica account
@@ -104,15 +112,4 @@
             </div>
         </div>
     </div>
-
-<div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-    <strong>Utenti gestiti</strong>
-
-    @if($account->account_type === 'manager' && $account->available_slots > 0)
-        <a href="{{ route('wn-plus.accounts.users.create', $account) }}" class="btn btn-sm btn-primary">
-            Nuovo utente
-        </a>
-    @endif
-</div>
-
 @endsection

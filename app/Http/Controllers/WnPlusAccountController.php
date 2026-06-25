@@ -14,7 +14,7 @@ use App\Mail\WnPlusInvitationMail;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\URL;
+
 
 class WnPlusAccountController extends Controller
 {
@@ -254,7 +254,7 @@ class WnPlusAccountController extends Controller
 
         Mail::to($account->email)->send(new WnPlusInvitationMail($invitation));
 
-        return back()->with('success', 'Invito inviato correttamente.');
+        return back()->with('success', 'Invito inviato correttamente a ' . $account->email . '.');
     }
 
 }
