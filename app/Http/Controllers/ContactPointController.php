@@ -60,6 +60,10 @@ class ContactPointController extends Controller
         string $errorBag = 'default',
         string $successMessage = 'Recapito aggiunto con successo.'
     ): RedirectResponse {
+
+
+
+    
         $validated = $request->validateWithBag($errorBag, [
             'contact_type_id' => ['required', 'exists:contact_types,id'],
             'value' => ['required', 'string', 'max:255'],
