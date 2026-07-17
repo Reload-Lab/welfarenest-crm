@@ -12,6 +12,7 @@ use App\Http\Controllers\WnPlusAccountController;
 use App\Http\Controllers\WnPlusInvitationController;
 use App\Http\Controllers\WnPlusAuthController;
 use App\Http\Controllers\WnPlusOidcController;
+use App\Http\Controllers\ConsentRequestController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -142,6 +143,10 @@ Route::get('/wn-plus/oidc/jwks', [WnPlusOidcController::class, 'jwks'])
 
 Route::get('/wn-plus/oidc/userinfo', [WnPlusOidcController::class, 'userinfo'])
     ->name('wn-plus.oidc.userinfo');
+
+Route::get('/consent-requests/{token}', [ConsentRequestController::class, 'show'])
+    ->name('consent-requests.show');
+
 
 //DEV
 Route::middleware(['auth'])->get('/dev/icons', function () {

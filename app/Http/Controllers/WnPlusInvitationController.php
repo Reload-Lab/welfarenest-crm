@@ -77,7 +77,7 @@ class WnPlusInvitationController extends Controller
         });
 
         return redirect()
-            ->route('login')
+            ->away('https://plus.welfarenest.it/')
             ->with('success', 'Account WN+ attivato correttamente. Ora puoi accedere.');
     }
 

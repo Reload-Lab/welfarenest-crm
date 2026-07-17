@@ -6,8 +6,12 @@ use App\Models\ContactPoint;
 use App\Models\ContactType;
 use App\Models\Organization;
 use App\Models\Person;
+use App\Models\PersonOrganizationRelation;
+use App\Services\ConsentRequestService;
+
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+
 
 class ContactPointController extends Controller
 {
@@ -89,7 +93,7 @@ class ContactPointController extends Controller
                 ->update(['is_primary' => false]);
         }
 
-        ContactPoint::create([
+        $contactPoint = ContactPoint::create([
             'owner_type' => $ownerType,
             'owner_id' => $ownerId,
             'contact_type_id' => $validated['contact_type_id'],
@@ -99,6 +103,12 @@ class ContactPointController extends Controller
             'is_primary' => $isPrimary,
             'is_active' => $isActive,
         ]);
+
+        if ($ownerType === 'person' && $contactType->category === 'email') {
+            app(ConsentRequestService::class)->createForContactPoint($contactPoint);
+
+            $successMessage = 'Recapito aggiunto con successo. Richiesta consenso generata.';
+        }
 
         return redirect($successRoute)
             ->with('success', $successMessage);
