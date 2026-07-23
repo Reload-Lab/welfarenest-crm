@@ -141,11 +141,16 @@ Route::post('/wn-plus/oidc/token', [WnPlusOidcController::class, 'token'])
 Route::get('/wn-plus/oidc/jwks', [WnPlusOidcController::class, 'jwks'])
     ->name('wn-plus.oidc.jwks');
 
+Route::get('/wn-plus/oidc/logout', [WnPlusOidcController::class, 'logout'])
+    ->name('wn-plus.oidc.logout');
+
 Route::get('/wn-plus/oidc/userinfo', [WnPlusOidcController::class, 'userinfo'])
     ->name('wn-plus.oidc.userinfo');
 
 Route::get('/consent-requests/{token}', [ConsentRequestController::class, 'show'])
     ->name('consent-requests.show');
+
+
 
 
 //DEV
