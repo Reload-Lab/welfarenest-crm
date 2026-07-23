@@ -303,45 +303,48 @@ class WnPlusOidcController extends Controller
     }
 
 
-    public function logout(Request $request)
-    {
-        $clientId = $request->query('client_id');
-        $returnTo = $request->query('returnTo');
+public function logout(Request $request)
+{
+    $clientId = $request->query('client_id');
+    $returnTo = $request->query('returnTo');
 
-        $client = WnPlusOidcClient::query()
-            ->where('client_id', $clientId)
-            ->where('is_active', true)
-            ->first();
+    $client = WnPlusOidcClient::query()
+        ->where('client_id', $clientId)
+        ->where('is_active', true)
+        ->first();
 
-        if (! $client) {
-            abort(400, 'client_id non valido.');
-        }
+    if (! $client) {
+        abort(400, 'client_id non valido.');
+    }
 
-        \Log::info('OIDC logout richiesto', [
-            'client_id' => $clientId,
-            'return_to' => $returnTo,
-            'had_session' => session()->has('wn_plus_account_id'),
-        ]);
+    \Log::info('OIDC logout richiesto', [
+        'client_id' => $clientId,
+        'return_to' => $returnTo,
+        'had_session' => session()->has('wn_plus_account_id'),
+    ]);
 
-        session()->forget('wn_plus_account_id');
+    session()->forget('wn_plus_account_id');
 
-        if ($returnTo) {
-            $allowedHost = parse_url($client->redirect_uri, PHP_URL_HOST);
-            $returnToHost = parse_url($returnTo, PHP_URL_HOST);
+    $safeReturnTo = null;
 
-            if ($returnToHost && $allowedHost && $returnToHost === $allowedHost) {
-                return redirect()->away($returnTo);
-            }
+    if ($returnTo) {
+        $allowedHost = parse_url($client->redirect_uri, PHP_URL_HOST);
+        $returnToHost = parse_url($returnTo, PHP_URL_HOST);
 
+        if ($returnToHost && $allowedHost && $returnToHost === $allowedHost) {
+            $safeReturnTo = $returnTo;
+        } else {
             \Log::warning('OIDC logout: returnTo host non corrisponde al client, ignorato', [
                 'client_id' => $clientId,
                 'return_to_host' => $returnToHost,
                 'allowed_host' => $allowedHost,
             ]);
         }
-
-        return redirect()->route('wn-plus.login');
     }
 
+    return view('wn-plus.auth.logged-out', [
+        'returnTo' => $safeReturnTo,
+    ]);
+}
 
 }
