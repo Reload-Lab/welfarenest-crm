@@ -7,7 +7,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use App\Models\Person;
 use App\Models\ContactPoint;
-
+use App\Models\WnPlusAccount;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
         'person' => Person::class,
         'contact_point' => ContactPoint::class,
+        'wn_plus_account' => WnPlusAccount::class,
         ]);
         Paginator::useBootstrapFive();
     }

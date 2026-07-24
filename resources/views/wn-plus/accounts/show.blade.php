@@ -1,3 +1,7 @@
+@php
+    use App\Models\ConsentType;
+@endphp
+
 @extends('layouts.app')
 
 @section('title', 'Account WN+')
@@ -73,19 +77,45 @@
                 </div>
 
                 <div class="card-body">
-                    @forelse($account->invitedAccounts as $child)
-                        <div class="border rounded p-3 mb-2">
-                            <div class="fw-semibold">{{ $child->full_name }}</div>
-                            <div class="text-muted small">{{ $child->email }}</div>
-                            <div class="small mt-1">
-                                Stato: {{ ucfirst($child->status) }}
+                        @forelse($account->invitedAccounts as $child)
+                            @php
+                                $lastInvitation = $child->invitations->sortByDesc('created_at')->first();
+                            @endphp
+
+                            <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="fw-semibold">{{ $child->full_name }}</div>
+                                    <div class="text-muted small">{{ $child->email }}</div>
+                                    <div class="small mt-1">
+                                        Stato: {{ ucfirst($child->status) }}
+                                        @if($lastInvitation?->accepted_at)
+                                            · Invito accettato il {{ $lastInvitation->accepted_at->format('d/m/Y') }}
+                                        @elseif($lastInvitation)
+                                            · Invito in attesa
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="crm-status-badge crm-status-badge--{{ $child->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} border-0"
+                                    title="{{ $child->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                    aria-label="{{ $child->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#consentsModal-{{ $child->id }}">
+                                    <x-icon group="entities" name="consent" />
+                                </button>
                             </div>
-                        </div>
-                    @empty
-                        <div class="text-muted">
-                            Nessun utente semplice creato da questo referente.
-                        </div>
-                    @endforelse
+
+                            @include('people.partials.show.consents-modal', [
+                                'owner' => $child,
+                                'modalId' => 'consentsModal-' . $child->id,
+                            ])
+                        @empty
+                            <div class="text-muted">
+                                Nessun utente semplice creato da questo referente.
+                            </div>
+                        @endforelse
                 </div>
             </div>
         </div>

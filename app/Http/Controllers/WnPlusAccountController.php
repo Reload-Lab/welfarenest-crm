@@ -148,6 +148,9 @@ class WnPlusAccountController extends Controller
             'invitedAccounts.organization',
             'invitedAccounts.role',
             'invitedAccounts.level',
+            'invitedAccounts.invitations',
+            'invitedAccounts.consents.consentType',
+            'invitedAccounts.consents.consentVersion',
         ]);
 
         return view('wn-plus.accounts.show', compact('account'));
