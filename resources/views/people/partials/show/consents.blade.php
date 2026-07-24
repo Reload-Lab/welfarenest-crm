@@ -1,5 +1,5 @@
 @php
-    $owner = $owner ?? $person;
+    $owner = $owner ?? (isset($person) ? $person : null);
 @endphp
 
 <div class="card border-0 shadow-sm">

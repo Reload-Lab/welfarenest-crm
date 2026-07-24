@@ -1,5 +1,10 @@
+@php
+    $modalId = $modalId ?? 'personConsentsModal';
+    $modalOwner = $owner ?? (isset($person) ? $person : null);
+@endphp
+
 <div class="modal fade"
-     id="personConsentsModal"
+     id="{{ $modalId }}"
      tabindex="-1"
      aria-hidden="true">
 
@@ -19,7 +24,7 @@
             <div class="modal-body">
 
                 @include('people.partials.show.consents', [
-                    'owner' => $person,
+                    'owner' => $modalOwner,
                 ])
 
             </div>
