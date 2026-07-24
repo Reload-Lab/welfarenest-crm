@@ -65,14 +65,21 @@
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                    <strong>Utenti gestiti</strong>
+            <div class="card crm-card">
+
+                        
+                <div class="card-header">
+                    <div>
+                        <h5>Utenti gestiti</h5>
+                    </div>
 
                     @if($account->account_type === 'manager' && $account->available_slots > 0)
-                        <a href="{{ route('wn-plus.accounts.users.create', $account) }}" class="btn btn-sm btn-primary">
-                            Nuovo utente
-                        </a>
+                        <x-crm.icon-button
+                            icon="add"
+                            icon-group="actions"
+                            title="Nuovo utente"
+                            href="{{ route('wn-plus.accounts.users.create', $account) }}"
+                        />
                     @endif
                 </div>
 
