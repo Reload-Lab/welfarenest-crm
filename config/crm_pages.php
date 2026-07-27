@@ -339,5 +339,23 @@ return [
     ],
 ],
 
+'wn-plus.accounts.show' => [
+    'title' => 'Welfare Nest Plus',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Welfare Nest Plus',
+            'route' => 'wn-plus.accounts.index',
+        ],
+        [
+            'label' => fn (array $params) => $params['account']->full_name,
+        ],
+    ],
+],
+
 
 ];

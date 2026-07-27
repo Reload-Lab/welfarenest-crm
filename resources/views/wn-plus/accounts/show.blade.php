@@ -7,6 +7,23 @@
 @section('title', 'Account WN+')
 
 @section('content')
+
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">{{ $account->full_name }}</h1>
+            <div class="text-muted">{{ $account->email }}</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            @include('wn-plus.accounts.partials.invitation-actions', ['account' => $account])
+
+            <x-crm.row-actions
+                :edit="route('wn-plus.accounts.edit', $account)"
+            />
+        </div>
+    </div>
+
+
     <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
         <div>
             <h1 class="h3 mb-1">{{ $account->full_name }}</h1>
