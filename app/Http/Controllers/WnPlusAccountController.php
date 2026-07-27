@@ -11,6 +11,8 @@ use App\Models\WnPlusLevel;
 use App\Models\WnPlusRole;
 use App\Models\WnPlusInvitation;
 use App\Mail\WnPlusInvitationMail;
+use App\Models\Consent;
+use App\Models\ConsentRequest;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -258,6 +260,33 @@ class WnPlusAccountController extends Controller
         Mail::to($account->email)->send(new WnPlusInvitationMail($invitation));
 
         return back()->with('success', 'Invito inviato correttamente a ' . $account->email . '.');
+    }
+
+    public function destroy(WnPlusAccount $account)
+    {
+        $hasActiveInvitedAccounts = $account->invitedAccounts()
+            ->where('status', '!=', 'disabled')
+            ->exists();
+
+        if ($hasActiveInvitedAccounts) {
+            return back()->with('error', 'Impossibile eliminare: questo referente ha utenti invitati non disattivati. Disattiva o riassegna prima gli utenti collegati.');
+        }
+
+        // I consensi sono legati tramite owner polimorfico senza foreign key reale:
+        // vanno ripuliti esplicitamente per non lasciare righe orfane.
+        Consent::where('owner_type', 'wn_plus_account')
+            ->where('owner_id', $account->id)
+            ->delete();
+
+        ConsentRequest::where('owner_type', 'wn_plus_account')
+            ->where('owner_id', $account->id)
+            ->delete();
+
+        $account->delete();
+
+        return redirect()
+            ->route('wn-plus.accounts.index')
+            ->with('success', 'Account WN+ eliminato correttamente.');
     }
 
 }
