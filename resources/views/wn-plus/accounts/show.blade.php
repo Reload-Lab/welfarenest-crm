@@ -24,19 +24,8 @@
     </div>
 
 
-    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
-        <div>
-            <h1 class="h3 mb-1">{{ $account->full_name }}</h1>
-            <div class="text-muted">{{ $account->email }}</div>
-        </div>
-
-        <a href="{{ route('wn-plus.accounts.index') }}" class="btn btn-outline-secondary">
-            Torna agli utenti
-        </a>
-    </div>
-
     <div class="row g-4">
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-0">
                     <strong>Dati account</strong>
@@ -144,26 +133,5 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
-            @include('wn-plus.accounts.partials.invitation-status', ['account' => $account])
-
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0">
-                    <strong>Azioni</strong>
-                </div>
-
-                <div class="card-body d-grid gap-2">
-                    @include('wn-plus.accounts.partials.invitation-actions', ['account' => $account])
-
-                    <a href="{{ route('wn-plus.accounts.edit', $account) }}" class="btn btn-outline-secondary">
-                        Modifica account
-                    </a>
-
-                    <button type="button" class="btn btn-outline-danger" disabled>
-                        Sospendi account
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
