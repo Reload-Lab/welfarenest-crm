@@ -100,5 +100,37 @@ class WnPlusAccount extends Model
         );
     }
 
+    public function statusBadgeVariant(): string
+    {
+        return match ($this->status) {
+            'active' => 'success',
+            'invited' => 'warning',
+            'suspended' => 'danger',
+            'disabled' => 'muted',
+            default => 'muted',
+        };
+    }
+
+    public function statusIcon(): string
+    {
+        return match ($this->status) {
+            'active' => 'active',
+            'invited', 'suspended' => 'warning',
+            'disabled' => 'inactive',
+            default => 'inactive',
+        };
+    }
+
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            'active' => 'Account attivo',
+            'invited' => 'Invito in attesa',
+            'suspended' => 'Account sospeso',
+            'disabled' => 'Account disattivato',
+            default => 'Stato sconosciuto',
+        };
+    }
+
 
 }

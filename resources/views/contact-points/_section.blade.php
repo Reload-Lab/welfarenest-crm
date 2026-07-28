@@ -22,8 +22,6 @@
 </div>
 
 
-
-
 <div class="modal fade"
      id="{{ $collapseId }}Modal"
      tabindex="-1"

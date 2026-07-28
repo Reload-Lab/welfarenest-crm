@@ -289,4 +289,34 @@ class WnPlusAccountController extends Controller
             ->with('success', 'Account WN+ eliminato correttamente.');
     }
 
+    public function suspend(WnPlusAccount $account)
+    {
+        if ($account->status === 'suspended') {
+            return back()->with('error', 'Questo account è già sospeso.');
+        }
+
+        $hasActiveInvitedAccounts = $account->invitedAccounts()
+            ->where('status', '!=', 'disabled')
+            ->exists();
+
+        if ($hasActiveInvitedAccounts) {
+            return back()->with('error', 'Impossibile sospendere: questo referente ha utenti invitati non disattivati. Disattiva o riassegna prima gli utenti collegati.');
+        }
+
+        $account->update(['status' => 'suspended']);
+
+        return back()->with('success', 'Account sospeso correttamente.');
+    }
+
+    public function reactivate(WnPlusAccount $account)
+    {
+        if ($account->status !== 'suspended') {
+            return back()->with('error', 'Questo account non risulta sospeso.');
+        }
+
+        $account->update(['status' => 'active']);
+
+        return back()->with('success', 'Account riattivato correttamente.');
+    }
+
 }

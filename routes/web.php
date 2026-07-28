@@ -150,7 +150,11 @@ Route::get('/wn-plus/oidc/userinfo', [WnPlusOidcController::class, 'userinfo'])
 Route::get('/consent-requests/{token}', [ConsentRequestController::class, 'show'])
     ->name('consent-requests.show');
 
+Route::post('/wn-plus/accounts/{account}/suspend', [WnPlusAccountController::class, 'suspend'])
+    ->name('wn-plus.accounts.suspend');
 
+Route::post('/wn-plus/accounts/{account}/reactivate', [WnPlusAccountController::class, 'reactivate'])
+    ->name('wn-plus.accounts.reactivate');
 
 
 //DEV

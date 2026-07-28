@@ -45,8 +45,6 @@
 
 </button>
 
-
-
                         @include('components.crm.row-actions', [
                             'edit' => route('people.edit', $person),
                             'delete' => route('people.destroy', $person),

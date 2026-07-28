@@ -15,7 +15,19 @@
         </div>
 
         <div class="d-flex align-items-center gap-2">
-            @include('wn-plus.accounts.partials.invitation-actions', ['account' => $account])
+
+
+            @if($account->status === 'active')
+<span
+    class="crm-status-icon crm-status-icon--neutral {{ $account->status === 'active' ? 'text-success' : 'text-secondary' }}"
+    title="{{ $account->statusLabel() }}"
+    aria-label="{{ $account->statusLabel() }}">
+    <x-icon group="status" name="{{ $account->statusIcon() }}" />
+</span>
+            @else
+                @include('wn-plus.accounts.partials.invitation-actions', ['account' => $account])
+            @endif
+
 
             <x-crm.row-actions
                 :edit="route('wn-plus.accounts.edit', $account)"
@@ -95,30 +107,57 @@
                                 $lastInvitation = $child->invitations->sortByDesc('created_at')->first();
                             @endphp
 
-                            <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-start gap-3">
-                                <div>
-                                    <div class="fw-semibold">{{ $child->full_name }}</div>
-                                    <div class="text-muted small">{{ $child->email }}</div>
-                                    <div class="small mt-1">
-                                        Stato: {{ ucfirst($child->status) }}
-                                        @if($lastInvitation?->accepted_at)
-                                            · Invito accettato il {{ $lastInvitation->accepted_at->format('d/m/Y') }}
-                                        @elseif($lastInvitation)
-                                            · Invito in attesa
-                                        @endif
+                                <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-center gap-3">
+                                    <div>
+                                        <div class="fw-semibold">{{ $child->full_name }}</div>
+                                        <div class="text-muted small">{{ $child->email }}</div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span
+                                            class="crm-status-icon crm-status-icon--neutral {{ $child->status === 'active' ? 'text-success' : 'text-secondary' }}"
+                                            title="{{ $child->statusLabel() }}"
+                                            aria-label="{{ $child->statusLabel() }}">
+                                            <x-icon group="status" name="{{ $child->status === 'active' ? 'active' : 'inactive' }}" />
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            class="crm-status-icon crm-status-icon--neutral {{ $child->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) === 'success' ? 'text-success' : 'text-secondary' }} border-0"
+                                            title="{{ $child->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                            aria-label="{{ $child->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#consentsModal-{{ $child->id }}">
+                                            <x-icon group="entities" name="consent" />
+                                        </button>
+
+                                        <x-crm.row-actions
+                                            :edit="route('wn-plus.accounts.edit', $child)"
+                                            :delete="route('wn-plus.accounts.destroy', $child)"
+                                            deleteConfirm="Confermi l'eliminazione di questo account WN+? L'operazione non è reversibile."
+                                            :actions="[
+                                                [
+                                                    'route' => route('wn-plus.accounts.invite', $child),
+                                                    'label' => $child->invitations->isNotEmpty() ? 'Reinvia invito' : 'Invia invito',
+                                                    'icon' => 'send',
+                                                    'show' => $child->status !== 'active',
+                                                ],
+                                                [
+                                                    'route' => route('wn-plus.accounts.suspend', $child),
+                                                    'label' => 'Sospendi account',
+                                                    'icon' => 'archive',
+                                                    'show' => $child->status === 'active',
+                                                ],
+                                                [
+                                                    'route' => route('wn-plus.accounts.reactivate', $child),
+                                                    'label' => 'Riattiva account',
+                                                    'icon' => 'archive-restore',
+                                                    'show' => $child->status === 'suspended',
+                                                ],
+                                            ]"
+                                        />
                                     </div>
                                 </div>
-
-                                <button
-                                    type="button"
-                                    class="crm-status-badge crm-status-badge--{{ $child->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} border-0"
-                                    title="{{ $child->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-                                    aria-label="{{ $child->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#consentsModal-{{ $child->id }}">
-                                    <x-icon group="entities" name="consent" />
-                                </button>
-                            </div>
 
                             @include('people.partials.show.consents-modal', [
                                 'owner' => $child,

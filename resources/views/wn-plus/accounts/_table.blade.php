@@ -45,6 +45,7 @@
                             <td>
                                 <span class="crm-status-badge">
                                     {{ ucfirst($account->status) }}
+                                    
                                 </span>
                             </td>
 
@@ -67,6 +68,18 @@
                                             'method' => 'POST',
                                             'icon' => 'send',
                                             'show' => $account->status !== 'active',
+                                        ],
+                                        [
+                                            'route' => route('wn-plus.accounts.suspend', $account),
+                                            'label' => 'Sospendi account',
+                                            'icon' => 'archive',
+                                            'show' => $account->status !== 'suspended',
+                                        ],
+                                        [
+                                            'route' => route('wn-plus.accounts.reactivate', $account),
+                                            'label' => 'Riattiva account',
+                                            'icon' => 'archive-restore',
+                                            'show' => $account->status === 'suspended',
                                         ],
                                     ],
                                 ])
