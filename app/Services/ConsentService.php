@@ -70,4 +70,21 @@ class ConsentService
             'created_by_user_id' => auth()->id(),
         ]);
     }
+
+    public function updateConsents(Request $request, ConsentService $consentService)
+    {
+        $account = $request->attributes->get('wnPlusAccount');
+
+        foreach (['promotional_emails', 'image_disclosure'] as $code) {
+            if ($request->boolean($code)) {
+                $consentService->grant('wn_plus_account', $account->id, $code, 'wn_plus_portal_self_service');
+            } else {
+                $consentService->deny('wn_plus_account', $account->id, $code, 'wn_plus_portal_self_service');
+            }
+        }
+
+        return back()->with('success', 'Consensi aggiornati correttamente.');
+    }
+
+
 }

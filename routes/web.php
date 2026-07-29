@@ -13,6 +13,7 @@ use App\Http\Controllers\WnPlusInvitationController;
 use App\Http\Controllers\WnPlusAuthController;
 use App\Http\Controllers\WnPlusOidcController;
 use App\Http\Controllers\ConsentRequestController;
+use App\Http\Controllers\WnPlusPortalController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -121,14 +122,6 @@ Route::post('/wn-plus/logout', [WnPlusAuthController::class, 'logout'])
     ->name('wn-plus.logout');
 
 
-Route::get('/wn-plus/portal', function () {
-    $account = App\Models\WnPlusAccount::with(['organization', 'role', 'level'])
-        ->findOrFail(session('wn_plus_account_id'));
-
-    return view('wn-plus.portal.dashboard', compact('account'));
-})->name('wn-plus.portal.dashboard');
-
-
 Route::get('/.well-known/openid-configuration', [WnPlusOidcController::class, 'configuration'])
     ->name('wn-plus.oidc.configuration');
 
@@ -155,6 +148,13 @@ Route::post('/wn-plus/accounts/{account}/suspend', [WnPlusAccountController::cla
 
 Route::post('/wn-plus/accounts/{account}/reactivate', [WnPlusAccountController::class, 'reactivate'])
     ->name('wn-plus.accounts.reactivate');
+
+Route::middleware('wn-plus.account')->prefix('wn-plus/portal')->name('wn-plus.portal.')->group(function () {
+    Route::get('/', [WnPlusPortalController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profile', [WnPlusPortalController::class, 'profile'])->name('profile');
+    Route::put('/profile/password', [WnPlusPortalController::class, 'updatePassword'])->name('profile.password');
+    Route::put('/profile/consents', [WnPlusPortalController::class, 'updateConsents'])->name('profile.consents');
+});
 
 
 //DEV

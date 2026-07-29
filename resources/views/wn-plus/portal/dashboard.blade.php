@@ -1,42 +1,25 @@
-@extends('layouts.guest')
+@extends('layouts.wn-plus')
 
 @section('title', 'Area WN+')
+@section('body_class', 'wn-auth-page')
 
 @section('content')
 <div class="container py-5">
-    <div class="card mx-auto border-0 shadow-sm" style="max-width: 640px;">
-        <div class="card-body p-4">
-            <h1 class="h4 mb-3">Area Welfare Nest Plus</h1>
+    @include('wn-plus.portal.partials.nav', ['active' => 'dashboard'])
 
-            <p class="text-muted">
-                Accesso effettuato come:
-            </p>
+    <div class="wn-auth-card mx-auto p-4 p-md-5" style="max-width: 640px;">
+        <h1 class="wn-auth-title mb-4">Benvenuto, {{ $account->first_name }}</h1>
 
-            <dl>
-                <dt>Nome</dt>
-                <dd>{{ $account->full_name }}</dd>
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Organizzazione</dt>
+            <dd class="col-sm-8">{{ $account->organization?->name ?? $account->organization?->legal_name }}</dd>
 
-                <dt>Email</dt>
-                <dd>{{ $account->email }}</dd>
+            <dt class="col-sm-4">Ruolo</dt>
+            <dd class="col-sm-8">{{ $account->role?->name }}</dd>
 
-                <dt>Organizzazione</dt>
-                <dd>{{ $account->organization?->name ?? $account->organization?->legal_name }}</dd>
-
-                <dt>Ruolo</dt>
-                <dd>{{ $account->role?->name }}</dd>
-
-                <dt>Livello</dt>
-                <dd>{{ $account->level?->name }}</dd>
-            </dl>
-
-            <form method="POST" action="{{ route('wn-plus.logout') }}">
-                @csrf
-
-                <button type="submit" class="btn btn-outline-secondary">
-                    Esci
-                </button>
-            </form>
-        </div>
+            <dt class="col-sm-4">Livello</dt>
+            <dd class="col-sm-8">{{ $account->level?->name }}</dd>
+        </dl>
     </div>
 </div>
 @endsection
