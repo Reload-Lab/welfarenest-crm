@@ -2,7 +2,7 @@
     'owner' => $relation,
     'ownerType' => 'person_organization_relation',
     'contactPoints' => $relation->contactPoints,
-    'storeRoute' => route('people.relations.contact-points.store', [$person, $relation]),
+    'storeRoute' => $contactPointsStoreRoute,
     'destroyRouteName' => 'contact-points.destroy',
     'contactTypes' => $contactTypes,
     'contactUsages' => $contactUsages,
@@ -10,4 +10,7 @@
     'collapseId' => 'relation-contact-point-create-' . $relation->id,
     'errorBag' => 'storeRelationContactPoint',
     'createLabel' => 'Nuovo recapito',
+    'sectionTitle' => 'Recapiti della relazione',
+    'modal' => false,
+    'renderModals' => false,
 ])

@@ -55,6 +55,8 @@ public function show(Request $request, Organization $organization)
                 'person',
                 'qualification',
                 'department',
+                'contactPoints.contactType',
+                'contactPoints.contactUsage',
             ])->orderByDesc('is_active')
               ->orderBy('id');
         },

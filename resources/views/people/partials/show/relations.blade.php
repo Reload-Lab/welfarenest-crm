@@ -96,6 +96,15 @@
                                             />
                                         @endif
                                     </div>
+
+                                    <div class="mt-3">
+                                        @include('people.partials.show.relation-contact-points', [
+                                            'relation' => $relation,
+                                            'contactTypes' => $contactTypes,
+                                            'contactUsages' => $contactUsages,
+                                            'contactPointsStoreRoute' => route('people.relations.contact-points.store', [$person, $relation]),
+                                        ])
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -140,5 +149,18 @@
         </div>
     </div>
 </div>
+
+{{-- Modali dei recapiti di relazione: tenuti fuori dalla card (vedi _relation-modals.blade.php) --}}
+@foreach($person->organizationRelations as $relation)
+    @include('contact-points._relation-modals', [
+        'relation' => $relation,
+        'contactTypes' => $contactTypes,
+        'contactUsages' => $contactUsages,
+        'contactPointsStoreRoute' => route('people.relations.contact-points.store', [$person, $relation]),
+        'formIdPrefix' => 'relation-contact-point-' . $relation->id,
+        'collapseId' => 'relation-contact-point-create-' . $relation->id,
+        'errorBag' => 'storeRelationContactPoint',
+    ])
+@endforeach
 
 

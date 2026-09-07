@@ -202,19 +202,32 @@ class ContactPointController extends Controller
         )->with('success', 'Recapito aggiornato con successo.');
     }
 
-    public function storeForRelation(Request $request, Person $person, PersonOrganizationRelation $relation)
+    public function storeForRelation(Request $request, Person $person, PersonOrganizationRelation $relation): RedirectResponse
     {
         abort_unless($relation->person_id === $person->id, 404);
 
-        $validated = $this->validateContactPoint($request);
+        return $this->storeForOwner(
+            request: $request,
+            ownerType: 'person_organization_relation',
+            ownerId: $relation->id,
+            successRoute: route('people.show', $person),
+            errorBag: 'storeRelationContactPoint',
+            successMessage: 'Recapito della relazione aggiunto con successo.'
+        );
+    }
 
-        $relation->contactPoints()->create($validated + [
-            'owner_type' => 'person_organization_relation',
-        ]);
+    public function storeForRelationFromOrganization(Request $request, Organization $organization, PersonOrganizationRelation $relation): RedirectResponse
+    {
+        abort_unless($relation->organization_id === $organization->id, 404);
 
-        return redirect()
-            ->route('people.show', $person)
-            ->with('success', 'Recapito della relazione aggiunto con successo.');
+        return $this->storeForOwner(
+            request: $request,
+            ownerType: 'person_organization_relation',
+            ownerId: $relation->id,
+            successRoute: route('organizations.show', $organization),
+            errorBag: 'storeRelationContactPoint',
+            successMessage: 'Recapito della relazione aggiunto con successo.'
+        );
     }
 
 }

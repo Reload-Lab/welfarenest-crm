@@ -145,6 +145,8 @@ class PersonController extends Controller
             'organizationRelations.organization',
             'organizationRelations.qualification',
             'organizationRelations.department',
+            'organizationRelations.contactPoints.contactType',
+            'organizationRelations.contactPoints.contactUsage',
             'contactPoints.contactType',
             'contactPoints.contactUsage',
             'consents.consentType',

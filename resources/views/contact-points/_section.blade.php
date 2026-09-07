@@ -1,7 +1,7 @@
 <div class="card crm-card">
     <div class="card-header">
             <div>
-                <h5>Recapiti</h5>
+                <h5>{{ $sectionTitle ?? 'Recapiti' }}</h5>
             </div>
 
             <x-crm.icon-button
@@ -17,11 +17,13 @@
         @include('contact-points._list', [
             'contactPoints' => $contactPoints,
             'destroyRouteName' => $destroyRouteName,
+            'renderModals' => $renderModals ?? true,
         ])
     </div>
 </div>
 
 
+@if($modal ?? true)
 <div class="modal fade"
      id="{{ $collapseId }}Modal"
      tabindex="-1"
@@ -52,3 +54,4 @@
         </div>
     </div>
 </div>
+@endif
