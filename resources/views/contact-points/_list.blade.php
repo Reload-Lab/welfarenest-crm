@@ -149,6 +149,25 @@
         <x-icon group="entities" name="consent" />
 
     </button>
+
+    @if($contactPoint->owner_type === 'person')
+        {{-- Invio manuale: nessuna richiesta di consenso parte mai senza questo click esplicito. --}}
+        <form
+            action="{{ route('contact-points.consent-requests.store', $contactPoint) }}"
+            method="POST"
+            class="d-inline"
+            onsubmit="return confirm('Inviare la richiesta di consenso a questo indirizzo email?');"
+        >
+            @csrf
+            <button
+                type="submit"
+                class="btn btn-outline-secondary btn-sm"
+                title="Invia richiesta di consenso"
+            >
+                Invia richiesta di consenso
+            </button>
+        </form>
+    @endif
 @endif
 
                                 
@@ -186,6 +205,7 @@
                     </div>        
                 </div>
 
+                @if($renderModals ?? true)
                 <div class="modal fade"
                     id="contactPointEditModal-{{ $contactPoint->id }}"
                     tabindex="-1"
@@ -217,6 +237,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
 
             @endforeach

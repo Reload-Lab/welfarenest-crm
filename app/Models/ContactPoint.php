@@ -39,4 +39,9 @@ class ContactPoint extends Model
         return $this->belongsTo(ContactUsage::class);
     }
 
+    public function consentRequests()
+    {
+        return $this->hasMany(ConsentRequest::class);
+    }
+
 }
