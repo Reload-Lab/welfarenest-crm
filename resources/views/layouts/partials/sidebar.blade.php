@@ -57,6 +57,13 @@
             'patterns' => [],
         ],
         [
+            'label' => 'Anagrafiche',
+            'route' => 'taxonomies.home',
+            'icon_group' => 'entities',
+            'icon_name' => 'qualification',
+            'patterns' => ['taxonomies.*'],
+        ],
+        [
             'label' => 'Impostazioni',
             'route' => null,
             'icon_group' => 'navigation',

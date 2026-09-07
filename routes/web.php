@@ -14,6 +14,7 @@ use App\Http\Controllers\WnPlusAuthController;
 use App\Http\Controllers\WnPlusOidcController;
 use App\Http\Controllers\ConsentRequestController;
 use App\Http\Controllers\WnPlusPortalController;
+use App\Http\Controllers\TaxonomyController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -64,7 +65,17 @@ Route::middleware('auth')->group(function () {
     Route::post(
         'people/{person}/relations/{relation}/contact-points',
         [ContactPointController::class, 'storeForRelation']
-    )->name('people.relations.contact-points.store');    
+    )->name('people.relations.contact-points.store');
+
+    Route::post(
+        'organizations/{organization}/relations/{relation}/contact-points',
+        [ContactPointController::class, 'storeForRelationFromOrganization']
+    )->name('organizations.relations.contact-points.store');
+
+    Route::post(
+        'contact-points/{contactPoint}/consent-requests',
+        [ConsentRequestController::class, 'store']
+    )->name('contact-points.consent-requests.store');
 
     Route::post('/organizations/{organization}/addresses', [AddressController::class, 'storeForOrganization'])
         ->name('organizations.addresses.store');
@@ -102,6 +113,15 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/wn-plus/accounts/{account}/invite', [WnPlusAccountController::class, 'sendInvitation'])
         ->name('wn-plus.accounts.invite');
+
+    Route::prefix('anagrafiche')->name('taxonomies.')->group(function () {
+        Route::get('/', [TaxonomyController::class, 'home'])->name('home');
+        Route::get('/{type}', [TaxonomyController::class, 'index'])->name('index');
+        Route::post('/{type}', [TaxonomyController::class, 'store'])->name('store');
+        Route::put('/{type}/{id}', [TaxonomyController::class, 'update'])->name('update');
+        Route::patch('/{type}/{id}/toggle-active', [TaxonomyController::class, 'toggleActive'])->name('toggle-active');
+        Route::delete('/{type}/{id}', [TaxonomyController::class, 'destroy'])->name('destroy');
+    });
 
 });
 

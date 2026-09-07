@@ -339,6 +339,38 @@ return [
     ],
 ],
 
+'taxonomies.home' => [
+    'title' => 'Anagrafiche',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Anagrafiche',
+        ],
+    ],
+],
+
+'taxonomies.index' => [
+    'title' => fn (array $params) => config('taxonomies.'.$params['type'].'.label_plural', 'Anagrafiche'),
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Anagrafiche',
+            'route' => 'taxonomies.home',
+        ],
+        [
+            'label' => fn (array $params) => config('taxonomies.'.$params['type'].'.label_plural', ''),
+        ],
+    ],
+],
+
 'wn-plus.accounts.show' => [
     'title' => 'Welfare Nest Plus',
     'breadcrumbs' => [
