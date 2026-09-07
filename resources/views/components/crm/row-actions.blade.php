@@ -71,6 +71,7 @@
                 class="btn btn-icon"
                 data-bs-toggle="dropdown"
                 data-bs-boundary="viewport"
+                data-bs-strategy="fixed"
                 aria-expanded="false"
                 title="Azioni"
                 aria-label="Azioni">
