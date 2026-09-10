@@ -7,14 +7,14 @@ use App\Models\ConsentType;
 
 class ConsentService
 {
-    public function grant(string $ownerType, int $ownerId, string $consentTypeCode, string $source): ?Consent
+    public function grant(string $ownerType, int $ownerId, string $consentTypeCode, string $source, ?string $versionCode = null): ?Consent
     {
-        return $this->store($ownerType, $ownerId, $consentTypeCode, 'granted', $source);
+        return $this->store($ownerType, $ownerId, $consentTypeCode, 'granted', $source, $versionCode);
     }
 
-    public function deny(string $ownerType, int $ownerId, string $consentTypeCode, string $source): ?Consent
+    public function deny(string $ownerType, int $ownerId, string $consentTypeCode, string $source, ?string $versionCode = null): ?Consent
     {
-        return $this->store($ownerType, $ownerId, $consentTypeCode, 'denied', $source);
+        return $this->store($ownerType, $ownerId, $consentTypeCode, 'denied', $source, $versionCode);
     }
 
     public function latest(string $ownerType, int $ownerId, string $consentTypeCode): ?Consent
@@ -43,7 +43,8 @@ class ConsentService
         int $ownerId,
         string $consentTypeCode,
         string $status,
-        string $source
+        string $source,
+        ?string $versionCode = null
     ): ?Consent {
         $consentType = ConsentType::where('code', $consentTypeCode)->first();
 
@@ -51,10 +52,15 @@ class ConsentService
             return null;
         }
 
-        $version = $consentType->versions()
-            ->where('is_active', true)
-            ->latest('published_at')
-            ->first();
+        $versionQuery = $consentType->versions()->where('is_active', true);
+
+        if ($versionCode !== null) {
+            // Versione esplicita richiesta (es. audience-specific per ruolo):
+            // se non la troviamo attiva con questo codice, meglio null che una versione sbagliata.
+            $versionQuery->where('version_code', $versionCode);
+        }
+
+        $version = $versionQuery->latest('published_at')->first();
 
         return Consent::create([
             'owner_type' => $ownerType,
@@ -70,21 +76,4 @@ class ConsentService
             'created_by_user_id' => auth()->id(),
         ]);
     }
-
-    public function updateConsents(Request $request, ConsentService $consentService)
-    {
-        $account = $request->attributes->get('wnPlusAccount');
-
-        foreach (['promotional_emails', 'image_disclosure'] as $code) {
-            if ($request->boolean($code)) {
-                $consentService->grant('wn_plus_account', $account->id, $code, 'wn_plus_portal_self_service');
-            } else {
-                $consentService->deny('wn_plus_account', $account->id, $code, 'wn_plus_portal_self_service');
-            }
-        }
-
-        return back()->with('success', 'Consensi aggiornati correttamente.');
-    }
-
-
 }

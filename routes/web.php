@@ -114,6 +114,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/wn-plus/accounts/{account}/invite', [WnPlusAccountController::class, 'sendInvitation'])
         ->name('wn-plus.accounts.invite');
 
+    Route::post('/wn-plus/accounts/{account}/suspend', [WnPlusAccountController::class, 'suspend'])
+        ->name('wn-plus.accounts.suspend');
+
+    Route::post('/wn-plus/accounts/{account}/reactivate', [WnPlusAccountController::class, 'reactivate'])
+        ->name('wn-plus.accounts.reactivate');
+
     Route::prefix('anagrafiche')->name('taxonomies.')->group(function () {
         Route::get('/', [TaxonomyController::class, 'home'])->name('home');
         Route::get('/{type}', [TaxonomyController::class, 'index'])->name('index');
@@ -162,12 +168,6 @@ Route::get('/wn-plus/oidc/userinfo', [WnPlusOidcController::class, 'userinfo'])
 
 Route::get('/consent-requests/{token}', [ConsentRequestController::class, 'show'])
     ->name('consent-requests.show');
-
-Route::post('/wn-plus/accounts/{account}/suspend', [WnPlusAccountController::class, 'suspend'])
-    ->name('wn-plus.accounts.suspend');
-
-Route::post('/wn-plus/accounts/{account}/reactivate', [WnPlusAccountController::class, 'reactivate'])
-    ->name('wn-plus.accounts.reactivate');
 
 Route::middleware('wn-plus.account')->prefix('wn-plus/portal')->name('wn-plus.portal.')->group(function () {
     Route::get('/', [WnPlusPortalController::class, 'dashboard'])->name('dashboard');
