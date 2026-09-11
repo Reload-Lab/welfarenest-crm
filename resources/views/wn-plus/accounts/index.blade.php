@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    @include('wn-plus.accounts._table', ['accounts' => $accounts])
+    @include('wn-plus.accounts._table', ['managers' => $managers, 'orphanUsers' => $orphanUsers])
 @endsection
 
 

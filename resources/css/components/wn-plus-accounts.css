@@ -1,0 +1,41 @@
+/* =========================================================
+   WN+ ACCOUNTS — elenco raggruppato per referente
+   ========================================================= */
+
+/* Riga di un utente semplice, annidata sotto il referente che lo ha invitato */
+.crm-table__row--wnplus-user > td:first-child {
+    padding-left: 2.5rem !important;
+    border-left: 3px solid var(--crm-table-border-strong);
+}
+
+.crm-table__row--wnplus-user {
+    background-color: rgba(15, 23, 42, 0.015);
+}
+
+/* Intestazione della sezione "utenti senza referente" */
+.crm-wnplus-group-divider td {
+    padding-top: 1.25rem !important;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--crm-table-muted);
+    background: var(--crm-table-head-bg);
+}
+
+/* Pulsante per espandere/comprimere gli utenti di un referente */
+.crm-wnplus-toggle-icon {
+    transition: transform 0.15s ease;
+}
+
+.crm-wnplus-toggle[aria-expanded="true"] .crm-wnplus-toggle-icon {
+    transform: rotate(90deg);
+}
+
+/* Segnaposto della stessa larghezza del pulsante, per allineare i referenti
+   senza utenti invitati con quelli che invece hanno la freccina */
+.crm-wnplus-toggle-spacer {
+    display: inline-block;
+    width: var(--crm-action-size);
+    flex-shrink: 0;
+}

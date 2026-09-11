@@ -22,17 +22,37 @@ class WnPlusAccountController extends Controller
 {
     public function index()
     {
-        $accounts = WnPlusAccount::query()
+        // L'elenco è organizzato per referente: ogni referente (account_type=manager)
+        // compare come riga principale, seguito dagli utenti semplici che ha invitato
+        // (account_type=user, invited_by_account_id = referente). Prima era una lista
+        // piatta e non si capiva a colpo d'occhio chi gestisse chi.
+        $managers = WnPlusAccount::query()
+            ->where('account_type', 'manager')
             ->with([
                 'organization',
                 'role',
                 'level',
+                'invitedAccounts' => function ($query) {
+                    $query->with(['organization', 'role', 'level'])
+                        ->orderBy('last_name')
+                        ->orderBy('first_name');
+                },
             ])
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->paginate(25);
 
-        return view('wn-plus.accounts.index', compact('accounts'));
+        // Utenti semplici senza un referente valido collegato (dato anomalo,
+        // non dovrebbe succedere nel flusso normale, ma non vanno persi dall'elenco).
+        $orphanUsers = WnPlusAccount::query()
+            ->where('account_type', 'user')
+            ->whereNull('invited_by_account_id')
+            ->with(['organization', 'role', 'level'])
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
+
+        return view('wn-plus.accounts.index', compact('managers', 'orphanUsers'));
     }
 
     public function create()
