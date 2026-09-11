@@ -20,10 +20,17 @@ use App\Models\ConsentVersion;
  * tramite consent_version_id.
  *
  * Solo 3 tipologie in questo giro (privacy_notice, promotional_emails, image_disclosure):
- * le altre tipologie individuate nella matrice (visibilità WN+, survey, aggiornamenti
- * facoltativi, liberatoria materiali, uso logo, atti di designazione/nomina responsabile)
- * sono rimandate a una fase successiva — vedi claude/analisi-consensi-matrice.md nel
- * progetto Claude per il dettaglio completo.
+ * le altre tipologie individuate nella matrice (visibilità WN+, survey, liberatoria
+ * materiali, uso logo, atti di designazione/nomina responsabile) sono rimandate a una
+ * fase successiva — vedi claude/analisi-consensi-matrice.md nel progetto Claude per il
+ * dettaglio completo.
+ *
+ * NB (10 settembre 2026): "aggiornamenti facoltativi" per referente/membro WN+ è stato
+ * mappato su promotional_emails (non su un tipo dedicato "wn_plus_optional_updates",
+ * scartato) aggiungendo due varianti 12_referente_wnplus/13_membro_wnplus che puntano
+ * agli stessi PDF già usati da privacy_notice/image_disclosure per quei ruoli (le
+ * informative 12/13 coprono già tutti i consensi di quel ruolo in un unico documento).
+ * Vedi claude/analisi-inviti-wnplus.md.
  *
  * I file .pdf vanno copiati in storage/app/private/consents/ (disco 'local'
  * di default in questo progetto) con lo stesso nome indicato in 'file' qui sotto.
@@ -147,7 +154,8 @@ class ConsentVersionSeeder extends Seeder
                 'file' => '14_Informativa_e_Liberatoria_Autore_Materiali.pdf',
             ],
 
-            // --- promotional_emails: newsletter personale + preferenza aziendale ---
+            // --- promotional_emails: newsletter personale, preferenza aziendale,
+            //     e aggiornamenti facoltativi WN+ (referente/membro) ---
 
             [
                 'consent_code' => 'promotional_emails',
@@ -161,6 +169,20 @@ class ConsentVersionSeeder extends Seeder
                 'version_code' => '06_preferenza_aziendale_2026_v1',
                 'title' => 'Preferenza aziendale per recapito funzionale',
                 'file' => '06_Informativa_e_Consensi_Commerciali_Azienda_Contratto.pdf',
+            ],
+
+            [
+                'consent_code' => 'promotional_emails',
+                'version_code' => '12_referente_wnplus_2026_v1',
+                'title' => 'Aggiornamenti facoltativi — referente Welfare Nest Plus',
+                'file' => '12_Informativa_Referente_Welfare_Nest_Plus.pdf',
+            ],
+
+            [
+                'consent_code' => 'promotional_emails',
+                'version_code' => '13_membro_wnplus_2026_v1',
+                'title' => 'Aggiornamenti facoltativi — membro Welfare Nest Plus',
+                'file' => '13_Informativa_Membro_Welfare_Nest_Plus.pdf',
             ],
 
             // --- image_disclosure: uso e divulgazione immagine, una variante per contesto ---

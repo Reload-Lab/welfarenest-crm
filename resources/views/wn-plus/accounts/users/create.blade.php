@@ -17,13 +17,6 @@
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <div class="alert alert-light border mb-4">
-                    Slot disponibili:
-                    <strong>{{ $account->available_slots }}</strong>
-                    su
-                    <strong>{{ $account->max_users }}</strong>
-                </div>
-
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Nome</label>

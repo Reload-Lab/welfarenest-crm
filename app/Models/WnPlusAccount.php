@@ -23,7 +23,6 @@ class WnPlusAccount extends Model
         'wn_plus_role_id',
         'wn_plus_level_id',
         'status',
-        'max_users',
         'invited_by_account_id',
         'created_by_user_id',
         'email_verified_at',
@@ -90,14 +89,6 @@ class WnPlusAccount extends Model
         return $this->invitedAccounts()
             ->where('account_type', 'user')
             ->count();
-    }
-
-    public function getAvailableSlotsAttribute(): int
-    {
-        return max(
-            0,
-            ($this->max_users ?? 0) - $this->managed_users_count
-        );
     }
 
     public function statusBadgeVariant(): string

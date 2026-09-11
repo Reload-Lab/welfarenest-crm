@@ -73,13 +73,19 @@
                                             'route' => route('wn-plus.accounts.suspend', $account),
                                             'label' => 'Sospendi account',
                                             'icon' => 'archive',
-                                            'show' => $account->status !== 'suspended',
+                                            'show' => ! in_array($account->status, ['suspended', 'disabled'], true),
                                         ],
                                         [
                                             'route' => route('wn-plus.accounts.reactivate', $account),
                                             'label' => 'Riattiva account',
                                             'icon' => 'archive-restore',
-                                            'show' => $account->status === 'suspended',
+                                            'show' => in_array($account->status, ['suspended', 'disabled'], true),
+                                        ],
+                                        [
+                                            'route' => route('wn-plus.accounts.disable', $account),
+                                            'label' => 'Disabilita account',
+                                            'icon' => 'close',
+                                            'show' => $account->status !== 'disabled',
                                         ],
                                     ],
                                 ])

@@ -133,18 +133,6 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
-                <label class="form-label">Numero massimo utenti</label>
-
-                <input
-                    type="number"
-                    name="max_users"
-                    class="form-control"
-                    value="{{ old('max_users', 8) }}"
-                    min="0"
-                >
-            </div>
-
         </div>
 
     </div>

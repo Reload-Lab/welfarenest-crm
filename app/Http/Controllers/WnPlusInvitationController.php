@@ -79,13 +79,12 @@ class WnPlusInvitationController extends Controller
                 ? $consentService->grant('wn_plus_account', $account->id, 'image_disclosure', 'wn_plus_onboarding', $versionCode)
                 : $consentService->deny('wn_plus_account', $account->id, 'image_disclosure', 'wn_plus_onboarding', $versionCode);
 
-            // NB: per promotional_emails non esiste ancora una versione specifica per referente/membro WN+
-            // (solo "02_newsletter_2026_v1" e "06_preferenza_aziendale_2026_v1", nessuna delle due corretta
-            // per questo contesto) — lasciato senza versionCode esplicito finché non si decide come trattarlo,
-            // vedi nota in claude/analisi-inviti-wnplus.md.
+            // "Aggiornamenti facoltativi" per referente/membro WN+: mappato su promotional_emails
+            // con le varianti 12_referente_wnplus/13_membro_wnplus (stesso PDF già usato per
+            // privacy_notice/image_disclosure di quel ruolo, che copre anche questo consenso).
             ($validated['promotional_emails'] ?? false)
-                ? $consentService->grant('wn_plus_account', $account->id, 'promotional_emails', 'wn_plus_onboarding')
-                : $consentService->deny('wn_plus_account', $account->id, 'promotional_emails', 'wn_plus_onboarding');
+                ? $consentService->grant('wn_plus_account', $account->id, 'promotional_emails', 'wn_plus_onboarding', $versionCode)
+                : $consentService->deny('wn_plus_account', $account->id, 'promotional_emails', 'wn_plus_onboarding', $versionCode);
         });
 
         return redirect()

@@ -31,6 +31,26 @@
 
             <x-crm.row-actions
                 :edit="route('wn-plus.accounts.edit', $account)"
+                :actions="[
+                    [
+                        'route' => route('wn-plus.accounts.suspend', $account),
+                        'label' => 'Sospendi account',
+                        'icon' => 'archive',
+                        'show' => ! in_array($account->status, ['suspended', 'disabled'], true),
+                    ],
+                    [
+                        'route' => route('wn-plus.accounts.reactivate', $account),
+                        'label' => 'Riattiva account',
+                        'icon' => 'archive-restore',
+                        'show' => in_array($account->status, ['suspended', 'disabled'], true),
+                    ],
+                    [
+                        'route' => route('wn-plus.accounts.disable', $account),
+                        'label' => 'Disabilita account',
+                        'icon' => 'close',
+                        'show' => $account->status !== 'disabled',
+                    ],
+                ]"
             />
         </div>
     </div>
@@ -71,12 +91,6 @@
                         <dt class="col-sm-4">Stato</dt>
                         <dd class="col-sm-8">{{ ucfirst($account->status) }}</dd>
 
-                        <dt class="col-sm-4">Max utenti</dt>
-                        <dd class="col-sm-8">{{ $account->max_users ?? '—' }}</dd>
-
-                        <dt class="col-sm-4">Slot disponibili</dt>
-                        <dd class="col-sm-8">{{ $account->available_slots ?? '—' }}</dd>
-
                         <dt class="col-sm-4">Ultimo accesso</dt>
                         <dd class="col-sm-8">{{ $account->last_login_at?->format('d/m/Y H:i') ?? '—' }}</dd>
                     </dl>
@@ -91,7 +105,7 @@
                         <h5>Utenti gestiti</h5>
                     </div>
 
-                    @if($account->account_type === 'manager' && $account->available_slots > 0)
+                    @if($account->account_type === 'manager')
                         <x-crm.icon-button
                             icon="add"
                             icon-group="actions"
@@ -152,7 +166,13 @@
                                                     'route' => route('wn-plus.accounts.reactivate', $child),
                                                     'label' => 'Riattiva account',
                                                     'icon' => 'archive-restore',
-                                                    'show' => $child->status === 'suspended',
+                                                    'show' => in_array($child->status, ['suspended', 'disabled'], true),
+                                                ],
+                                                [
+                                                    'route' => route('wn-plus.accounts.disable', $child),
+                                                    'label' => 'Disabilita account',
+                                                    'icon' => 'close',
+                                                    'show' => $child->status !== 'disabled',
                                                 ],
                                             ]"
                                         />

@@ -120,6 +120,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/wn-plus/accounts/{account}/reactivate', [WnPlusAccountController::class, 'reactivate'])
         ->name('wn-plus.accounts.reactivate');
 
+    Route::post('/wn-plus/accounts/{account}/disable', [WnPlusAccountController::class, 'disable'])
+        ->name('wn-plus.accounts.disable');
+
     Route::prefix('anagrafiche')->name('taxonomies.')->group(function () {
         Route::get('/', [TaxonomyController::class, 'home'])->name('home');
         Route::get('/{type}', [TaxonomyController::class, 'index'])->name('index');

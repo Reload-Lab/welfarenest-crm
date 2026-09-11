@@ -73,7 +73,6 @@ class WnPlusAccountController extends Controller
             'email' => ['required', 'email', 'unique:wn_plus_accounts,email'],
             'wn_plus_role_id' => ['required', 'exists:wn_plus_roles,id'],
             'wn_plus_level_id' => ['required', 'exists:wn_plus_levels,id'],
-            'max_users' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $relationExists = PersonOrganizationRelation::query()
@@ -114,7 +113,6 @@ class WnPlusAccountController extends Controller
             'wn_plus_role_id' => $validated['wn_plus_role_id'],
             'wn_plus_level_id' => $validated['wn_plus_level_id'],
             'status' => 'invited',
-            'max_users' => $validated['max_users'] ?? 8,
             'account_type' => 'manager',
             'created_by_user_id' => auth()->id(),
         ]);
@@ -166,7 +164,6 @@ class WnPlusAccountController extends Controller
             'wn_plus_role_id' => ['required', 'exists:wn_plus_roles,id'],
             'wn_plus_level_id' => ['required', 'exists:wn_plus_levels,id'],
             'status' => ['required', 'in:invited,active,suspended,disabled'],
-            'max_users' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $account->update($validated);
@@ -184,12 +181,6 @@ class WnPlusAccountController extends Controller
             abort(404);
         }
 
-        if ($account->available_slots <= 0) {
-            return redirect()
-                ->route('wn-plus.accounts.show', $account)
-                ->with('error', 'Il referente ha già raggiunto il numero massimo di utenti.');
-        }
-
         return view('wn-plus.accounts.users.create', compact('account'));
     }
 
@@ -199,12 +190,6 @@ class WnPlusAccountController extends Controller
 
         if ($account->account_type !== 'manager') {
             abort(404);
-        }
-
-        if ($account->available_slots <= 0) {
-            return redirect()
-                ->route('wn-plus.accounts.show', $account)
-                ->with('error', 'Il referente ha già raggiunto il numero massimo di utenti.');
         }
 
         $validated = $request->validate([
@@ -226,7 +211,6 @@ class WnPlusAccountController extends Controller
             'wn_plus_level_id' => $account->wn_plus_level_id,
             'status' => 'invited',
             'account_type' => 'user',
-            'max_users' => null,
             'invited_by_account_id' => $account->id,
             'created_by_user_id' => auth()->id(),
         ]);
@@ -310,13 +294,32 @@ class WnPlusAccountController extends Controller
 
     public function reactivate(WnPlusAccount $account)
     {
-        if ($account->status !== 'suspended') {
-            return back()->with('error', 'Questo account non risulta sospeso.');
+        if (! in_array($account->status, ['suspended', 'disabled'], true)) {
+            return back()->with('error', 'Questo account non risulta sospeso o disabilitato.');
         }
 
         $account->update(['status' => 'active']);
 
         return back()->with('success', 'Account riattivato correttamente.');
+    }
+
+    public function disable(WnPlusAccount $account)
+    {
+        if ($account->status === 'disabled') {
+            return back()->with('error', 'Questo account è già disabilitato.');
+        }
+
+        $hasActiveInvitedAccounts = $account->invitedAccounts()
+            ->where('status', '!=', 'disabled')
+            ->exists();
+
+        if ($hasActiveInvitedAccounts) {
+            return back()->with('error', 'Impossibile disabilitare: questo referente ha utenti invitati non disattivati. Disattiva o riassegna prima gli utenti collegati.');
+        }
+
+        $account->update(['status' => 'disabled']);
+
+        return back()->with('success', 'Account disabilitato correttamente.');
     }
 
 }
