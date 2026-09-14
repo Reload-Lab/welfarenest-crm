@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ConsentRequest extends Model
 {
@@ -38,5 +39,10 @@ class ConsentRequest extends Model
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(ConsentRequestItem::class)->orderBy('sort_order');
     }
 }

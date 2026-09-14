@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
     )->name('people.relations.destroy');
 
     Route::post('organizations/{organization}/contact-points', [ContactPointController::class, 'storeForOrganization'])->name('organizations.contact-points.store');
-    Route::post('people/{person}/contact-points', [ContactPointController::class, 'storeForPerson'])->name('people.contact-points.store');   
+    Route::post('people/{person}/contact-points', [ContactPointController::class, 'storeForPerson'])->name('people.contact-points.store');
     Route::delete('contact-points/{contactPoint}', [ContactPointController::class, 'destroy'])->name('contact-points.destroy');
 
     Route::put('contact-points/{contactPoint}', [ContactPointController::class, 'update'])->name('contact-points.update');
@@ -171,6 +171,12 @@ Route::get('/wn-plus/oidc/userinfo', [WnPlusOidcController::class, 'userinfo'])
 
 Route::get('/consent-requests/{token}', [ConsentRequestController::class, 'show'])
     ->name('consent-requests.show');
+
+Route::post('/consent-requests/{token}', [ConsentRequestController::class, 'complete'])
+    ->name('consent-requests.complete');
+
+Route::get('/consent-requests/{token}/document/{consentVersionId}', [ConsentRequestController::class, 'document'])
+    ->name('consent-requests.document');
 
 Route::middleware('wn-plus.account')->prefix('wn-plus/portal')->name('wn-plus.portal.')->group(function () {
     Route::get('/', [WnPlusPortalController::class, 'dashboard'])->name('dashboard');
