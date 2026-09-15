@@ -10,37 +10,24 @@ class ContactUsageSeeder extends Seeder
     public function run(): void
     {
         $items = [
-            ['code' => 'administrative', 'name' => 'Amministrativo'],
-            ['code' => 'commercial', 'name' => 'Commerciale'],
-            ['code' => 'direct', 'name' => 'Diretto'],
-            ['code' => 'office', 'name' => 'Ufficio'],
-            ['code' => 'personal', 'name' => 'Personale'],
-            ['code' => 'support', 'name' => 'Supporto'],
-            ['code' => 'work', 'name' => 'Lavoro'],
+            ['code' => 'main',           'name' => 'Principale'],
+            ['code' => 'administrative', 'name' => 'Ufficio Amministrativo'],
+            ['code' => 'commercial',     'name' => 'Ufficio Commerciale'],
+            ['code' => 'support',        'name' => 'Supporto / Servizio clienti'],
+            ['code' => 'legal',          'name' => 'Ufficio Legale'],
+            ['code' => 'presidential',   'name' => 'Presidenza / Direzione'],
         ];
 
-        $data = [];
-
-
-
-
         foreach ($items as $index => $item) {
-
-            DB::table('contact_usages')->updateOrInsert(
-                ['code' => $item['code']],
-                [
-                    'code' => $item['code'],
-                    'name' => $item['name'],
-                    'description' => null,
-                    'sort_order' => $index + 1,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
-
+            DB::table('contact_usages')->insertOrIgnore([
+                'code' => $item['code'],
+                'name' => $item['name'],
+                'description' => null,
+                'sort_order' => $index + 1,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
-
-
     }
 }

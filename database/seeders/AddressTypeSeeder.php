@@ -11,31 +11,22 @@ class AddressTypeSeeder extends Seeder
     {
         $items = [
             ['code' => 'administrative', 'name' => 'Sede amministrativa'],
-            ['code' => 'domicile', 'name' => 'Domicilio'],
-            ['code' => 'legal', 'name' => 'Sede legale'],
-            ['code' => 'operational', 'name' => 'Sede operativa'],
-            ['code' => 'other', 'name' => 'Altro'],
-            ['code' => 'residence', 'name' => 'Residenza'],
-            ['code' => 'shipping', 'name' => 'Recapito spedizioni'],
-            ['code' => 'work_location', 'name' => 'Sede di lavoro'],
+            ['code' => 'legal',          'name' => 'Sede legale'],
+            ['code' => 'operational',    'name' => 'Sede operativa'],
+            ['code' => 'other',          'name' => 'Altro'],
+            ['code' => 'shipping',       'name' => 'Indirizzo spedizione'],
         ];
 
-        $data = [];
-
         foreach ($items as $index => $item) {
-
-            DB::table('address_types')->updateOrInsert(
-                ['code' => $item['code']],
-                [
-                    'name' => $item['name'],
-                    'description' => null,
-                    'sort_order' => $index + 1,
-                    'is_active' => true,
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ]
-            );
-
+            DB::table('address_types')->insertOrIgnore([
+                'code' => $item['code'],
+                'name' => $item['name'],
+                'description' => null,
+                'sort_order' => $index + 1,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
     }
 }
