@@ -156,11 +156,6 @@
                             </td>
                         </tr>
 
-                        @include('people.partials.show.consents-modal', [
-                            'modalId' => 'wnplusConsentsModal' . $manager->id,
-                            'owner' => $manager,
-                        ])
-
                         @foreach($managedUsers as $user)
                             <tr class="crm-table__row--wnplus-user {{ $groupExpanded ? '' : 'd-none' }}" data-wnplus-group="{{ $groupId }}">
                                 <td>
@@ -258,11 +253,6 @@
 
                                 </td>
                             </tr>
-
-                            @include('people.partials.show.consents-modal', [
-                                'modalId' => 'wnplusConsentsModal' . $user->id,
-                                'owner' => $user,
-                            ])
                         @endforeach
                     @empty
                         <tr>
@@ -376,17 +366,41 @@
 
                                 </td>
                             </tr>
-
-                            @include('people.partials.show.consents-modal', [
-                                'modalId' => 'wnplusConsentsModal' . $user->id,
-                                'owner' => $user,
-                            ])
                         @endforeach
                     @endif
                 </tbody>
             </table>
         </div>
     </div>
+
+    {{--
+        Le modali dei consensi vivono qui, fuori dalla tabella: dentro il <tbody>
+        (tra una riga e l'altra) non sono HTML valido e il browser le "espelle"
+        dalla tabella in modo scorretto, facendole comparire come contenuto in
+        chiaro invece che come popup nascosto.
+    --}}
+    @php
+        $wnplusModalAccounts = collect();
+
+        foreach ($managers as $manager) {
+            $wnplusModalAccounts->push($manager);
+
+            foreach ($manager->invitedAccounts as $invitedAccount) {
+                $wnplusModalAccounts->push($invitedAccount);
+            }
+        }
+
+        foreach ($orphanUsers as $orphanUser) {
+            $wnplusModalAccounts->push($orphanUser);
+        }
+    @endphp
+
+    @foreach($wnplusModalAccounts as $modalAccount)
+        @include('people.partials.show.consents-modal', [
+            'modalId' => 'wnplusConsentsModal' . $modalAccount->id,
+            'owner' => $modalAccount,
+        ])
+    @endforeach
 
     @if($managers->hasPages())
         <div class="card-footer bg-white border-0">
