@@ -12,6 +12,14 @@
 <div class="container-fluid py-4">
     <div class="d-flex flex-column gap-4">
 
+        @if(session('success'))
+            <div class="alert alert-success mb-0">{{ session('success') }}</div>
+        @endif
+
+        @error('consent_request')
+            <div class="alert alert-danger mb-0">{{ $message }}</div>
+        @enderror
+
         <div class="card border-0 shadow-sm crm-card--header-actions">
             <div class="card-body p-4">
                 <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
@@ -24,7 +32,7 @@
                                 type="person"
                                 size="sm"
                             />
-                            @endif    
+                            @endif
                         <h2 class="h4 mb-0">{{ $person->full_name ?: '—' }}</h2>
                         </div>
 
@@ -32,6 +40,27 @@
 
 
                     <div class="d-flex align-items-center gap-2">
+
+@php
+    $consentTargetContactPoint = $person->primaryOrFirstEmailContactPoint();
+@endphp
+
+<form
+    action="{{ route('people.consent-requests.store', $person) }}"
+    method="POST"
+    class="d-inline"
+    onsubmit="return confirm('Inviare la richiesta di consenso a {{ $consentTargetContactPoint?->value }}?');"
+>
+    @csrf
+    <button
+        type="submit"
+        class="btn btn-outline-secondary btn-sm"
+        @disabled(! $consentTargetContactPoint)
+        title="{{ $consentTargetContactPoint ? 'Invia richiesta di consenso a ' . $consentTargetContactPoint->value : 'Aggiungi prima un\'email per poter inviare la richiesta di consenso' }}"
+    >
+        Invia richiesta di consenso
+    </button>
+</form>
 
 <button
     type="button"

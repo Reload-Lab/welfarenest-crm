@@ -137,40 +137,6 @@
                                 {{-- AZIONI --}}
                                 <div class="d-flex align-items-center gap-2">
 
-@if($category === 'email')
-    <button
-        type="button"
-        class="crm-status-badge crm-status-badge--{{ $contactPoint->consentBadgeVariant(\App\Models\ConsentType::PROMOTIONAL_EMAILS) }} border-0"
-        title="{{ $contactPoint->consentStatusLabel(\App\Models\ConsentType::PROMOTIONAL_EMAILS) }}"
-        aria-label="{{ $contactPoint->consentStatusLabel(\App\Models\ConsentType::PROMOTIONAL_EMAILS) }}"
-        data-bs-toggle="modal"
-        data-bs-target="#personConsentsModal">
-
-        <x-icon group="entities" name="consent" />
-
-    </button>
-
-    @if($contactPoint->owner_type === 'person')
-        {{-- Invio manuale: nessuna richiesta di consenso parte mai senza questo click esplicito. --}}
-        <form
-            action="{{ route('contact-points.consent-requests.store', $contactPoint) }}"
-            method="POST"
-            class="d-inline"
-            onsubmit="return confirm('Inviare la richiesta di consenso a questo indirizzo email?');"
-        >
-            @csrf
-            <button
-                type="submit"
-                class="btn btn-outline-secondary btn-sm"
-                title="Invia richiesta di consenso"
-            >
-                Invia richiesta di consenso
-            </button>
-        </form>
-    @endif
-@endif
-
-                                
                                     <button
                                         type="button"
                                         class="crm-contact-action"

@@ -52,6 +52,22 @@ class Person extends Model
             ->where('owner_type', 'person');
     }
 
+    /**
+     * Email di riferimento per l'invio della richiesta di consenso: la email
+     * primaria se impostata, altrimenti la prima email disponibile (per id).
+     * Su questo indirizzo, e solo su questo, viene inviata la richiesta di
+     * consenso/informativa alla persona — semplificazione richiesta dalla DPO
+     * per evitare più richieste parallele sulla stessa persona.
+     */
+    public function primaryOrFirstEmailContactPoint(): ?ContactPoint
+    {
+        return $this->contactPoints()
+            ->whereHas('contactType', fn ($query) => $query->where('category', 'email'))
+            ->orderByDesc('is_primary')
+            ->orderBy('id')
+            ->first();
+    }
+
     public function wnPlusAccounts(): HasMany
     {
         return $this->hasMany(WnPlusAccount::class);

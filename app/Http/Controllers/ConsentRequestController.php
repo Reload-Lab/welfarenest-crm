@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ConsentRequest;
 use App\Models\ContactPoint;
+use App\Models\Person;
 use App\Services\ConsentRequestService;
 use App\Services\ConsentService;
 
@@ -121,6 +122,30 @@ class ConsentRequestController extends Controller
     {
         abort_unless($contactPoint->owner_type === 'person', 404);
 
+        return $this->sendConsentRequestForContactPoint($contactPoint);
+    }
+
+    /**
+     * Invio della richiesta di consenso a livello di Persona (semplificazione
+     * concordata con la DPO): non si sceglie più il recapito, si usa sempre
+     * l'email primaria della persona o, in mancanza, la prima email disponibile.
+     * Un'unica azione sulla scheda persona, un solo indirizzo di riferimento.
+     */
+    public function storeForPerson(Person $person): RedirectResponse
+    {
+        $contactPoint = $person->primaryOrFirstEmailContactPoint();
+
+        if (! $contactPoint) {
+            return redirect()
+                ->route('people.show', $person)
+                ->withErrors(['consent_request' => 'La persona non ha un indirizzo email a cui inviare la richiesta di consenso.']);
+        }
+
+        return $this->sendConsentRequestForContactPoint($contactPoint);
+    }
+
+    private function sendConsentRequestForContactPoint(ContactPoint $contactPoint): RedirectResponse
+    {
         $consentRequest = $contactPoint->consentRequests()
             ->where('status', 'pending')
             ->where('expires_at', '>', now())

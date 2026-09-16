@@ -47,6 +47,26 @@ class WnPlusPortalController extends Controller
     {
         $account = $request->attributes->get('wnPlusAccount');
 
-        // TODO: la chiamata esatta a ConsentService dipende dalla sua firma reale — vedi nota sotto.
+        $validated = $request->validate([
+            'promotional_emails' => ['nullable', 'boolean'],
+            'image_disclosure' => ['nullable', 'boolean'],
+        ]);
+
+        // Versione dell'informativa specifica per ruolo (stesso criterio usato in
+        // WnPlusInvitationController::complete()): referente (manager) e membro (user)
+        // hanno testi diversi (12_referente_wnplus / 13_membro_wnplus).
+        $versionCode = $account->account_type === 'manager'
+            ? '12_referente_wnplus_2026_v1'
+            : '13_membro_wnplus_2026_v1';
+
+        ($validated['promotional_emails'] ?? false)
+            ? $consentService->grant('wn_plus_account', $account->id, 'promotional_emails', 'wn_plus_portal', $versionCode)
+            : $consentService->deny('wn_plus_account', $account->id, 'promotional_emails', 'wn_plus_portal', $versionCode);
+
+        ($validated['image_disclosure'] ?? false)
+            ? $consentService->grant('wn_plus_account', $account->id, 'image_disclosure', 'wn_plus_portal', $versionCode)
+            : $consentService->deny('wn_plus_account', $account->id, 'image_disclosure', 'wn_plus_portal', $versionCode);
+
+        return back()->with('success', 'Preferenze di consenso aggiornate correttamente.');
     }
 }

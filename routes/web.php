@@ -77,6 +77,11 @@ Route::middleware('auth')->group(function () {
         [ConsentRequestController::class, 'store']
     )->name('contact-points.consent-requests.store');
 
+    Route::post(
+        'people/{person}/consent-requests',
+        [ConsentRequestController::class, 'storeForPerson']
+    )->name('people.consent-requests.store');
+
     Route::post('/organizations/{organization}/addresses', [AddressController::class, 'storeForOrganization'])
         ->name('organizations.addresses.store');
 
