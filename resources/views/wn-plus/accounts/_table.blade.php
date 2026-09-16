@@ -1,11 +1,19 @@
+@php
+    use App\Models\ConsentType;
+
+    // Con una ricerca attiva, i gruppi rilevanti partono già aperti: altrimenti
+    // chi cerca un utente dovrebbe comunque cliccare la freccina per vederlo.
+    $forceExpanded = ($search ?? '') !== '';
+@endphp
+
 <div class="card border-0 shadow-sm">
 
     <div class="card-header bg-white border-0 d-flex justify-content-end">
         <button type="button"
                 id="wnplusToggleAll"
                 class="btn btn-sm btn-outline-secondary"
-                data-state="collapsed">
-            Espandi tutti
+                data-state="{{ $forceExpanded ? 'expanded' : 'collapsed' }}">
+            {{ $forceExpanded ? 'Comprimi tutti' : 'Espandi tutti' }}
         </button>
     </div>
 
@@ -18,6 +26,7 @@
                         <th>Organizzazione</th>
                         <th>Ruolo</th>
                         <th>Livello</th>
+                        <th>Consensi</th>
                         <th>Stato</th>
                         <th>Ultimo accesso</th>
                         <th class="text-end">Azioni</th>
@@ -29,6 +38,7 @@
                         @php
                             $managedUsers = $manager->invitedAccounts;
                             $groupId = 'mgr-' . $manager->id;
+                            $groupExpanded = $forceExpanded && $managedUsers->isNotEmpty();
                         @endphp
 
                         <tr>
@@ -38,7 +48,7 @@
                                         <button type="button"
                                                 class="btn btn-icon crm-wnplus-toggle"
                                                 data-wnplus-toggle="{{ $groupId }}"
-                                                aria-expanded="false"
+                                                aria-expanded="{{ $groupExpanded ? 'true' : 'false' }}"
                                                 title="Mostra/nascondi utenti"
                                                 aria-label="Mostra/nascondi utenti">
                                             <x-icon group="actions" name="chevron-right" class="crm-wnplus-toggle-icon" />
@@ -65,7 +75,13 @@
                             </td>
 
                             <td>
-                                {{ $manager->organization?->name ?? $manager->organization?->legal_name ?? '—' }}
+                                @if($manager->organization)
+                                    <a href="{{ route('organizations.show', $manager->organization) }}">
+                                        {{ $manager->organization->name ?? $manager->organization->legal_name }}
+                                    </a>
+                                @else
+                                    —
+                                @endif
                             </td>
 
                             <td>
@@ -79,9 +95,23 @@
                             </td>
 
                             <td>
-                                <span class="crm-status-badge">
-                                    {{ ucfirst($manager->status) }}
-                                </span>
+                                <x-crm.status
+                                    :label="$manager->consentStatusLabel(ConsentType::PRIVACY_NOTICE)"
+                                    :variant="$manager->consentBadgeVariant(ConsentType::PRIVACY_NOTICE)"
+                                    icon-group="entities"
+                                    icon-name="consent"
+                                    mode="icon"
+                                />
+                            </td>
+
+                            <td>
+                                <x-crm.status
+                                    :label="$manager->statusLabel()"
+                                    :variant="$manager->statusBadgeVariant()"
+                                    icon-group="status"
+                                    :icon-name="$manager->statusIcon()"
+                                    mode="icon"
+                                />
                             </td>
 
                             <td>
@@ -129,7 +159,7 @@
                         </tr>
 
                         @foreach($managedUsers as $user)
-                            <tr class="crm-table__row--wnplus-user d-none" data-wnplus-group="{{ $groupId }}">
+                            <tr class="crm-table__row--wnplus-user {{ $groupExpanded ? '' : 'd-none' }}" data-wnplus-group="{{ $groupId }}">
                                 <td>
                                     <div class="fw-semibold">
                                         {{ $user->full_name }}
@@ -140,7 +170,13 @@
                                 </td>
 
                                 <td>
-                                    {{ $user->organization?->name ?? $user->organization?->legal_name ?? '—' }}
+                                    @if($user->organization)
+                                        <a href="{{ route('organizations.show', $user->organization) }}">
+                                            {{ $user->organization->name ?? $user->organization->legal_name }}
+                                        </a>
+                                    @else
+                                        —
+                                    @endif
                                 </td>
 
                                 <td>
@@ -154,9 +190,23 @@
                                 </td>
 
                                 <td>
-                                    <span class="crm-status-badge">
-                                        {{ ucfirst($user->status) }}
-                                    </span>
+                                    <x-crm.status
+                                        :label="$user->consentStatusLabel(ConsentType::PRIVACY_NOTICE)"
+                                        :variant="$user->consentBadgeVariant(ConsentType::PRIVACY_NOTICE)"
+                                        icon-group="entities"
+                                        icon-name="consent"
+                                        mode="icon"
+                                    />
+                                </td>
+
+                                <td>
+                                    <x-crm.status
+                                        :label="$user->statusLabel()"
+                                        :variant="$user->statusBadgeVariant()"
+                                        icon-group="status"
+                                        :icon-name="$user->statusIcon()"
+                                        mode="icon"
+                                    />
                                 </td>
 
                                 <td>
@@ -205,7 +255,7 @@
                         @endforeach
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-5">
+                            <td colspan="8" class="text-center text-muted py-5">
                                 Nessun utente WN+ presente.
                             </td>
                         </tr>
@@ -213,7 +263,7 @@
 
                     @if($orphanUsers->isNotEmpty())
                         <tr class="crm-wnplus-group-divider">
-                            <td colspan="7">
+                            <td colspan="8">
                                 Utenti senza referente assegnato
                             </td>
                         </tr>
@@ -230,7 +280,13 @@
                                 </td>
 
                                 <td>
-                                    {{ $user->organization?->name ?? $user->organization?->legal_name ?? '—' }}
+                                    @if($user->organization)
+                                        <a href="{{ route('organizations.show', $user->organization) }}">
+                                            {{ $user->organization->name ?? $user->organization->legal_name }}
+                                        </a>
+                                    @else
+                                        —
+                                    @endif
                                 </td>
 
                                 <td>
@@ -244,9 +300,23 @@
                                 </td>
 
                                 <td>
-                                    <span class="crm-status-badge">
-                                        {{ ucfirst($user->status) }}
-                                    </span>
+                                    <x-crm.status
+                                        :label="$user->consentStatusLabel(ConsentType::PRIVACY_NOTICE)"
+                                        :variant="$user->consentBadgeVariant(ConsentType::PRIVACY_NOTICE)"
+                                        icon-group="entities"
+                                        icon-name="consent"
+                                        mode="icon"
+                                    />
+                                </td>
+
+                                <td>
+                                    <x-crm.status
+                                        :label="$user->statusLabel()"
+                                        :variant="$user->statusBadgeVariant()"
+                                        icon-group="status"
+                                        :icon-name="$user->statusIcon()"
+                                        mode="icon"
+                                    />
                                 </td>
 
                                 <td>

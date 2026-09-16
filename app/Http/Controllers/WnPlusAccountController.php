@@ -20,39 +20,66 @@ use Illuminate\Support\Str;
 
 class WnPlusAccountController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Ricerca per nome/email: opera sia sul referente sia sui suoi utenti invitati,
+        // così un referente compare in elenco anche se a corrispondere è un suo utente.
+        $search = trim((string) $request->string('q'));
+
+        $matchesSearch = function ($query) use ($search) {
+            $query->where('first_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        };
+
         // L'elenco è organizzato per referente: ogni referente (account_type=manager)
         // compare come riga principale, seguito dagli utenti semplici che ha invitato
         // (account_type=user, invited_by_account_id = referente). Prima era una lista
         // piatta e non si capiva a colpo d'occhio chi gestisse chi.
-        $managers = WnPlusAccount::query()
+        $managersQuery = WnPlusAccount::query()
             ->where('account_type', 'manager')
             ->with([
                 'organization',
                 'role',
                 'level',
+                'consents.consentType',
                 'invitedAccounts' => function ($query) {
-                    $query->with(['organization', 'role', 'level'])
+                    $query->with(['organization', 'role', 'level', 'consents.consentType'])
                         ->orderBy('last_name')
                         ->orderBy('first_name');
                 },
-            ])
+            ]);
+
+        if ($search !== '') {
+            $managersQuery->where(function ($query) use ($matchesSearch, $search) {
+                $matchesSearch($query);
+                $query->orWhereHas('invitedAccounts', $matchesSearch);
+            });
+        }
+
+        $managers = $managersQuery
             ->orderBy('last_name')
             ->orderBy('first_name')
-            ->paginate(25);
+            ->paginate(25)
+            ->withQueryString();
 
         // Utenti semplici senza un referente valido collegato (dato anomalo,
         // non dovrebbe succedere nel flusso normale, ma non vanno persi dall'elenco).
-        $orphanUsers = WnPlusAccount::query()
+        $orphanUsersQuery = WnPlusAccount::query()
             ->where('account_type', 'user')
             ->whereNull('invited_by_account_id')
-            ->with(['organization', 'role', 'level'])
+            ->with(['organization', 'role', 'level', 'consents.consentType']);
+
+        if ($search !== '') {
+            $orphanUsersQuery->where($matchesSearch);
+        }
+
+        $orphanUsers = $orphanUsersQuery
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
 
-        return view('wn-plus.accounts.index', compact('managers', 'orphanUsers'));
+        return view('wn-plus.accounts.index', compact('managers', 'orphanUsers', 'search'));
     }
 
     public function create()

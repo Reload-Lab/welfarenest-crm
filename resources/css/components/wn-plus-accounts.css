@@ -4,12 +4,25 @@
 
 /* Riga di un utente semplice, annidata sotto il referente che lo ha invitato */
 .crm-table__row--wnplus-user > td:first-child {
-    padding-left: 2.5rem !important;
-    border-left: 3px solid var(--crm-table-border-strong);
+    padding-left: 3.5rem !important;
+    border-left: 4px solid var(--crm-table-border-strong);
+    position: relative;
+}
+
+/* Piccolo connettore a "L" che lega visivamente la riga al referente sopra */
+.crm-table__row--wnplus-user > td:first-child::before {
+    content: '';
+    position: absolute;
+    left: 1.75rem;
+    top: 0;
+    height: 50%;
+    width: 0.75rem;
+    border-left: 2px solid var(--crm-table-border-strong);
+    border-bottom: 2px solid var(--crm-table-border-strong);
 }
 
 .crm-table__row--wnplus-user {
-    background-color: rgba(15, 23, 42, 0.015);
+    background-color: rgba(15, 23, 42, 0.03);
 }
 
 /* Intestazione della sezione "utenti senza referente" */
