@@ -25,7 +25,6 @@
                         <th>Utente</th>
                         <th>Organizzazione</th>
                         <th>Ruolo</th>
-                        <th>Livello</th>
                         <th>Consensi</th>
                         <th>Stato</th>
                         <th>Ultimo accesso</th>
@@ -57,6 +56,8 @@
                                         <span class="crm-wnplus-toggle-spacer" aria-hidden="true"></span>
                                     @endif
 
+                                    <x-crm.avatar :name="$manager->full_name" type="person" size="sm" />
+
                                     <div>
                                         <div class="fw-semibold">
                                             {{ $manager->full_name }}
@@ -76,8 +77,9 @@
 
                             <td>
                                 @if($manager->organization)
-                                    <a href="{{ route('organizations.show', $manager->organization) }}">
-                                        {{ $manager->organization->name ?? $manager->organization->legal_name }}
+                                    <a href="{{ route('organizations.show', $manager->organization) }}" class="d-flex align-items-center gap-2 text-decoration-none">
+                                        <x-crm.avatar :name="$manager->organization->name ?? $manager->organization->legal_name" type="organization" size="sm" />
+                                        <span>{{ $manager->organization->name ?? $manager->organization->legal_name }}</span>
                                     </a>
                                 @else
                                     —
@@ -89,19 +91,15 @@
                             </td>
 
                             <td>
-                                <span class="crm-status-badge">
-                                    {{ $manager->level?->name ?? '—' }}
-                                </span>
-                            </td>
-
-                            <td>
-                                <x-crm.status
-                                    :label="$manager->consentStatusLabel(ConsentType::PRIVACY_NOTICE)"
-                                    :variant="$manager->consentBadgeVariant(ConsentType::PRIVACY_NOTICE)"
-                                    icon-group="entities"
-                                    icon-name="consent"
-                                    mode="icon"
-                                />
+                                <button
+                                    type="button"
+                                    class="crm-status-badge crm-status-badge--{{ $manager->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} border-0"
+                                    title="{{ $manager->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                    aria-label="{{ $manager->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#wnplusConsentsModal{{ $manager->id }}">
+                                    <x-icon group="entities" name="consent" />
+                                </button>
                             </td>
 
                             <td>
@@ -158,21 +156,33 @@
                             </td>
                         </tr>
 
+                        @include('people.partials.show.consents-modal', [
+                            'modalId' => 'wnplusConsentsModal' . $manager->id,
+                            'owner' => $manager,
+                        ])
+
                         @foreach($managedUsers as $user)
                             <tr class="crm-table__row--wnplus-user {{ $groupExpanded ? '' : 'd-none' }}" data-wnplus-group="{{ $groupId }}">
                                 <td>
-                                    <div class="fw-semibold">
-                                        {{ $user->full_name }}
-                                    </div>
-                                    <div class="text-muted small">
-                                        {{ $user->email }}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <x-crm.avatar :name="$user->full_name" type="person" size="sm" />
+
+                                        <div>
+                                            <div class="fw-semibold">
+                                                {{ $user->full_name }}
+                                            </div>
+                                            <div class="text-muted small">
+                                                {{ $user->email }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
 
                                 <td>
                                     @if($user->organization)
-                                        <a href="{{ route('organizations.show', $user->organization) }}">
-                                            {{ $user->organization->name ?? $user->organization->legal_name }}
+                                        <a href="{{ route('organizations.show', $user->organization) }}" class="d-flex align-items-center gap-2 text-decoration-none">
+                                            <x-crm.avatar :name="$user->organization->name ?? $user->organization->legal_name" type="organization" size="sm" />
+                                            <span>{{ $user->organization->name ?? $user->organization->legal_name }}</span>
                                         </a>
                                     @else
                                         —
@@ -184,19 +194,15 @@
                                 </td>
 
                                 <td>
-                                    <span class="crm-status-badge">
-                                        {{ $user->level?->name ?? '—' }}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <x-crm.status
-                                        :label="$user->consentStatusLabel(ConsentType::PRIVACY_NOTICE)"
-                                        :variant="$user->consentBadgeVariant(ConsentType::PRIVACY_NOTICE)"
-                                        icon-group="entities"
-                                        icon-name="consent"
-                                        mode="icon"
-                                    />
+                                    <button
+                                        type="button"
+                                        class="crm-status-badge crm-status-badge--{{ $user->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} border-0"
+                                        title="{{ $user->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                        aria-label="{{ $user->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#wnplusConsentsModal{{ $user->id }}">
+                                        <x-icon group="entities" name="consent" />
+                                    </button>
                                 </td>
 
                                 <td>
@@ -252,10 +258,15 @@
 
                                 </td>
                             </tr>
+
+                            @include('people.partials.show.consents-modal', [
+                                'modalId' => 'wnplusConsentsModal' . $user->id,
+                                'owner' => $user,
+                            ])
                         @endforeach
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-5">
+                            <td colspan="7" class="text-center text-muted py-5">
                                 Nessun utente WN+ presente.
                             </td>
                         </tr>
@@ -263,7 +274,7 @@
 
                     @if($orphanUsers->isNotEmpty())
                         <tr class="crm-wnplus-group-divider">
-                            <td colspan="8">
+                            <td colspan="7">
                                 Utenti senza referente assegnato
                             </td>
                         </tr>
@@ -271,18 +282,25 @@
                         @foreach($orphanUsers as $user)
                             <tr class="crm-table__row--wnplus-user">
                                 <td>
-                                    <div class="fw-semibold">
-                                        {{ $user->full_name }}
-                                    </div>
-                                    <div class="text-muted small">
-                                        {{ $user->email }}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <x-crm.avatar :name="$user->full_name" type="person" size="sm" />
+
+                                        <div>
+                                            <div class="fw-semibold">
+                                                {{ $user->full_name }}
+                                            </div>
+                                            <div class="text-muted small">
+                                                {{ $user->email }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
 
                                 <td>
                                     @if($user->organization)
-                                        <a href="{{ route('organizations.show', $user->organization) }}">
-                                            {{ $user->organization->name ?? $user->organization->legal_name }}
+                                        <a href="{{ route('organizations.show', $user->organization) }}" class="d-flex align-items-center gap-2 text-decoration-none">
+                                            <x-crm.avatar :name="$user->organization->name ?? $user->organization->legal_name" type="organization" size="sm" />
+                                            <span>{{ $user->organization->name ?? $user->organization->legal_name }}</span>
                                         </a>
                                     @else
                                         —
@@ -294,19 +312,15 @@
                                 </td>
 
                                 <td>
-                                    <span class="crm-status-badge">
-                                        {{ $user->level?->name ?? '—' }}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <x-crm.status
-                                        :label="$user->consentStatusLabel(ConsentType::PRIVACY_NOTICE)"
-                                        :variant="$user->consentBadgeVariant(ConsentType::PRIVACY_NOTICE)"
-                                        icon-group="entities"
-                                        icon-name="consent"
-                                        mode="icon"
-                                    />
+                                    <button
+                                        type="button"
+                                        class="crm-status-badge crm-status-badge--{{ $user->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} border-0"
+                                        title="{{ $user->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                        aria-label="{{ $user->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#wnplusConsentsModal{{ $user->id }}">
+                                        <x-icon group="entities" name="consent" />
+                                    </button>
                                 </td>
 
                                 <td>
@@ -362,6 +376,11 @@
 
                                 </td>
                             </tr>
+
+                            @include('people.partials.show.consents-modal', [
+                                'modalId' => 'wnplusConsentsModal' . $user->id,
+                                'owner' => $user,
+                            ])
                         @endforeach
                     @endif
                 </tbody>
