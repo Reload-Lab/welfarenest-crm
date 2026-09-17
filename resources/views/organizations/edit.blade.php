@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('topbar_title', 'Clienti')
-@section('topbar_subtitle', 'Modifica anagrafica cliente')
+@section('topbar_subtitle', 'Modifica anagrafica organizzazione')
 
 @section('pageHeader')
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
         <div>
-            <h1 class="crm-page-title">Modifica cliente</h1>
+            <h1 class="crm-page-title">Modifica organizzazione</h1>
         </div>
     </div>
 @endsection

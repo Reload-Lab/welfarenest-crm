@@ -290,6 +290,38 @@ return [
     ],
 ],
 
+'institutions.index' => [
+    'title' => 'Istituzioni',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Istituzioni',
+        ],
+    ],
+],
+
+'institutions.show' => [
+    'title' => fn (array $params) => $params['organization']->display_name,
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Istituzioni',
+            'route' => 'institutions.index',
+        ],
+        [
+            'label' => fn (array $params) => $params['organization']->display_name,
+        ],
+    ],
+],
+
 'wn-plus.accounts.index' => [
     'title' => 'Utenti Welfare Nest Plus',
     'breadcrumbs' => [

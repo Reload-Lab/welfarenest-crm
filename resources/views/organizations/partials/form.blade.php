@@ -142,7 +142,7 @@
                 <h2 class="h6 mb-3">Ruolo organizzazione</h2>
 
                 <div class="row g-3">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <div class="form-check form-switch">
                             <input
                                 class="form-check-input"
@@ -159,7 +159,7 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <div class="form-check form-switch">
                             <input
                                 class="form-check-input"
@@ -175,11 +175,28 @@
                             </label>
                         </div>
                     </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                name="roles[]"
+                                id="role_institution"
+                                value="institution"
+                                {{ in_array('institution', old('roles', isset($organization) ? $organization->organizationRoles->pluck('code')->all() : []), true) ? 'checked' : '' }}
+                            >
+                            <label class="form-check-label fw-semibold" for="role_institution">
+                                Istituzionale
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 @error('roles')
                     <div class="text-danger small mt-2">
-                        Seleziona almeno un ruolo tra Cliente e Fornitore.
+                        Seleziona almeno un ruolo tra Cliente, Fornitore e Istituzionale.
                     </div>
                 @enderror
             </div>

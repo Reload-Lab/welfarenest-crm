@@ -22,6 +22,13 @@
             'patterns' => ['suppliers.*'],
         ],
         [
+            'label' => 'Istituzioni',
+            'route' => 'institutions.index',
+            'icon_group' => 'entities',
+            'icon_name' => 'organization',
+            'patterns' => ['institutions.*'],
+        ],
+        [
             'label' => 'Persone',
             'route' => 'people.index',
             'icon_group' => 'entities',

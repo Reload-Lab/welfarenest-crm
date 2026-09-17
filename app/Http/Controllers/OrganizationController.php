@@ -151,6 +151,11 @@ public function show(Request $request, Organization $organization)
         return $this->organizationIndexByScope($request, 'supplier');
     }
 
+    public function institutions(Request $request)
+    {
+        return $this->organizationIndexByScope($request, 'institution');
+    }
+
     public function index(Request $request)
     {
         return $this->organizationIndexByScope($request, null);
@@ -193,15 +198,11 @@ public function show(Request $request, Organization $organization)
                 'personOrganizationRelations as relations_count',
             ]);
 
-        if ($scope === 'client') {
-            $query->whereHas('organizationRoles', function ($q) {
-                $q->where('code', 'client');
-            });
-        }
-
-        if ($scope === 'supplier') {
-            $query->whereHas('organizationRoles', function ($q) {
-                $q->where('code', 'supplier');
+        // Lo scope coincide con il code del ruolo in anagrafica: aggiungerne
+        // uno nuovo non richiede di toccare questa query.
+        if ($scope !== null) {
+            $query->whereHas('organizationRoles', function ($q) use ($scope) {
+                $q->where('code', $scope);
             });
         }
 
@@ -252,6 +253,14 @@ public function show(Request $request, Organization $organization)
             $indexRoute = 'suppliers.index';
         }
 
+        if ($scope === 'institution') {
+            $pageTitle = 'Istituzioni';
+            $pageSubtitle = 'Gestione anagrafiche istituzioni';
+            $pageHeading = 'Anagrafiche istituzioni';
+            $createLabel = 'Nuova istituzione';
+            $indexRoute = 'institutions.index';
+        }
+
         $organizationTypes = OrganizationType::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
@@ -297,7 +306,7 @@ public function show(Request $request, Organization $organization)
             'is_split_payment' => ['nullable', 'boolean'],
             'is_active' => ['required', 'boolean'],
             'roles' => ['required', 'array', 'min:1'],
-            'roles.*' => ['in:client,supplier'],
+            'roles.*' => ['in:client,supplier,institution'],
         ]);
 
         if (blank($validated['name'] ?? null) && blank($validated['legal_name'] ?? null)) {
@@ -344,7 +353,7 @@ public function show(Request $request, Organization $organization)
             'is_split_payment' => ['nullable', 'boolean'],
             'is_active' => ['required', 'boolean'],
             'roles' => ['required', 'array', 'min:1'],
-            'roles.*' => ['in:client,supplier'],
+            'roles.*' => ['in:client,supplier,institution'],
         ], [
             'roles.required' => 'Seleziona almeno un ruolo tra Cliente e Fornitore.',
             'roles.array' => 'Il ruolo selezionato non è valido.',

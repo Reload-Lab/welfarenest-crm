@@ -23,7 +23,7 @@ class OrganizationWorkbookReader
     private const COLUMNS = [
         self::SHEET_ORGANIZATIONS => [
             'Codice_Organizzazione', 'name', 'legal_name', 'organization_type',
-            'ruolo_cliente', 'ruolo_fornitore', 'ruolo_interno',
+            'ruolo_cliente', 'ruolo_fornitore', 'ruolo_istituzione',
             'vat_number', 'tax_code', 'sdi_code', 'is_split_payment',
         ],
         self::SHEET_ADDRESSES => [
@@ -42,9 +42,19 @@ class OrganizationWorkbookReader
      * per sbaglio oltre la fine dei dati.
      */
     private const FLAG_COLUMNS = [
-        self::SHEET_ORGANIZATIONS => ['ruolo_cliente', 'ruolo_fornitore', 'ruolo_interno', 'is_split_payment'],
+        self::SHEET_ORGANIZATIONS => ['ruolo_cliente', 'ruolo_fornitore', 'ruolo_istituzione', 'is_split_payment'],
         self::SHEET_ADDRESSES => ['is_primary'],
         self::SHEET_CONTACTS => ['is_primary'],
+    ];
+
+    /**
+     * Nomi storici ancora accettati per una colonna: la chiave è il nome
+     * corrente del tracciato, i valori quelli che i file più vecchi possono
+     * ancora portare. Rinominare una colonna non deve invalidare i file
+     * già compilati.
+     */
+    private const COLUMN_ALIASES = [
+        'ruolo_istituzione' => ['ruolo_interno'],
     ];
 
     /**
@@ -196,12 +206,21 @@ class OrganizationWorkbookReader
         $missing = [];
 
         foreach ($expected as $name) {
-            $key = self::headerKey($name);
+            $found = false;
 
-            if (isset($present[$key])) {
-                $map[$name] = $present[$key]['index'];
-                unset($present[$key]);
-            } else {
+            foreach (array_merge([$name], self::COLUMN_ALIASES[$name] ?? []) as $candidate) {
+                $key = self::headerKey($candidate);
+
+                if (isset($present[$key])) {
+                    $map[$name] = $present[$key]['index'];
+                    unset($present[$key]);
+                    $found = true;
+
+                    break;
+                }
+            }
+
+            if (! $found) {
                 $missing[] = $name;
             }
         }

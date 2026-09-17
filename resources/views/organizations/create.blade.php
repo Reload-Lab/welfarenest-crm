@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('topbar_title', 'Clienti')
-@section('topbar_subtitle', 'Creazione anagrafica cliente')
+@section('topbar_subtitle', 'Creazione anagrafica organizzazione')
 
 @section('pageHeader')
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
         <div>
-            <h1 class="crm-page-title">Nuovo cliente</h1>
+            <h1 class="crm-page-title">Nuova organizzazione</h1>
         </div>
     </div>
 @endsection
@@ -28,7 +28,7 @@
         @csrf
 
         @include('organizations.partials.form', [
-            'submitLabel' => 'Salva cliente'
+            'submitLabel' => 'Salva organizzazione'
         ])
     </form>
 @endsection

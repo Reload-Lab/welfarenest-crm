@@ -35,6 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/suppliers', [OrganizationController::class, 'suppliers'])->name('suppliers.index');
     Route::get('/suppliers/{organization}', [OrganizationController::class, 'show'])->name('suppliers.show');
 
+    Route::get('/institutions', [OrganizationController::class, 'institutions'])->name('institutions.index');
+    Route::get('/institutions/{organization}', [OrganizationController::class, 'show'])->name('institutions.show');
+
     Route::get('organizations/search', [OrganizationController::class, 'search'])->name('organizations.search');
     Route::resource('organizations', OrganizationController::class);
     Route::get('people/search', [PersonController::class, 'search'])->name('people.search');

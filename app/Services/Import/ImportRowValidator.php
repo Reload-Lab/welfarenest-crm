@@ -19,15 +19,11 @@ class ImportRowValidator
     /** Tipo di ripiego per le organizzazioni importate senza classificazione. */
     public const UNCLASSIFIED_TYPE_CODE = 'da_classificare';
 
-    /**
-     * Colonna del foglio => code del ruolo in anagrafica.
-     * 'ruolo_interno' è un nome storico della colonna: in anagrafica il ruolo
-     * corrispondente è 'institution' (Istituzionale).
-     */
+    /** Colonna del foglio => code del ruolo in anagrafica. */
     private const ROLE_COLUMNS = [
         'ruolo_cliente' => 'client',
         'ruolo_fornitore' => 'supplier',
-        'ruolo_interno' => 'institution',
+        'ruolo_istituzione' => 'institution',
     ];
 
     public function __construct(private readonly LookupResolver $lookups) {}
