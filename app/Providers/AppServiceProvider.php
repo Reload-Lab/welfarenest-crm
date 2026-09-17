@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\Import\LookupResolver::class);
     }
 
     public function boot(): void

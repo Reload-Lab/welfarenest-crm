@@ -6,6 +6,7 @@
     $showRoute = match ($indexRoute) {
         'clients.index' => 'clients.show',
         'suppliers.index' => 'suppliers.show',
+        'institutions.index' => 'institutions.show',
         default => 'organizations.show',
     };
 @endphp

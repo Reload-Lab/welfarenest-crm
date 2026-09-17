@@ -9,34 +9,22 @@ class OrganizationRoleSeeder extends Seeder
 {
     public function run(): void
     {
-        $roles = [
-            ['code' => 'client', 'name' => 'Cliente'],
-            ['code' => 'internal', 'name' => 'Interno'],
-            ['code' => 'supplier', 'name' => 'Fornitore'],
+        $items = [
+            ['code' => 'client',      'name' => 'Cliente'],
+            ['code' => 'institution', 'name' => 'Istituzionale'],
+            ['code' => 'supplier',    'name' => 'Fornitore'],
         ];
 
-        $data = [];
-
-        foreach ($roles as $index => $item) {   
-
-            DB::table('organization_roles')->updateOrInsert(
-                ['code' => $item['code']],
-                [
-                    'code' => $item['code'],
-                    'name' => $item['name'],
-                    'description' => null,
-                    'sort_order' => $index + 1,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
-
+        foreach ($items as $index => $item) {
+            DB::table('organization_roles')->insertOrIgnore([
+                'code' => $item['code'],
+                'name' => $item['name'],
+                'description' => null,
+                'sort_order' => $index + 1,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
-
-
-
-
-
     }
 }
