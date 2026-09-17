@@ -10,7 +10,8 @@ class RollbackOrganizationImport extends Command
 {
     protected $signature = 'import:rollback
                             {batch? : id del batch da annullare (default: l\'ultimo)}
-                            {--force : procedi anche cancellando i dati aggiunti dopo l\'importazione}';
+                            {--force : procedi anche cancellando i dati aggiunti dopo l\'importazione}
+                            {--yes : salta la richiesta di conferma (console non interattive)}';
 
     protected $description = 'Annulla un\'importazione, cancellando ciò che aveva creato';
 
@@ -55,10 +56,19 @@ class RollbackOrganizationImport extends Command
             $this->warn('Con --force verranno cancellate anche queste righe.');
         }
 
-        if (! $this->confirm("Annullare il batch #{$batch->id}? L'operazione non è reversibile.", false)) {
-            $this->line('Annullato.');
+        if (! $this->option('yes')) {
+            if (! $this->input->isInteractive()) {
+                $this->warn('La console non è interattiva: impossibile chiedere conferma.');
+                $this->line('Rilancia con --yes per procedere.');
 
-            return self::SUCCESS;
+                return self::FAILURE;
+            }
+
+            if (! $this->confirm("Annullare il batch #{$batch->id}? L'operazione non è reversibile.", false)) {
+                $this->line('Annullato.');
+
+                return self::SUCCESS;
+            }
         }
 
         $deleted = $rollback->rollback($batch, (bool) $this->option('force'));
