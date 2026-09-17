@@ -11,7 +11,8 @@ class RunOrganizationImport extends Command
     protected $signature = 'import:run
                             {file : percorso del file .xlsx, assoluto o relativo a storage/app}
                             {--exclude=* : numeri di riga del foglio Organizzazioni da non importare}
-                            {--force : procedi anche se lo stesso file è già stato importato}';
+                            {--force : procedi anche se lo stesso file è già stato importato}
+                            {--yes : salta la richiesta di conferma (console non interattive)}';
 
     protected $description = 'Importa le organizzazioni di un file già analizzato';
 
@@ -77,10 +78,22 @@ class RunOrganizationImport extends Command
             return self::SUCCESS;
         }
 
-        if (! $this->confirm("Procedere con l'importazione di {$toCreate} organizzazioni?", false)) {
-            $this->line('Annullato.');
+        if (! $this->option('yes')) {
+            // Su console non interattive confirm() restituisce il valore
+            // predefinito senza chiedere nulla: meglio fermarsi dicendolo,
+            // invece di non importare in silenzio.
+            if (! $this->input->isInteractive()) {
+                $this->warn('La console non è interattiva: impossibile chiedere conferma.');
+                $this->line('Rilancia con --yes per procedere.');
 
-            return self::SUCCESS;
+                return self::FAILURE;
+            }
+
+            if (! $this->confirm("Procedere con l'importazione di {$toCreate} organizzazioni?", false)) {
+                $this->line('Annullato.');
+
+                return self::SUCCESS;
+            }
         }
 
         $result = $executor->execute($path, null, $excluded);
