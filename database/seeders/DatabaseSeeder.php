@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
             ContactTypeSeeder::class,
             ContactUsageSeeder::class,
             AddressTypeSeeder::class,
+            LeadStatusSeeder::class,
+            LeadSourceSeeder::class,
             ConsentTypeSeeder::class,
             ConsentVersionSeeder::class,
             WnPlusRoleSeeder::class,

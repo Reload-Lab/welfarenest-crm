@@ -15,6 +15,7 @@ use App\Http\Controllers\WnPlusOidcController;
 use App\Http\Controllers\ConsentRequestController;
 use App\Http\Controllers\WnPlusPortalController;
 use App\Http\Controllers\TaxonomyController;
+use App\Http\Controllers\LeadController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -43,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::get('people/search', [PersonController::class, 'search'])->name('people.search');
     //Route::resource('people', PersonController::class)->except(['destroy']);
     Route::resource('people', PersonController::class);
+
+    Route::resource('leads', LeadController::class);
 
     Route::post('people/{person}/relations', [PersonOrganizationRelationController::class, 'store'])->name('people.relations.store');
     Route::post('organizations/{organization}/relations', [PersonOrganizationRelationController::class, 'storeFromOrganization'])->name('organizations.relations.store');

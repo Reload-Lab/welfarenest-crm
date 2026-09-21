@@ -37,10 +37,10 @@
         ],
         [
             'label' => 'Lead',
-            'route' => null,
+            'route' => 'leads.index',
             'icon_group' => 'entities',
             'icon_name' => 'lead',
-            'patterns' => [],
+            'patterns' => ['leads.*'],
         ],
         [
             'label' => 'WN+',

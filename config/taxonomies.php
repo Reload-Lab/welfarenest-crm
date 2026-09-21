@@ -6,6 +6,9 @@ use App\Models\ContactPoint;
 use App\Models\ContactType;
 use App\Models\ContactUsage;
 use App\Models\Department;
+use App\Models\Lead;
+use App\Models\LeadSource;
+use App\Models\LeadStatus;
 use App\Models\Organization;
 use App\Models\OrganizationRole;
 use App\Models\OrganizationType;
@@ -130,6 +133,30 @@ return [
         'extra_fields' => [],
         'usage' => fn (int $id): int => Address::where('address_type_id', $id)->count(),
         'usage_label' => 'indirizzi',
+    ],
+
+    'lead-statuses' => [
+        'model' => LeadStatus::class,
+        'label' => 'Stato lead',
+        'label_plural' => 'Stati lead',
+        'description' => "Fasi della pipeline commerciale di un lead. Da qui si gestiscono nome, ordine e attivazione; l'esito finale (vinto/perso) è strutturale e non è modificabile da questa sezione.",
+        'locked' => false,
+        'icon' => ['group' => 'entities', 'name' => 'lead'],
+        'extra_fields' => [],
+        'usage' => fn (int $id): int => Lead::where('lead_status_id', $id)->count(),
+        'usage_label' => 'lead',
+    ],
+
+    'lead-sources' => [
+        'model' => LeadSource::class,
+        'label' => 'Fonte lead',
+        'label_plural' => 'Fonti lead',
+        'description' => 'Canale da cui è arrivato il contatto (sito, convegni, newsletter, segnalazione, contatto diretto).',
+        'locked' => false,
+        'icon' => ['group' => 'entities', 'name' => 'lead'],
+        'extra_fields' => [],
+        'usage' => fn (int $id): int => Lead::where('lead_source_id', $id)->count(),
+        'usage_label' => 'lead',
     ],
 
 ];

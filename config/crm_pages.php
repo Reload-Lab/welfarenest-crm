@@ -422,4 +422,75 @@ return [
 ],
 
 
+    'leads.index' => [
+        'title' => 'Lead',
+        'breadcrumbs' => [
+            [
+                'label' => 'Dashboard',
+                'route' => 'dashboard',
+                'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+            ],
+            [
+                'label' => 'Lead',
+            ],
+        ],
+    ],
+
+    'leads.create' => [
+        'title' => 'Nuovo lead',
+        'breadcrumbs' => [
+            [
+                'label' => 'Dashboard',
+                'route' => 'dashboard',
+                'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+            ],
+            [
+                'label' => 'Lead',
+                'route' => 'leads.index',
+            ],
+            [
+                'label' => 'Nuovo lead',
+            ],
+        ],
+    ],
+
+    'leads.show' => [
+        'title' => fn (array $params) => $params['lead']->display_name,
+        'breadcrumbs' => [
+            [
+                'label' => 'Dashboard',
+                'route' => 'dashboard',
+                'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+            ],
+            [
+                'label' => 'Lead',
+                'route' => 'leads.index',
+            ],
+            [
+                'label' => fn (array $params) => $params['lead']->display_name,
+            ],
+        ],
+    ],
+
+    'leads.edit' => [
+        'title' => fn (array $params) => $params['lead']->display_name,
+        'breadcrumbs' => [
+            [
+                'label' => 'Dashboard',
+                'route' => 'dashboard',
+                'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+            ],
+            [
+                'label' => 'Lead',
+                'route' => 'leads.index',
+            ],
+            [
+                'label' => fn (array $params) => $params['lead']->display_name,
+            ],
+            [
+                'label' => 'Modifica',
+            ],
+        ],
+    ],
+
 ];
