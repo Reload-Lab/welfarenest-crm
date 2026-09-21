@@ -4,6 +4,8 @@
     'delete' => null,
     'deleteConfirm' => 'Confermi l\'eliminazione di questo elemento?',
     'editModalTarget' => null,
+    'addModalTarget' => null,
+    'addModalLabel' => 'Aggiungi',
     'mode' => 'dropdown', // dropdown | inline
     'actions' => [],
 ])
@@ -29,6 +31,17 @@
             <a href="{{ $edit }}" class="btn btn-icon" title="Modifica" aria-label="Modifica">
                 <x-icon group="actions" name="edit" />
             </a>
+        @endif
+
+        @if($addModalTarget)
+            <button type="button"
+                    class="btn btn-icon"
+                    data-bs-toggle="modal"
+                    data-bs-target="{{ $addModalTarget }}"
+                    title="{{ $addModalLabel }}"
+                    aria-label="{{ $addModalLabel }}">
+                <x-icon group="actions" name="add" />
+            </button>
         @endif
 
         @foreach($actions as $action)
@@ -101,6 +114,16 @@
                 </a>
             @endif
 
+            @if($addModalTarget)
+                <button type="button"
+                        class="dropdown-item d-flex align-items-center gap-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="{{ $addModalTarget }}">
+                    <x-icon group="actions" name="add" />
+                    <span>{{ $addModalLabel }}</span>
+                </button>
+            @endif
+
             @foreach($actions as $action)
                 @if($action['show'] ?? true)
                     <form action="{{ $action['route'] }}" method="POST">
@@ -119,7 +142,7 @@
                 @endif
             @endforeach
 
-            @if(($view || $edit || $editModalTarget || count($actions)) && $delete)
+            @if(($view || $edit || $editModalTarget || $addModalTarget || count($actions)) && $delete)
                 <hr class="dropdown-divider">
             @endif
 

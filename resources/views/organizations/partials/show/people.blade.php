@@ -71,6 +71,8 @@
                                                 'editModalTarget' => '#editRelationModal-' . $relation->id,
                                                 'delete' => route('organizations.relations.destroy', [$organization, $relation]),
                                                 'deleteConfirm' => 'Confermi l\'eliminazione di questa relazione?',
+                                                'addModalTarget' => '#relation-contact-point-create-' . $relation->id . 'Modal',
+                                                'addModalLabel' => 'Aggiungi recapito',
                                             ])
                                         </div>
                                     </div>
@@ -92,9 +94,6 @@
                                     <div class="mt-3">
                                         @include('people.partials.show.relation-contact-points', [
                                             'relation' => $relation,
-                                            'contactTypes' => $contactTypes,
-                                            'contactUsages' => $contactUsages,
-                                            'contactPointsStoreRoute' => route('organizations.relations.contact-points.store', [$organization, $relation]),
                                         ])
                                     </div>
                                 </div>
