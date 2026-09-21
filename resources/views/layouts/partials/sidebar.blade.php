@@ -37,10 +37,12 @@
         ],
         [
             'label' => 'Lead',
-            'route' => 'leads.index',
+            // Voce disattivata in attesa del completamento del modulo:
+            // ripristinare 'leads.index' e ['leads.*'] per riattivarla.
+            'route' => null,
             'icon_group' => 'entities',
             'icon_name' => 'lead',
-            'patterns' => ['leads.*'],
+            'patterns' => [],
         ],
         [
             'label' => 'WN+',
