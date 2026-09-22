@@ -138,6 +138,7 @@ class ConsentRequestController extends Controller
         if (! $contactPoint) {
             return redirect()
                 ->route('people.show', $person)
+                ->with('openConsentsModal', true)
                 ->withErrors(['consent_request' => 'La persona non ha un indirizzo email a cui inviare la richiesta di consenso.']);
         }
 
@@ -161,11 +162,15 @@ class ConsentRequestController extends Controller
         } catch (RuntimeException $e) {
             return redirect()
                 ->route('people.show', $contactPoint->owner_id)
+                ->with('openConsentsModal', true)
                 ->withErrors(['consent_request' => $e->getMessage()]);
         }
 
+        // openConsentsModal: l'azione parte da dentro la modale "Privacy e
+        // consensi", quindi dopo il redirect la riapriamo sullo stato aggiornato.
         return redirect()
             ->route('people.show', $contactPoint->owner_id)
+            ->with('openConsentsModal', true)
             ->with('success', 'Richiesta di consenso inviata con successo.');
     }
 }

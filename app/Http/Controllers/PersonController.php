@@ -153,6 +153,7 @@ class PersonController extends Controller
             'consents.consentVersion',
             'contactPoints.consents.consentType',
             'contactPoints.consents.consentVersion',
+            'consentRequests.contactPoint',
         ]);
 
         $organizations = Organization::query()

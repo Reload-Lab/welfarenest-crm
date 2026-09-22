@@ -1,7 +1,18 @@
 import './bootstrap';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+//import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import * as bootstrapBundle from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import TomSelect from 'tom-select';
 import 'tom-select/dist/css/tom-select.bootstrap5.css';
+
+const bootstrap = bootstrapBundle.default ?? bootstrapBundle;
+window.bootstrap = bootstrap;
+
+/* Popper in strategia fixed su tutti i dropdown: il menu esce dai contenitori
+ * con overflow (.crm-table-responsive, .card) invece di essere ritagliato. */
+bootstrap.Dropdown.Default.popperConfig = (defaults) => ({
+    ...defaults,
+    strategy: 'fixed',
+});
 
 const initPersonSearchSelect = (element) => {
     if (!element || element.tomselect) {
@@ -222,6 +233,8 @@ function copyCrmText(button) {
 
     showCopiedState();
 }
+
+
 
 document.addEventListener('shown.bs.dropdown', function (event) {
     document.querySelectorAll('.crm-row-actions.is-open').forEach((el) => {

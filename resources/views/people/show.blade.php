@@ -12,13 +12,8 @@
 <div class="container-fluid py-4">
     <div class="d-flex flex-column gap-4">
 
-        @if(session('success'))
-            <div class="alert alert-success mb-0">{{ session('success') }}</div>
-        @endif
-
-        @error('consent_request')
-            <div class="alert alert-danger mb-0">{{ $message }}</div>
-        @enderror
+        {{-- Gli errori di invio della richiesta di consenso sono mostrati dentro
+             la modale "Privacy e consensi", accanto all'azione che li genera. --}}
 
         <div class="card border-0 shadow-sm crm-card--header-actions">
             <div class="card-body p-4">
@@ -41,38 +36,23 @@
 
                     <div class="d-flex align-items-center gap-2">
 
-@php
-    $consentTargetContactPoint = $person->primaryOrFirstEmailContactPoint();
-@endphp
+                        {{--
+                            Nessun pulsante di invio qui: invio, sollecito e rinnovo
+                            della richiesta di consenso vivono dentro la modale
+                            "Privacy e consensi", dove c'è il contesto dello stato.
+                            Questo badge è l'unico punto d'accesso.
+                        --}}
+                        <button
+                            type="button"
+                            class="crm-status-badge crm-status-badge--{{ $person->consentRequestStateVariant(ConsentType::PRIVACY_NOTICE) }} crm-status-badge--xl border-0"
+                            title="{{ $person->consentRequestStateLabel(ConsentType::PRIVACY_NOTICE) }}"
+                            aria-label="{{ $person->consentRequestStateLabel(ConsentType::PRIVACY_NOTICE) }}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#personConsentsModal">
 
-<form
-    action="{{ route('people.consent-requests.store', $person) }}"
-    method="POST"
-    class="d-inline"
-    onsubmit="return confirm('Inviare la richiesta di consenso a {{ $consentTargetContactPoint?->value }}?');"
->
-    @csrf
-    <button
-        type="submit"
-        class="btn btn-outline-secondary btn-sm"
-        @disabled(! $consentTargetContactPoint)
-        title="{{ $consentTargetContactPoint ? 'Invia richiesta di consenso a ' . $consentTargetContactPoint->value : 'Aggiungi prima un\'email per poter inviare la richiesta di consenso' }}"
-    >
-        Invia richiesta di consenso
-    </button>
-</form>
+                            <x-icon group="entities" name="consent" />
 
-<button
-    type="button"
-    class="crm-status-badge crm-status-badge--{{ $person->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} crm-status-badge--xl border-0"
-    title="{{ $person->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-    aria-label="{{ $person->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-    data-bs-toggle="modal"
-    data-bs-target="#personConsentsModal">
-
-    <x-icon group="entities" name="consent" />
-
-</button>
+                        </button>
 
                         @include('components.crm.row-actions', [
                             'edit' => route('people.edit', $person),
@@ -103,7 +83,22 @@
     'person' => $person,
 ])
 
-
 @endsection
+
+@push('scripts')
+    @if(session('openConsentsModal'))
+        {{-- L'azione di invio/sollecito parte da dentro la modale e fa redirect:
+             riapriamo la modale per mostrare subito lo stato aggiornato. --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modalElement = document.getElementById('personConsentsModal');
+
+                if (modalElement && window.bootstrap) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                }
+            });
+        </script>
+    @endif
+@endpush
 
 
