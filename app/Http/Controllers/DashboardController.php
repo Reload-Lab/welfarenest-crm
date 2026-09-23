@@ -7,7 +7,7 @@ use App\Models\Lead;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\PersonOrganizationRelation;
-use App\Models\Note;
+use App\Models\Note; // usato dal riquadro "Note", al momento disattivato
 
 class DashboardController extends Controller
 {
@@ -29,6 +29,14 @@ class DashboardController extends Controller
                 'icon_name' => 'supplier',
                 'tone' => 'orange',
                 'route' => 'suppliers.index',
+            ],
+            [
+                'label' => 'Istituzioni',
+                'value' => Organization::whereHas('organizationRoles', fn ($q) => $q->where('code', 'institution'))->count(),
+                'icon_group' => 'entities',
+                'icon_name' => 'organization',
+                'tone' => 'purple',
+                'route' => 'institutions.index',
             ],
             [
                 'label' => 'Persone',
@@ -54,14 +62,19 @@ class DashboardController extends Controller
                 'tone' => 'green',
                 'route' => null,
             ],
-            [
-                'label' => 'Note',
-                'value' => Note::count(),
-                'icon_group' => 'entities',
-                'icon_name' => 'note',
-                'tone' => 'pink',
-                'route' => null,
-            ],
+            // Riquadro "Note" disattivato per tenere la griglia piena: le card
+            // stanno su tre colonne, e sei riquadri riempiono due righe esatte.
+            // Da riattivare quando ne arriveranno altri due, così si torna a
+            // nove e a tre righe piene. Nota: 'pink' non esiste in
+            // dashboard.css — se si riattiva, dargli un tono definito.
+            // [
+            //     'label' => 'Note',
+            //     'value' => Note::count(),
+            //     'icon_group' => 'entities',
+            //     'icon_name' => 'note',
+            //     'tone' => 'pink',
+            //     'route' => null,
+            // ],
 
         ];
 

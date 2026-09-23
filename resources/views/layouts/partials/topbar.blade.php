@@ -79,9 +79,12 @@
 
             <ul class="dropdown-menu dropdown-menu-end crm-topbar-dropdown shadow-sm border-0" aria-labelledby="topbarUserMenu">
                 <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2" href="#">
-                        <x-icon group="entities" name="person" class="icon-sm" />
-                        <span>Profilo</span>
+                    {{-- Era una voce "Profilo" con href="#", che non portava da
+                         nessuna parte: finche' non c'e' una vera scheda profilo,
+                         il posto serve al cambio password. --}}
+                    <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('profile.password') }}">
+                        <x-icon group="entities" name="settings" class="icon-sm" />
+                        <span>Cambia password</span>
                     </a>
                 </li>
 

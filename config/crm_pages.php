@@ -13,6 +13,20 @@ return [
         ],
     ],
 
+    'profile.password' => [
+        'title' => 'Cambia password',
+        'breadcrumbs' => [
+            [
+                'label' => 'Dashboard',
+                'route' => 'dashboard',
+                'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+            ],
+            [
+                'label' => 'Cambia password',
+            ],
+        ],
+    ],
+
     'organizations.index' => [
         'title' => 'Organizzazioni',
         'breadcrumbs' => [

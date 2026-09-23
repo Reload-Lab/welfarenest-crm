@@ -143,6 +143,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{type}/{id}', [TaxonomyController::class, 'destroy'])->name('destroy');
     });
 
+    /*
+     | Cambio password dell'utente collegato. Il salvataggio lo fa Fortify
+     | (PUT /user/password, rotta 'user-password.update', feature
+     | updatePasswords): qui serve solo la pagina che ospita il form.
+     */
+    Route::view('/profilo/password', 'profile.password')->name('profile.password');
+
 });
 
 Route::get('/wn-plus/invitations/{token}', [WnPlusInvitationController::class, 'accept'])

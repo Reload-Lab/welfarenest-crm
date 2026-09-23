@@ -143,7 +143,13 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Registrazione pubblica disattivata (23/09/2026): il CRM e' a inviti,
+        // le utenze si creano da riga di comando. La pagina /register non e'
+        // mai esistita (nessuna view registrata), ma con la feature attiva la
+        // rotta POST /register restava raggiungibile e permetteva a chiunque
+        // di crearsi un account. Riattivare solo insieme a un'area di gestione
+        // utenze e a un sistema di ruoli.
+        // Features::registration(),
         Features::resetPasswords(),
         // Features::emailVerification(),
         Features::updateProfileInformation(),
