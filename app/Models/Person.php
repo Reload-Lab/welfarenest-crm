@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\HasConsents;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\Auditable;
 
 class Person extends Model
 {
     use HasFactory;
+    use Auditable;
     use HasConsents;
 
     /**

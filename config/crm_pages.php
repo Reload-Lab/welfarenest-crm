@@ -385,6 +385,74 @@ return [
     ],
 ],
 
+'logs.audit' => [
+    'title' => 'Registro modifiche',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Registri',
+        ],
+    ],
+],
+
+'logs.audit.show' => [
+    'title' => 'Dettaglio modifica',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Registri',
+            'route' => 'logs.audit',
+        ],
+        [
+            'label' => 'Dettaglio',
+        ],
+    ],
+],
+
+'logs.activity' => [
+    'title' => 'Registro attività',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Registri',
+            'route' => 'logs.audit',
+        ],
+        [
+            'label' => 'Attività',
+        ],
+    ],
+],
+
+'logs.access' => [
+    'title' => 'Registro accessi',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Registri',
+            'route' => 'logs.audit',
+        ],
+        [
+            'label' => 'Accessi',
+        ],
+    ],
+],
+
 'taxonomies.home' => [
     'title' => 'Anagrafiche',
     'breadcrumbs' => [

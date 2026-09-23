@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Consent;
 use App\Models\ConsentType;
+use App\Support\ActivityLogger;
 
 class ConsentService
 {
@@ -62,7 +63,7 @@ class ConsentService
 
         $version = $versionQuery->latest('published_at')->first();
 
-        return Consent::create([
+        $consent = Consent::create([
             'owner_type' => $ownerType,
             'owner_id' => $ownerId,
             'consent_type_id' => $consentType->id,
@@ -75,5 +76,19 @@ class ConsentService
             'source' => $source,
             'created_by_user_id' => auth()->id(),
         ]);
+
+        ActivityLogger::log(
+            $status === 'granted' ? ActivityLogger::CONSENT_GRANTED : ActivityLogger::CONSENT_DENIED,
+            $consent,
+            [
+                'consent_type_code' => $consentTypeCode,
+                'version_code' => $version?->version_code,
+                'owner_type' => $ownerType,
+                'owner_id' => $ownerId,
+                'source' => $source,
+            ],
+        );
+
+        return $consent;
     }
 }

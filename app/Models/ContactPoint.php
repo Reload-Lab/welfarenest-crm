@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\HasConsents;
+use App\Models\Concerns\Auditable;
 
 class ContactPoint extends Model
 {
     use HasFactory;
+    use Auditable;
     use HasConsents;
 
     protected $table = 'contact_points';

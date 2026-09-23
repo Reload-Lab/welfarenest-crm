@@ -6,6 +6,7 @@ use App\Mail\ConsentRequestMail;
 use App\Models\ConsentRequest;
 use App\Models\ConsentType;
 use App\Models\ContactPoint;
+use App\Support\ActivityLogger;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -124,6 +125,14 @@ class ConsentRequestService
 
         $consentRequest->update([
             'sent_at' => now(),
+        ]);
+
+        ActivityLogger::log(ActivityLogger::CONSENT_REQUEST_SENT, $consentRequest, [
+            'email' => $email,
+            'owner_type' => $consentRequest->owner_type,
+            'owner_id' => $consentRequest->owner_id,
+            'contact_point_id' => $consentRequest->contact_point_id,
+            'expires_at' => $consentRequest->expires_at?->toDateTimeString(),
         ]);
     }
 }

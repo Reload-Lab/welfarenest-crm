@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessLog;
 use App\Models\WnPlusAccount;
+use App\Support\AccessLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -25,6 +27,11 @@ class WnPlusAuthController extends Controller
             ->first();
 
         if (! $account || ! Hash::check($validated['password'], $account->password)) {
+            AccessLogger::record(AccessLog::EVENT_WN_PLUS_LOGIN_FAILED, null, [
+                'email' => $validated['email'],
+                'wn_plus_account_id' => $account?->id,
+            ]);
+
             return back()
                 ->withInput()
                 ->withErrors([
@@ -38,6 +45,11 @@ class WnPlusAuthController extends Controller
 
         $account->update([
             'last_login_at' => now(),
+        ]);
+
+        AccessLogger::record(AccessLog::EVENT_WN_PLUS_LOGIN, null, [
+            'wn_plus_account_id' => $account->id,
+            'email' => $account->email,
         ]);
 
         $intendedOidcUrl = session()->pull('wn_plus_oidc_authorize_request');
@@ -57,6 +69,10 @@ class WnPlusAuthController extends Controller
 
     public function logout(Request $request)
     {
+        AccessLogger::record(AccessLog::EVENT_WN_PLUS_LOGOUT, null, array_filter([
+            'wn_plus_account_id' => $request->session()->get('wn_plus_account_id'),
+        ]));
+
         $request->session()->forget('wn_plus_account_id');
 
         return redirect()->route('wn-plus.login');

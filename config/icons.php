@@ -90,6 +90,7 @@ return [
         'reports'       => 'icons.navigation.reports',
         'settings'      => 'icons.navigation.settings',
         'trash'         => 'icons.navigation.trash',
+        'logs'          => 'icons.navigation.logs',
         'menu'          => 'icons.navigation.menu',
     ],
 

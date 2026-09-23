@@ -10,10 +10,12 @@ use App\Models\OrganizationRole;
 use App\Models\ContactPoint;
 use App\Models\Address;
 use App\Models\PersonOrganizationRelation;
+use App\Models\Concerns\Auditable;
 
 class Organization extends Model
 {
     use HasFactory;
+    use Auditable;
 
     protected $table = 'organizations';
 

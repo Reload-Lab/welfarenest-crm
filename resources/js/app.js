@@ -161,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupFilterToggle('toggleOrganizationFilters', 'organizationAdvancedFilters');
     setupFilterToggle('togglePeopleFilters', 'peopleAdvancedFilters');
+    setupFilterToggle('toggleLogFilters', 'logAdvancedFilters');
 });
 
 

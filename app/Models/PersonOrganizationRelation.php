@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 use App\Models\ContactPoint;
+use App\Models\Concerns\Auditable;
 
 class PersonOrganizationRelation extends Model
 {
     use HasFactory;
+    use Auditable;
 
     protected $table = 'person_organization_relations';
 

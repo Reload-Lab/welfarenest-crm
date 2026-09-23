@@ -16,6 +16,7 @@ use App\Http\Controllers\ConsentRequestController;
 use App\Http\Controllers\WnPlusPortalController;
 use App\Http\Controllers\TaxonomyController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LogController;
 
 use App\Models\Organization;
 use App\Models\Person;
@@ -141,6 +142,18 @@ Route::middleware('auth')->group(function () {
         Route::put('/{type}/{id}', [TaxonomyController::class, 'update'])->name('update');
         Route::patch('/{type}/{id}/toggle-active', [TaxonomyController::class, 'toggleActive'])->name('toggle-active');
         Route::delete('/{type}/{id}', [TaxonomyController::class, 'destroy'])->name('destroy');
+    });
+
+    /*
+     | Registri (audit / attivita / accessi). Sola lettura.
+     | Il Gate 'view-logs' oggi lascia passare ogni utente autenticato: e il
+     | punto unico in cui innestare i ruoli quando saranno pronti.
+     */
+    Route::prefix('registri')->name('logs.')->middleware('can:view-logs')->group(function () {
+        Route::get('/', [LogController::class, 'audit'])->name('audit');
+        Route::get('/modifiche/{auditLog}', [LogController::class, 'show'])->name('audit.show');
+        Route::get('/attivita', [LogController::class, 'activity'])->name('activity');
+        Route::get('/accessi', [LogController::class, 'access'])->name('access');
     });
 
     /*

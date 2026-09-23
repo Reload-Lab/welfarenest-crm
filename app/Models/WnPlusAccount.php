@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Concerns\HasConsents;
+use App\Models\Concerns\Auditable;
 
 class WnPlusAccount extends Model
 {
 
     use HasConsents;
+    use Auditable;
     
     protected $fillable = [
         'uuid',

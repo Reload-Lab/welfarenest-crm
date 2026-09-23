@@ -7,6 +7,8 @@ use App\Models\ContactPoint;
 use App\Models\ImportBatch;
 use App\Models\ImportRowResult;
 use App\Models\Organization;
+use App\Support\ActivityLogger;
+use App\Support\AuditContext;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -47,7 +49,10 @@ class ImportExecutor
         $analysis = $this->analyzer->analyze($path);
         $excluded = array_flip($excludedRows);
 
-        $batch = DB::transaction(function () use ($path, $userId, $analysis, $excluded) {
+        $batch = AuditContext::within([
+            'origin' => AuditContext::ORIGIN_IMPORT,
+            'import_file' => basename($path),
+        ], fn () => DB::transaction(function () use ($path, $userId, $analysis, $excluded) {
             $batch = ImportBatch::create([
                 'user_id' => $userId,
                 'filename' => basename($path),
@@ -82,7 +87,16 @@ class ImportExecutor
             $batch->update($counters);
 
             return $batch;
-        });
+        }));
+
+        ActivityLogger::log(ActivityLogger::ORGANIZATION_IMPORT_RUN, $batch, [
+            'filename' => $batch->filename,
+            'organizations_created' => $batch->organizations_created,
+            'addresses_created' => $batch->addresses_created,
+            'contacts_created' => $batch->contacts_created,
+            'blocks_skipped' => $batch->blocks_skipped,
+            'blocks_excluded' => $batch->blocks_excluded,
+        ]);
 
         return ['batch' => $batch->refresh(), 'analysis' => $analysis];
     }

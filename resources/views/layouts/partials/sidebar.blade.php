@@ -73,6 +73,13 @@
             'patterns' => ['taxonomies.*'],
         ],
         [
+            'label' => 'Registri',
+            'route' => 'logs.audit',
+            'icon_group' => 'navigation',
+            'icon_name' => 'logs',
+            'patterns' => ['logs.*'],
+        ],
+        [
             'label' => 'Impostazioni',
             'route' => null,
             'icon_group' => 'navigation',
