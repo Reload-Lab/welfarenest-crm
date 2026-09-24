@@ -31,7 +31,16 @@ class ConsentRequestController extends Controller
             abort(410, 'Richiesta consenso scaduta o non più valida.');
         }
 
-        return view('consent-requests.show', compact('consentRequest'));
+        // Il form pubblico separa visivamente gli item obbligatori da quelli
+        // facoltativi: la partizione sta qui e non in Blade, così la vista si
+        // limita a ciclare due collezioni già ordinate.
+        $items = $consentRequest->items->sortBy('sort_order');
+
+        return view('consent-requests.show', [
+            'consentRequest' => $consentRequest,
+            'requiredItems' => $items->where('is_required', true)->values(),
+            'optionalItems' => $items->where('is_required', false)->values(),
+        ]);
     }
 
     /**

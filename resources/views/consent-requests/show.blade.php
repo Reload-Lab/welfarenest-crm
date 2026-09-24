@@ -1,67 +1,97 @@
-@extends('layouts.guest')
+@extends('layouts.consent-public')
 
-@section('title', 'Gestione consensi')
+@section('title', 'Gestisci i tuoi consensi')
 
 @section('content')
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-4">
-            <h1 class="h4 mb-3">Gestione dei tuoi consensi</h1>
+    <h1>Gestisci i tuoi consensi</h1>
 
-            <p class="text-muted">
-                Recapito: <strong>{{ $consentRequest->contactPoint?->value ?? 'Recapito non disponibile' }}</strong>
-            </p>
+    <p class="recipient">
+        Preferenze per <strong>{{ $consentRequest->contactPoint?->value ?? 'recapito non disponibile' }}</strong>
+    </p>
 
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    {{ $errors->first() }}
-                </div>
-            @endif
+    @if ($errors->any())
+        <p class="alert">{{ $errors->first() }}</p>
+    @endif
 
-            <form method="POST" action="{{ route('consent-requests.complete', $consentRequest->token) }}">
-                @csrf
+    <form id="consent-form" method="POST" action="{{ route('consent-requests.complete', $consentRequest->token) }}">
+        @csrf
 
-                @foreach ($consentRequest->items as $item)
-                    <div class="border rounded p-3 mb-3">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                name="consent_{{ $item->consent_type_id }}"
-                                id="consent_{{ $item->consent_type_id }}"
-                                value="1"
-                                {{ $item->is_required ? 'required' : '' }}
-                            >
-                            <label class="form-check-label" for="consent_{{ $item->consent_type_id }}">
-                                {{ $item->consentVersion?->title ?? $item->consentType->name }}
-                                @if ($item->is_required)
-                                    <span class="text-danger">*</span>
-                                @endif
-                            </label>
-                        </div>
-
-                        @if ($item->consentVersion?->content_file_path)
-                            <a
-                                href="{{ route('consent-requests.document', ['token' => $consentRequest->token, 'consentVersionId' => $item->consent_version_id]) }}"
-                                target="_blank"
-                                rel="noopener"
-                                class="small"
-                            >
-                                Leggi l'informativa completa
-                            </a>
-                        @endif
-                    </div>
+        @if ($requiredItems->isNotEmpty())
+            <fieldset>
+                <legend>Informativa privacy <span class="req">richiesta per proseguire</span></legend>
+                @foreach ($requiredItems as $item)
+                    @include('consent-requests.partials.item', ['item' => $item])
                 @endforeach
+            </fieldset>
+        @endif
 
-                <p class="small text-muted">
-                    I campi contrassegnati con <span class="text-danger">*</span> sono obbligatori per proseguire.
-                </p>
+        @if ($optionalItems->isNotEmpty())
+            <fieldset>
+                <legend>Consensi facoltativi</legend>
+                @foreach ($optionalItems as $item)
+                    @include('consent-requests.partials.item', ['item' => $item])
+                @endforeach
+            </fieldset>
+        @endif
 
-                <button type="submit" class="btn btn-primary w-100">Conferma le mie scelte</button>
-            </form>
-
-            <p class="small text-muted mt-3 mb-0">
-                Il collegamento è valido fino al {{ $consentRequest->expires_at->format('d/m/Y H:i') }}.
-            </p>
-        </div>
-    </div>
+        <button type="submit" class="submit">Conferma le mie scelte</button>
+        <p class="note">Il link è valido fino al {{ $consentRequest->expires_at->format('d/m/Y H:i') }}.</p>
+    </form>
 @endsection
+
+@push('scripts')
+@verbatim
+<script>
+(function(){
+  var form = document.getElementById('consent-form');
+  if (!form) return;
+
+  var required = Array.prototype.slice.call(
+    form.querySelectorAll('input[type="checkbox"][required]')
+  );
+  var btn = form.querySelector('.submit');
+
+  // Validazione lato client: sostituisce i tooltip nativi del browser con
+  // l'errore inline previsto dal design. Il controllo vero resta comunque
+  // server-side in ConsentRequestController::complete().
+  form.noValidate = true;
+
+  function box(el){ return el.closest('.option'); }
+  function msg(el){ return box(el).querySelector('.error'); }
+
+  function clear(el){
+    box(el).classList.remove('is-invalid');
+    el.removeAttribute('aria-invalid');
+    var m = msg(el);
+    if (m) m.textContent = '';
+  }
+
+  required.forEach(function(el){
+    el.addEventListener('change', function(){ if (el.checked) clear(el); });
+  });
+
+  form.addEventListener('submit', function(event){
+    var first = null;
+
+    required.forEach(function(el){
+      if (el.checked) { clear(el); return; }
+      box(el).classList.add('is-invalid');
+      el.setAttribute('aria-invalid', 'true');
+      var m = msg(el);
+      if (m) m.textContent = 'Per proseguire conferma di aver letto l’informativa.';
+      if (!first) first = el;
+    });
+
+    if (first) {
+      event.preventDefault();
+      first.focus();
+      return;
+    }
+
+    btn.setAttribute('aria-busy', 'true');
+    btn.textContent = 'Salvataggio in corso…';
+  });
+})();
+</script>
+@endverbatim
+@endpush

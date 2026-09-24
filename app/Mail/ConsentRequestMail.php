@@ -24,10 +24,15 @@ class ConsentRequestMail extends Mailable
         );
     }
 
+    /**
+     * Template HTML completo (tabellare, con fallback Outlook) fornito dal
+     * cliente: non è un markdown mail component, quindi `view:` e non
+     * `markdown:`, altrimenti Laravel lo passerebbe al layout di default.
+     */
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.consent-request',
+            view: 'emails.consent-request',
             with: [
                 'consentRequest' => $this->consentRequest,
                 'consentUrl' => route(
