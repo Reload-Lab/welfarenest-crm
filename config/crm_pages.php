@@ -385,6 +385,38 @@ return [
     ],
 ],
 
+'consents.index' => [
+    'title' => 'Registro consensi',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Consensi',
+        ],
+    ],
+],
+
+'consents.requests' => [
+    'title' => 'Richieste di consenso',
+    'breadcrumbs' => [
+        [
+            'label' => 'Dashboard',
+            'route' => 'dashboard',
+            'icon' => ['group' => 'navigation', 'name' => 'dashboard'],
+        ],
+        [
+            'label' => 'Consensi',
+            'route' => 'consents.index',
+        ],
+        [
+            'label' => 'Richieste inviate',
+        ],
+    ],
+],
+
 'logs.audit' => [
     'title' => 'Registro modifiche',
     'breadcrumbs' => [

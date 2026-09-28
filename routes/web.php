@@ -13,6 +13,7 @@ use App\Http\Controllers\WnPlusInvitationController;
 use App\Http\Controllers\WnPlusAuthController;
 use App\Http\Controllers\WnPlusOidcController;
 use App\Http\Controllers\ConsentRequestController;
+use App\Http\Controllers\ConsentRegisterController;
 use App\Http\Controllers\WnPlusPortalController;
 use App\Http\Controllers\TaxonomyController;
 use App\Http\Controllers\LeadController;
@@ -88,6 +89,13 @@ Route::middleware('auth')->group(function () {
         'people/{person}/consent-requests',
         [ConsentRequestController::class, 'storeForPerson']
     )->name('people.consent-requests.store');
+
+    // Registro dei consensi: sola lettura, limitato a owner_type = 'person'.
+    Route::get('/consents', [ConsentRegisterController::class, 'index'])
+        ->name('consents.index');
+
+    Route::get('/consents/requests', [ConsentRegisterController::class, 'requests'])
+        ->name('consents.requests');
 
     Route::post('/organizations/{organization}/addresses', [AddressController::class, 'storeForOrganization'])
         ->name('organizations.addresses.store');

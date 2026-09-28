@@ -45,4 +45,31 @@ class ConsentRequest extends Model
     {
         return $this->hasMany(ConsentRequestItem::class)->orderBy('sort_order');
     }
+
+    /**
+     * "Scaduta" non è uno stato a database ma una pending il cui termine è
+     * passato: così nessun job deve aggiornare righe solo per farle invecchiare.
+     */
+    public function getIsExpiredAttribute(): bool
+    {
+        return $this->status === 'pending' && (bool) $this->expires_at?->isPast();
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        if ($this->status === 'completed') {
+            return 'Completata';
+        }
+
+        return $this->is_expired ? 'Scaduta' : 'In attesa';
+    }
+
+    public function getStatusVariantAttribute(): string
+    {
+        if ($this->status === 'completed') {
+            return 'success';
+        }
+
+        return $this->is_expired ? 'muted' : 'info';
+    }
 }

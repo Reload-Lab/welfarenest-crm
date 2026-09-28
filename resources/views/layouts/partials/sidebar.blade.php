@@ -73,6 +73,13 @@
             'patterns' => ['taxonomies.*'],
         ],
         [
+            'label' => 'Consensi',
+            'route' => 'consents.index',
+            'icon_group' => 'entities',
+            'icon_name' => 'consent',
+            'patterns' => ['consents.*'],
+        ],
+        [
             'label' => 'Registri',
             'route' => 'logs.audit',
             'icon_group' => 'navigation',
