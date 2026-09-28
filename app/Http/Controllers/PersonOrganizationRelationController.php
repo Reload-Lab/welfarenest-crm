@@ -115,6 +115,7 @@ class PersonOrganizationRelationController extends Controller
             'organization_id' => $organizationIdRules,
             'qualification_id' => ['nullable', 'exists:qualifications,id'],
             'department_id' => ['nullable', 'exists:departments,id'],
+            'job_title' => ['nullable', 'string', 'max:255'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'is_primary' => ['nullable', 'boolean'],

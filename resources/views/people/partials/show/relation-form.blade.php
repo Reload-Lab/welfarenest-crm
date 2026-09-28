@@ -187,7 +187,30 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
-        
+
+        @php
+            $jobTitleFieldId = 'job_title_' . ($relationModel?->id ?? 'new') . '_' . $relationContext;
+        @endphp
+
+        <div class="col-12">
+            <label for="{{ $jobTitleFieldId }}" class="form-label fw-semibold">Ruolo</label>
+            <input
+                type="text"
+                name="job_title"
+                id="{{ $jobTitleFieldId }}"
+                maxlength="255"
+                class="form-control @error('job_title') is-invalid @enderror"
+                value="{{ old('job_title', $relationModel?->job_title) }}"
+                placeholder="Es. Chief Human Resources Officer"
+            >
+            <div class="form-text">
+                Ruolo formale della persona all'interno dell'organizzazione (testo libero).
+            </div>
+            @error('job_title')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
         {{--
         <div class="col-12 col-md-6 col-lg-4 d-flex align-items-end">
             <div class="form-check form-switch mb-2">

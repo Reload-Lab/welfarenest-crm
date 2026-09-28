@@ -1,5 +1,10 @@
 <div class="card border-0 shadow-sm">
 
+    @php
+        $editingRelationId = (int) old('relation_id');
+        $shouldOpenCreateRelationModal = $errors->any() && ! $editingRelationId;
+    @endphp
+
     <div class="card-header">
         <div>
             <h5>Relazioni</h5>
@@ -30,7 +35,7 @@
                 @foreach($person->organizationRelations as $relation)
                     <div class="col-12">
 
-                    
+
                         <div class="crm-relation-card h-100">
                             <div class="d-flex align-items-start gap-3">
                                 @if($relation->organization)
@@ -54,6 +59,10 @@
                                                 </a>
                                             @else
                                                 <span class="crm-relation-card__name">Organizzazione non disponibile</span>
+                                            @endif
+
+                                            @if($relation->job_title)
+                                                <div class="text-muted small">{{ $relation->job_title }}</div>
                                             @endif
 
                                         </div>
@@ -110,7 +119,7 @@
                     </div>
                 @endforeach
             </div>
-            
+
         @endif
     </div>
 </div>
@@ -130,7 +139,7 @@
                         Nuova relazione
                     </h4>
                     <p class="text-muted small mb-0">
-                        Collega la persona a un'organizzazione con qualifica, dipartimento, periodo e stato.
+                        Collega la persona a un'organizzazione con qualifica, dipartimento, ruolo e stato.
                     </p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
@@ -140,6 +149,7 @@
                 @include('people.partials.show.relation-form', [
                     'person' => $person,
                     'relation' => null,
+                    'relationContext' => 'person',
                     'organizations' => $organizations,
                     'qualifications' => $qualifications,
                     'departments' => $departments,
@@ -149,8 +159,45 @@
     </div>
 </div>
 
-{{-- Modali dei recapiti di relazione: tenuti fuori dalla card (vedi _relation-modals.blade.php) --}}
 @foreach($person->organizationRelations as $relation)
+    {{-- Modale di modifica relazione: il menu azioni della card punta qui. --}}
+    <div
+        class="modal fade"
+        id="editRelationModal-{{ $relation->id }}"
+        tabindex="-1"
+        aria-labelledby="editRelationModalLabel-{{ $relation->id }}"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <div>
+                        <h4 class="modal-title h5 mb-1" id="editRelationModalLabel-{{ $relation->id }}">
+                            Modifica relazione
+                        </h4>
+                        <p class="text-muted small mb-0">
+                            Aggiorna qualifica, dipartimento, ruolo e stato della relazione.
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+
+                <div class="modal-body">
+                    @include('people.partials.show.relation-form', [
+                        'person' => $person,
+                        'relation' => $relation,
+                        'relationContext' => 'person',
+                        'selectedOrganization' => $relation->organization,
+                        'organizations' => $organizations,
+                        'qualifications' => $qualifications,
+                        'departments' => $departments,
+                    ])
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modali dei recapiti di relazione: tenuti fuori dalla card (vedi _relation-modals.blade.php) --}}
     @include('contact-points._relation-modals', [
         'relation' => $relation,
         'contactTypes' => $contactTypes,
@@ -162,4 +209,17 @@
     ])
 @endforeach
 
+@if($shouldOpenCreateRelationModal || $editingRelationId)
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var modalId = @json($editingRelationId ? 'editRelationModal-' . $editingRelationId : 'personRelationModal');
+            var modalElement = document.getElementById(modalId);
 
+            if (!modalElement || typeof bootstrap === 'undefined') {
+                return;
+            }
+
+            bootstrap.Modal.getOrCreateInstance(modalElement).show();
+        });
+    </script>
+@endif

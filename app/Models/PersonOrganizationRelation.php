@@ -21,6 +21,7 @@ class PersonOrganizationRelation extends Model
         'organization_id',
         'qualification_id',
         'department_id',
+        'job_title',
         'start_date',
         'end_date',
         'is_primary',

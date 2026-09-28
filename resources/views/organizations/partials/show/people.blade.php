@@ -1,5 +1,5 @@
 <div class="card border-0 shadow-sm">
-    
+
     @php
         $editingRelationId = (int) old('relation_id');
         $shouldOpenCreateRelationModal = $errors->any() && ! $editingRelationId;
@@ -55,6 +55,10 @@
                                                 </a>
                                             @else
                                                 <span class="crm-relation-card__name">Persona non disponibile</span>
+                                            @endif
+
+                                            @if($relation->job_title)
+                                                <div class="text-muted small">{{ $relation->job_title }}</div>
                                             @endif
                                         </div>
 
@@ -122,7 +126,7 @@
                         Aggiungi persona
                     </h4>
                     <p class="text-muted small mb-0">
-                        Collega una persona a questa organizzazione con qualifica, dipartimento, periodo e stato.
+                        Collega una persona a questa organizzazione con qualifica, dipartimento, ruolo e stato.
                     </p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
@@ -158,7 +162,7 @@
                             Modifica relazione
                         </h4>
                         <p class="text-muted small mb-0">
-                            Aggiorna qualifica, dipartimento, periodo e stato della relazione.
+                            Aggiorna qualifica, dipartimento, ruolo e stato della relazione.
                         </p>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
