@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\WnPlusAccount;
 use App\Models\WnPlusInvitation;
 use App\Services\ConsentService;
 use Illuminate\Http\Request;
@@ -23,7 +24,11 @@ class WnPlusInvitationController extends Controller
             abort(410, 'Invito scaduto.');
         }
 
-        return view('wn-plus.invitations.accept', compact('invitation'));
+        // Il testo dei consensi dipende dall'informativa del ruolo (12 referente,
+        // 13 membro): la vista lo risolve da config/consent_statements.php.
+        $versionCode = $this->versionCodeFor($invitation->account);
+
+        return view('wn-plus.invitations.accept', compact('invitation', 'versionCode'));
     }
 
     public function complete(Request $request, string $token, ConsentService $consentService)
@@ -43,7 +48,7 @@ class WnPlusInvitationController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'privacy_base' => ['accepted'],
             'image_disclosure' => ['nullable', 'boolean'],
-            'promotional_emails' => ['nullable', 'boolean'],
+            'service_updates' => ['nullable', 'boolean'],
         ]);
 
         
@@ -60,12 +65,7 @@ class WnPlusInvitationController extends Controller
                 'accepted_at' => now(),
             ]);
 
-            // Versione dell'informativa/consenso specifica per ruolo: il referente (manager) e il
-            // membro (user) hanno testi diversi (12_referente_wnplus / 13_membro_wnplus). Senza questo
-            // parametro ConsentService sceglierebbe una versione arbitraria tra le tante ora attive.
-            $versionCode = $account->account_type === 'manager'
-                ? '12_referente_wnplus_2026_v1'
-                : '13_membro_wnplus_2026_v1';
+            $versionCode = $this->versionCodeFor($account);
 
             $consentService->grant(
                 'wn_plus_account',
@@ -79,17 +79,33 @@ class WnPlusInvitationController extends Controller
                 ? $consentService->grant('wn_plus_account', $account->id, 'image_disclosure', 'wn_plus_onboarding', $versionCode)
                 : $consentService->deny('wn_plus_account', $account->id, 'image_disclosure', 'wn_plus_onboarding', $versionCode);
 
-            // "Aggiornamenti facoltativi" per referente/membro WN+: mappato su promotional_emails
-            // con le varianti 12_referente_wnplus/13_membro_wnplus (stesso PDF già usato per
-            // privacy_notice/image_disclosure di quel ruolo, che copre anche questo consenso).
-            ($validated['promotional_emails'] ?? false)
-                ? $consentService->grant('wn_plus_account', $account->id, 'promotional_emails', 'wn_plus_onboarding', $versionCode)
-                : $consentService->deny('wn_plus_account', $account->id, 'promotional_emails', 'wn_plus_onboarding', $versionCode);
+            // "Aggiornamenti facoltativi sul servizio": dal 29/9/2026 ha il suo tipo
+            // service_updates (prima era mappato su promotional_emails). La newsletter
+            // promozionale non si raccoglie qui: per WN+ passa dal flusso di iscrizione
+            // dedicato, con la sua informativa (02).
+            ($validated['service_updates'] ?? false)
+                ? $consentService->grant('wn_plus_account', $account->id, 'service_updates', 'wn_plus_onboarding', $versionCode)
+                : $consentService->deny('wn_plus_account', $account->id, 'service_updates', 'wn_plus_onboarding', $versionCode);
+
+            // Le scelte di visibilità e le survey non compaiono nell'attivazione: si
+            // gestiscono nell'area riservata, come previsto dalla matrice consensi.
         });
 
         return redirect()
             ->away('https://plus.welfarenest.it/')
             ->with('success', 'Account WN+ attivato correttamente. Ora puoi accedere.');
+    }
+
+    /**
+     * Referente (manager) e membro (user) hanno informative distinte, quindi versioni di
+     * consenso distinte. Senza questo parametro ConsentService sceglierebbe una versione
+     * arbitraria tra le tante attive per lo stesso tipo.
+     */
+    private function versionCodeFor(WnPlusAccount $account): string
+    {
+        return $account->account_type === 'manager'
+            ? '12_referente_wnplus_2026_v1'
+            : '13_membro_wnplus_2026_v1';
     }
 
 

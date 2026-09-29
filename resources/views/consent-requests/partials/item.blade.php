@@ -6,9 +6,11 @@
 @php
     $inputId = 'consent_'.$item->consent_type_id;
     $errorId = 'err_'.$item->consent_type_id;
-    $statement = config('consent_statements.'.$item->consentType->code)
-        ?? $item->consentVersion?->title
-        ?? $item->consentType->name;
+    $statement = \App\Support\ConsentStatement::for (
+        $item->consentType->code,
+        version: $item->consentVersion,
+        type: $item->consentType,
+    );
 @endphp
 
 <div class="option">

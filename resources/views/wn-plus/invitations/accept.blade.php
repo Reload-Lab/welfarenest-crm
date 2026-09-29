@@ -132,10 +132,7 @@
                             required
                         >
                         <label class="form-check-label" for="privacy_base">
-                            <strong>Dichiaro di aver letto l’informativa privacy.</strong><br>
-                            <span class="text-muted">
-                                Ho letto e compreso l’informativa sul trattamento dei dati personali.
-                            </span>
+                            <strong>{{ \App\Support\ConsentStatement::for ('privacy_notice', $versionCode) }}</strong>
                         </label>
 
                         @error('privacy_base')
@@ -163,10 +160,7 @@
                             id="image_disclosure"
                         >
                         <label class="form-check-label" for="image_disclosure">
-                            <strong>Acconsento alla pubblicazione di immagini e contenuti multimediali.</strong><br>
-                            <span class="text-muted">
-                                Autorizzo la pubblicazione di immagini e contenuti che mi ritraggono su materiali e canali istituzionali.
-                            </span>
+                            {{ \App\Support\ConsentStatement::for ('image_disclosure', $versionCode) }}
                         </label>
                     </div>
                 </div>
@@ -185,14 +179,14 @@
                         <input
                             class="form-check-input"
                             type="checkbox"
-                            name="promotional_emails"
+                            name="service_updates"
                             value="1"
-                            id="promotional_emails"
+                            id="service_updates"
                         >
-                        <label class="form-check-label" for="promotional_emails">
-                            <strong>Acconsento a ricevere comunicazioni informative e promozionali.</strong><br>
+                        <label class="form-check-label" for="service_updates">
+                            {{ \App\Support\ConsentStatement::for ('service_updates', $versionCode) }}<br>
                             <span class="text-muted">
-                                Autorizzo l’invio di comunicazioni su iniziative, eventi, novità e offerte di Welfare Nest Plus.
+                                Le preferenze di visibilità e le survey si gestiscono nell’area riservata dopo il primo accesso.
                             </span>
                         </label>
                     </div>
