@@ -28,6 +28,20 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    | Endpoint consumati dal sito plus.welfarenest.it. Il token vuoto non apre
+    | l'accesso: il middleware chiude con 503 (vedi VerifyWnPlusApiToken).
+    | WN_PLUS_API_ALLOWED_IPS e' un elenco separato da virgole, vuoto = nessun
+    | filtro per IP.
+    */
+    'wn_plus_api' => [
+        'token' => env('WN_PLUS_API_TOKEN'),
+        'allowed_ips' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('WN_PLUS_API_ALLOWED_IPS', ''))
+        ))),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

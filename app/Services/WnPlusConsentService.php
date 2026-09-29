@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Consent;
 use App\Models\ConsentType;
 use App\Models\WnPlusAccount;
 
@@ -94,6 +95,74 @@ class WnPlusConsentService
             $source,
             $this->versionCodeFor($account)
         );
+    }
+
+    /**
+     * Stato corrente dei consensi per un insieme di account, in una sola query.
+     *
+     * Serve agli endpoint API: risolvere consenso per consenso con
+     * ConsentService::latest() significherebbe una query per ogni tipo per ogni
+     * account, cioe' otto per riga.
+     *
+     * L'ordinamento usa created_at E id: i consensi sono eventi e vengono scritti
+     * in blocco nella stessa richiesta, quindi piu' righe possono condividere il
+     * secondo. Senza l'id come discriminante, "l'ultimo" sarebbe arbitrario.
+     *
+     * @param  array<int, int>  $accountIds
+     * @return array<int, array<string, array{status: string, version_code: ?string, at: ?string}>>
+     */
+    public function latestForAccounts(array $accountIds): array
+    {
+        if (empty($accountIds)) {
+            return [];
+        }
+
+        $rows = Consent::query()
+            ->with(['consentType:id,code', 'consentVersion:id,version_code'])
+            ->where('owner_type', 'wn_plus_account')
+            ->whereIn('owner_id', $accountIds)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
+
+        $latest = [];
+
+        foreach ($rows as $row) {
+            $code = $row->consentType?->code;
+
+            if ($code === null || isset($latest[$row->owner_id][$code])) {
+                continue;
+            }
+
+            $latest[$row->owner_id][$code] = [
+                'status' => $row->status,
+                'version_code' => $row->consentVersion?->version_code,
+                'at' => $row->granted_at?->toAtomString()
+                    ?? $row->denied_at?->toAtomString()
+                    ?? $row->created_at?->toAtomString(),
+            ];
+        }
+
+        return $latest;
+    }
+
+    /**
+     * Un consenso di visibilita' vale solo se e' concesso e, per email e telefono,
+     * solo se lo e' anche il profilo base. Il vincolo e' gia' applicato in
+     * scrittura: qui lo riapplichiamo in lettura, perche' dati raccolti prima di
+     * questa regola o modificati a mano non devono poter pubblicare nulla.
+     *
+     * @param  array<string, array{status: string, version_code: ?string, at: ?string}>  $consents
+     */
+    public function isVisible(array $consents, string $code): bool
+    {
+        $granted = fn (string $c) => ($consents[$c]['status'] ?? null) === 'granted';
+
+        if (! $granted(ConsentType::PROFILE_VISIBILITY_BASIC)) {
+            return false;
+        }
+
+        return $granted($code);
     }
 
     /**

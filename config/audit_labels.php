@@ -170,6 +170,7 @@ return [
         'wn_plus' => 'Portale WN+',
         'public_consent' => 'Link pubblico consensi',
         'system' => 'Sistema',
+        'api' => 'API sito WN+',
     ],
 
     'activities' => [
@@ -179,6 +180,7 @@ return [
         'consent_denied' => 'Consenso negato',
         'consent_revoked' => 'Consenso revocato',
         'wn_plus_invitation_sent' => 'Invito WN+ inviato',
+        'wn_plus_api_accessed' => 'Dati WN+ letti dal sito',
         'organization_import_run' => 'Importazione organizzazioni eseguita',
         'organization_import_rolled_back' => 'Importazione organizzazioni annullata',
     ],

@@ -17,6 +17,7 @@ class ActivityLogger
     public const CONSENT_DENIED = 'consent_denied';
     public const CONSENT_REVOKED = 'consent_revoked';
     public const WN_PLUS_INVITATION_SENT = 'wn_plus_invitation_sent';
+    public const WN_PLUS_API_ACCESSED = 'wn_plus_api_accessed';
     public const ORGANIZATION_IMPORT_RUN = 'organization_import_run';
     public const ORGANIZATION_IMPORT_ROLLED_BACK = 'organization_import_rolled_back';
 
