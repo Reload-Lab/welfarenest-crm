@@ -66,16 +66,27 @@ class Person extends Model
     }
 
     /**
-     * Email di riferimento per l'invio della richiesta di consenso: la email
-     * primaria se impostata, altrimenti la prima email disponibile (per id).
-     * Su questo indirizzo, e solo su questo, viene inviata la richiesta di
-     * consenso/informativa alla persona — semplificazione richiesta dalla DPO
-     * per evitare più richieste parallele sulla stessa persona.
+     * Email di riferimento per l'invio della richiesta di consenso. Su questo
+     * indirizzo, e solo su questo, viene inviata la richiesta di consenso alla
+     * persona — semplificazione richiesta dalla DPO per evitare più richieste
+     * parallele sulla stessa persona.
+     *
+     * L'ordine di scelta, dal più esplicito al più debole:
+     *   1. email con Uso = "Principale" (contact_usages.code = 'main'), che dal
+     *      22/09/2026 è il modo con cui si indica il recapito di riferimento;
+     *   2. email con il vecchio flag is_primary, tenuto come ripiego per i dati
+     *      inseriti prima di quella scelta (il flag non è più esposto nel form);
+     *   3. la prima email disponibile per id.
      */
     public function primaryOrFirstEmailContactPoint(): ?ContactPoint
     {
+        $mainUsageId = ContactUsage::query()
+            ->where('code', ContactUsage::MAIN)
+            ->value('id');
+
         return $this->contactPoints()
             ->whereHas('contactType', fn ($query) => $query->where('category', 'email'))
+            ->orderByRaw('CASE WHEN contact_usage_id = ? THEN 0 ELSE 1 END', [$mainUsageId ?? 0])
             ->orderByDesc('is_primary')
             ->orderBy('id')
             ->first();
