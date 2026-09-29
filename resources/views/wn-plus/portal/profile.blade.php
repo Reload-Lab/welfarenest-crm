@@ -123,8 +123,8 @@
 
             <h3 class="h6 text-uppercase text-muted mb-3">Visibilità nella community</h3>
 
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox"
+            <div class="form-check form-switch wn-consent-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch"
                        name="{{ $basicCode }}" value="1"
                        id="{{ $basicCode }}"
                        data-wn-visibility-master
@@ -141,8 +141,8 @@
                         $dependsOnBasic = $code !== $photoCode;
                     @endphp
 
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox"
+                    <div class="form-check form-switch wn-consent-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch"
                                name="{{ $code }}" value="1" id="{{ $code }}"
                                @if ($dependsOnBasic) data-wn-visibility-dependent @endif
                                {{ $isGranted($code) ? 'checked' : '' }}
@@ -157,8 +157,8 @@
             <h3 class="h6 text-uppercase text-muted mb-3">Altre scelte</h3>
 
             @foreach ($otherConsents as $code)
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox"
+                <div class="form-check form-switch wn-consent-switch mb-3">
+                    <input class="form-check-input" type="checkbox" role="switch"
                            name="{{ $code }}" value="1" id="{{ $code }}"
                            {{ $isGranted($code) ? 'checked' : '' }}>
                     <label class="form-check-label" for="{{ $code }}">

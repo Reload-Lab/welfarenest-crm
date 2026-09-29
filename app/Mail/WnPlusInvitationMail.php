@@ -26,8 +26,11 @@ class WnPlusInvitationMail extends Mailable
 
     public function content(): Content
     {
+        // HTML completo e non più markdown: il template Markdown di Laravel non
+        // permette l'impaginazione a tabelle e i fallback Outlook necessari
+        // all'identità Welfare Nest, gia' adottati per l'email dei consent request.
         return new Content(
-            markdown: 'emails.wn-plus.invitation',
+            view: 'emails.wn-plus.invitation',
             with: [
                 'invitation' => $this->invitation,
                 'activationUrl' => route('wn-plus.invitations.accept', $this->invitation->token),

@@ -89,6 +89,78 @@
     background: linear-gradient(135deg, rgba(15, 130, 120, 0.06), #fff);
 }
 
+/*
+ * Controlli dei consensi.
+ *
+ * Le scelte facoltative sono interruttori, perché l'informativa le formula come
+ * "ACCONSENTO / NON ACCONSENTO": un binario, non una spunta. La presa visione
+ * resta una casella, perché è una conferma obbligatoria ("HO PRESO VISIONE") e
+ * la differenza di forma aiuta a distinguerla a colpo d'occhio.
+ *
+ * Entrambi sono ingranditi rispetto al default Bootstrap, che su etichette
+ * lunghe e su più righe risulta piccolo e visivamente disallineato.
+ */
+
+.wn-consent-check {
+    padding-left: 2.25rem;
+    min-height: 1.5rem;
+}
+
+.wn-consent-check .form-check-input {
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-left: -2.25rem;
+    margin-top: 0.05rem;
+    border-color: #94a3b8;
+    border-width: 2px;
+    cursor: pointer;
+}
+
+.wn-consent-switch {
+    padding-left: 3.75rem;
+    min-height: 1.75rem;
+}
+
+.wn-consent-switch .form-check-input {
+    width: 2.9rem;
+    height: 1.6rem;
+    margin-left: -3.75rem;
+    margin-top: 0;
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+    cursor: pointer;
+}
+
+.wn-consent-check .form-check-input:checked,
+.wn-consent-switch .form-check-input:checked {
+    background-color: var(--crm-primary);
+    border-color: var(--crm-primary);
+}
+
+.wn-consent-check .form-check-input:focus,
+.wn-consent-switch .form-check-input:focus {
+    border-color: var(--crm-primary);
+    box-shadow: 0 0 0 0.2rem rgba(15, 130, 120, 0.15);
+}
+
+.wn-consent-check .form-check-label,
+.wn-consent-switch .form-check-label {
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+/* Le visibilità di email e telefono restano disabilitate finché il profilo base
+   non è visibile: deve vedersi che sono spente per una ragione, non rotte. */
+.wn-consent-switch .form-check-input:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.wn-consent-switch .form-check-input:disabled ~ .form-check-label {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 .wn-auth-submit {
     min-height: 3.75rem;
     border-radius: 0.85rem;

@@ -137,7 +137,7 @@
                         </svg>
                     </span>
 
-                    <div class="form-check pt-1">
+                    <div class="form-check wn-consent-check pt-1">
                         <input
                             class="form-check-input @error('privacy_base') is-invalid @enderror"
                             type="checkbox"
@@ -169,8 +169,8 @@
                     <div class="pt-1 w-100">
                         <p class="fw-semibold mb-2">Visibilità nella community</p>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox"
+                        <div class="form-check form-switch wn-consent-switch">
+                            <input class="form-check-input" type="checkbox" role="switch"
                                    name="{{ $basicCode }}" value="1" id="{{ $basicCode }}"
                                    data-wn-visibility-master
                                    @checked(old($basicCode))>
@@ -183,8 +183,8 @@
                             @foreach ([$emailCode, $phoneCode, $photoCode] as $code)
                                 @php $dependsOnBasic = $code !== $photoCode; @endphp
 
-                                <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox"
+                                <div class="form-check form-switch wn-consent-switch mt-3">
+                                    <input class="form-check-input" type="checkbox" role="switch"
                                            name="{{ $code }}" value="1" id="{{ $code }}"
                                            @if ($dependsOnBasic) data-wn-visibility-dependent @endif
                                            @checked(old($code))
@@ -208,10 +208,11 @@
                         </svg>
                     </span>
 
-                    <div class="form-check pt-1">
+                    <div class="form-check form-switch wn-consent-switch pt-1">
                         <input
                             class="form-check-input"
                             type="checkbox"
+                            role="switch"
                             name="service_updates"
                             value="1"
                             id="service_updates"
@@ -236,10 +237,11 @@
                         </svg>
                     </span>
 
-                    <div class="form-check pt-1">
+                    <div class="form-check form-switch wn-consent-switch pt-1">
                         <input
                             class="form-check-input"
                             type="checkbox"
+                            role="switch"
                             name="image_disclosure"
                             value="1"
                             id="image_disclosure"
@@ -260,10 +262,11 @@
                         </svg>
                     </span>
 
-                    <div class="form-check pt-1">
+                    <div class="form-check form-switch wn-consent-switch pt-1">
                         <input
                             class="form-check-input"
                             type="checkbox"
+                            role="switch"
                             name="identifiable_surveys"
                             value="1"
                             id="identifiable_surveys"
