@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\WnPlusAccount;
+use App\Models\ConsentVersion;
 use App\Models\WnPlusInvitation;
-use App\Services\ConsentService;
+use App\Services\WnPlusConsentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 class WnPlusInvitationController extends Controller
 {
-    public function accept(string $token)
+    public function accept(string $token, WnPlusConsentService $wnPlusConsents)
     {
         $invitation = WnPlusInvitation::query()
             ->with('account.organization')
@@ -24,15 +24,21 @@ class WnPlusInvitationController extends Controller
             abort(410, 'Invito scaduto.');
         }
 
-        // Il testo dei consensi dipende dall'informativa del ruolo (12 referente,
-        // 13 membro): la vista lo risolve da config/consent_statements.php.
-        $versionCode = $this->versionCodeFor($invitation->account);
+        // Tutte le scelte dell'informativa si raccolgono qui, nel momento in cui la
+        // persona la sta leggendo. Restano modificabili dall'area riservata.
+        $versionCode = $wnPlusConsents->versionCodeFor($invitation->account);
 
-        return view('wn-plus.invitations.accept', compact('invitation', 'versionCode'));
+        $consentVersions = ConsentVersion::query()
+            ->with('consentType')
+            ->where('version_code', $versionCode)
+            ->where('is_active', true)
+            ->get()
+            ->keyBy(fn (ConsentVersion $version) => $version->consentType->code);
+
+        return view('wn-plus.invitations.accept', compact('invitation', 'versionCode', 'consentVersions'));
     }
 
-    public function complete(Request $request, string $token, ConsentService $consentService)
-    
+    public function complete(Request $request, string $token, WnPlusConsentService $wnPlusConsents)
     {
         $invitation = WnPlusInvitation::query()
             ->with('account')
@@ -47,12 +53,10 @@ class WnPlusInvitationController extends Controller
         $validated = $request->validate([
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'privacy_base' => ['accepted'],
-            'image_disclosure' => ['nullable', 'boolean'],
-            'service_updates' => ['nullable', 'boolean'],
-        ]);
+        ] + $wnPlusConsents->validationRules());
 
-        
-        DB::transaction(function () use ($invitation, $validated, $consentService) {
+
+        DB::transaction(function () use ($invitation, $validated, $wnPlusConsents) {
             $account = $invitation->account;
 
             $account->update([
@@ -65,50 +69,15 @@ class WnPlusInvitationController extends Controller
                 'accepted_at' => now(),
             ]);
 
-            $versionCode = $this->versionCodeFor($account);
+            $wnPlusConsents->recordPrivacyNotice($account, 'wn_plus_onboarding');
 
-            $consentService->grant(
-                'wn_plus_account',
-                $account->id,
-                'privacy_notice',
-                'wn_plus_onboarding',
-                $versionCode
-            );
-
-            ($validated['image_disclosure'] ?? false)
-                ? $consentService->grant('wn_plus_account', $account->id, 'image_disclosure', 'wn_plus_onboarding', $versionCode)
-                : $consentService->deny('wn_plus_account', $account->id, 'image_disclosure', 'wn_plus_onboarding', $versionCode);
-
-            // "Aggiornamenti facoltativi sul servizio": dal 29/9/2026 ha il suo tipo
-            // service_updates (prima era mappato su promotional_emails). La newsletter
-            // promozionale non si raccoglie qui: per WN+ passa dal flusso di iscrizione
-            // dedicato, con la sua informativa (02).
-            ($validated['service_updates'] ?? false)
-                ? $consentService->grant('wn_plus_account', $account->id, 'service_updates', 'wn_plus_onboarding', $versionCode)
-                : $consentService->deny('wn_plus_account', $account->id, 'service_updates', 'wn_plus_onboarding', $versionCode);
-
-            // Le scelte di visibilità e le survey non compaiono nell'attivazione: si
-            // gestiscono nell'area riservata, come previsto dalla matrice consensi.
+            // Le sette scelte facoltative, comprese quelle non spuntate: l'account
+            // nasce con il quadro consensi completo invece che a metà.
+            $wnPlusConsents->recordSelfManaged($account, $validated, 'wn_plus_onboarding');
         });
 
         return redirect()
             ->away('https://plus.welfarenest.it/')
             ->with('success', 'Account WN+ attivato correttamente. Ora puoi accedere.');
     }
-
-    /**
-     * Referente (manager) e membro (user) hanno informative distinte, quindi versioni di
-     * consenso distinte. Senza questo parametro ConsentService sceglierebbe una versione
-     * arbitraria tra le tante attive per lo stesso tipo.
-     */
-    private function versionCodeFor(WnPlusAccount $account): string
-    {
-        return $account->account_type === 'manager'
-            ? '12_referente_wnplus_2026_v1'
-            : '13_membro_wnplus_2026_v1';
-    }
-
-
-
-
 }
