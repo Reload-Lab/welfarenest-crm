@@ -42,6 +42,15 @@ return [
         ))),
     ],
 
+    /*
+    | Sito plus.welfarenest.it. after_activation_url e' dove atterra chi ha appena
+    | attivato l'account: lasciarlo vuoto lo porta all'area riservata sul CRM.
+    | Va valorizzato con l'indirizzo del sito che avvia il login OIDC, quando esiste.
+    */
+    'wn_plus_site' => [
+        'after_activation_url' => env('WN_PLUS_AFTER_ACTIVATION_URL'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

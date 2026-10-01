@@ -9,12 +9,10 @@ use App\Models\Person;
 use App\Models\PersonOrganizationRelation;
 use App\Models\WnPlusLevel;
 use App\Models\WnPlusRole;
-use App\Models\WnPlusInvitation;
-use App\Mail\WnPlusInvitationMail;
 use App\Models\Consent;
+use App\Services\WnPlusInvitationService;
 use App\Models\ConsentRequest;
 
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 
@@ -231,7 +229,7 @@ class WnPlusAccountController extends Controller
         return view('wn-plus.accounts.users.create', compact('account'));
     }
 
-    public function storeUser(Request $request, WnPlusAccount $account)
+    public function storeUser(Request $request, WnPlusAccount $account, WnPlusInvitationService $invitations)
     {
         $account->load(['level']);
 
@@ -245,22 +243,8 @@ class WnPlusAccountController extends Controller
             'email' => ['required', 'email', 'unique:wn_plus_accounts,email'],
         ]);
 
-        $userRole = WnPlusRole::where('code', 'user')->firstOrFail();
-
-        WnPlusAccount::create([
-            'uuid' => (string) Str::uuid(),
-            'organization_id' => $account->organization_id,
-            'person_id' => null,
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-            'email' => $validated['email'],
-            'wn_plus_role_id' => $userRole->id,
-            'wn_plus_level_id' => $account->wn_plus_level_id,
-            'status' => 'invited',
-            'account_type' => 'user',
-            'invited_by_account_id' => $account->id,
-            'created_by_user_id' => auth()->id(),
-        ]);
+        // Stesse regole usate dal referente quando invita dalla propria area riservata.
+        $invitations->createMember($account, $validated, auth()->id());
 
         return redirect()
             ->route('wn-plus.accounts.show', $account)
@@ -268,27 +252,13 @@ class WnPlusAccountController extends Controller
     }
 
 
-    public function sendInvitation(WnPlusAccount $account)
+    public function sendInvitation(WnPlusAccount $account, WnPlusInvitationService $invitations)
     {
         if ($account->status === 'active') {
             return back()->with('error', 'Questo account è già attivo.');
         }
 
-        $account->invitations()
-            ->whereNull('accepted_at')
-            ->where('expires_at', '>', now())
-            ->update([
-                'expires_at' => now(),
-            ]);
-
-        $invitation = WnPlusInvitation::create([
-            'wn_plus_account_id' => $account->id,
-            'token' => Str::random(64),
-            'expires_at' => now()->addDays(7),
-            'sent_at' => now(),
-        ]);
-
-        Mail::to($account->email)->send(new WnPlusInvitationMail($invitation));
+        $invitations->send($account, 'crm');
 
         return back()->with('success', 'Invito inviato correttamente a ' . $account->email . '.');
     }

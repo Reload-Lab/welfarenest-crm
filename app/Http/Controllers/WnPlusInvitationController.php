@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccessLog;
 use App\Models\ConsentVersion;
 use App\Models\WnPlusInvitation;
 use App\Services\WnPlusConsentService;
+use App\Support\AccessLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -24,8 +26,8 @@ class WnPlusInvitationController extends Controller
             abort(410, 'Invito scaduto.');
         }
 
-        // Tutte le scelte dell'informativa si raccolgono qui, nel momento in cui la
-        // persona la sta leggendo. Restano modificabili dall'area riservata.
+        // Il testo dei consensi dipende dall'informativa del ruolo (12 referente,
+        // 13 membro): la vista lo risolve da config/consent_statements.php.
         $versionCode = $wnPlusConsents->versionCodeFor($invitation->account);
 
         $consentVersions = ConsentVersion::query()
@@ -56,13 +58,14 @@ class WnPlusInvitationController extends Controller
         ] + $wnPlusConsents->validationRules());
 
 
-        DB::transaction(function () use ($invitation, $validated, $wnPlusConsents) {
+        $account = DB::transaction(function () use ($invitation, $validated, $wnPlusConsents) {
             $account = $invitation->account;
 
             $account->update([
                 'password' => Hash::make($validated['password']),
                 'status' => 'active',
                 'email_verified_at' => now(),
+                'last_login_at' => now(),
             ]);
 
             $invitation->update([
@@ -74,10 +77,45 @@ class WnPlusInvitationController extends Controller
             // Le sette scelte facoltative, comprese quelle non spuntate: l'account
             // nasce con il quadro consensi completo invece che a metà.
             $wnPlusConsents->recordSelfManaged($account, $validated, 'wn_plus_onboarding');
+
+            return $account;
         });
 
+        // Chi ha appena scelto la password è autenticato: farlo ripartire da un form
+        // di login, subito dopo averla impostata, è un passaggio a vuoto. La sessione
+        // è la stessa che usa il provider OIDC, quindi anche l'ingresso nel sito WN+
+        // avviene senza chiedere di nuovo le credenziali.
+        $request->session()->regenerate();
+
+        $request->session()->put('wn_plus_account_id', $account->id);
+
+        AccessLogger::record(AccessLog::EVENT_WN_PLUS_LOGIN, null, [
+            'wn_plus_account_id' => $account->id,
+            'email' => $account->email,
+            'source' => 'wn_plus_onboarding',
+        ]);
+
         return redirect()
-            ->away('https://plus.welfarenest.it/')
-            ->with('success', 'Account WN+ attivato correttamente. Ora puoi accedere.');
+            ->to($this->afterActivationUrl())
+            ->with('success', 'Account attivato. Benvenuto in Welfare Nest Plus.');
+    }
+
+    /**
+     * Dove atterra chi ha appena attivato l'account.
+     *
+     * Finché il sito WN+ non espone un indirizzo che avvia il login OIDC, la
+     * destinazione sensata è l'area riservata sul CRM: mandarlo sulla home del sito
+     * lo lascerebbe anonimo, perché WordPress non avvia la procedura da solo.
+     * Quando quell'indirizzo esisterà basta valorizzare WN_PLUS_AFTER_ACTIVATION_URL
+     * e l'ingresso diventa diretto, senza credenziali, grazie alla sessione appena
+     * creata qui.
+     */
+    private function afterActivationUrl(): string
+    {
+        $configured = trim((string) config('services.wn_plus_site.after_activation_url'));
+
+        return $configured !== ''
+            ? $configured
+            : route('wn-plus.portal.dashboard');
     }
 }
