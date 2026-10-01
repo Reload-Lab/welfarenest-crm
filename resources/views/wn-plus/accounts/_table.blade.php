@@ -1,451 +1,250 @@
 @php
-    use App\Models\ConsentType;
+    $allGroups = collect($groups);
 
-    // Con una ricerca attiva, i gruppi rilevanti partono già aperti: altrimenti
-    // chi cerca un utente dovrebbe comunque cliccare la freccina per vederlo.
+    if ($unassignedGroup) {
+        $allGroups = $allGroups->push($unassignedGroup);
+    }
+
+    // Con una ricerca attiva i gruppi partono già aperti fino in fondo: altrimenti
+    // chi cerca una persona dovrebbe comunque cliccare le freccine per vederla.
     $forceExpanded = ($search ?? '') !== '';
+
+    // Tutti gli account a video, in ordine: servono per generare le modali dei consensi.
+    $modalAccounts = collect();
+
+    foreach ($allGroups as $group) {
+        foreach ($group['managers'] as $managerRow) {
+            $modalAccounts->push($managerRow['manager']);
+
+            foreach ($managerRow['users'] as $user) {
+                $modalAccounts->push($user);
+            }
+        }
+
+        foreach ($group['looseUsers'] as $user) {
+            $modalAccounts->push($user);
+        }
+    }
 @endphp
 
-<div class="card border-0 shadow-sm">
+<div class="crm-table-card">
 
-    <div class="card-header bg-white border-0 d-flex justify-content-end">
+    <div class="crm-table-card__header d-flex justify-content-between align-items-center gap-3">
+        <div>
+            <h2 class="crm-table-card__title">Account per organizzazione</h2>
+            <p class="crm-table-card__subtitle mb-0">
+                Ogni organizzazione raccoglie i propri referenti; gli utenti invitati
+                stanno sotto al referente che li ha creati.
+            </p>
+        </div>
+
         <button type="button"
                 id="wnplusToggleAll"
-                class="btn btn-sm btn-outline-secondary"
+                class="btn btn-outline-secondary btn-inline"
                 data-state="{{ $forceExpanded ? 'expanded' : 'collapsed' }}">
             {{ $forceExpanded ? 'Comprimi tutti' : 'Espandi tutti' }}
         </button>
     </div>
 
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table crm-table align-middle mb-0">
-                <thead>
+    <div class="crm-table-responsive">
+        <table class="table crm-table align-middle mb-0">
+            <thead>
+                <tr>
+                    {{-- La tabella è annidata, quindi gli ordinamenti sono due:
+                         "Organizzazione" ordina i gruppi, "Utente" ordina le persone
+                         dentro ciascun gruppo. --}}
+                    <th class="crm-cell-start">
+                        <span class="crm-wnplus-sort-pair">
+                            @include('components.crm.sortable-th', [
+                                'label' => 'Organizzazione',
+                                'field' => 'organization',
+                                'defaultSort' => 'organization',
+                            ])
+
+                            <span class="crm-wnplus-sort-sep" aria-hidden="true">/</span>
+
+                            @include('components.crm.sortable-th', [
+                                'label' => 'Utente',
+                                'field' => 'name',
+                                'defaultSort' => 'organization',
+                            ])
+                        </span>
+                    </th>
+
+                    <th>Ruolo</th>
+                    <th class="text-center">Consensi</th>
+                    <th class="text-center">Stato</th>
+                    <th>Ultimo accesso</th>
+                    <th class="text-end crm-cell-end">Azioni</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach($groups as $group)
+                    @include('wn-plus.accounts.partials.group', ['group' => $group])
+                @endforeach
+
+                @if($unassignedGroup)
+                    @include('wn-plus.accounts.partials.group', ['group' => $unassignedGroup])
+                @endif
+
+                @if($allGroups->isEmpty())
                     <tr>
-                        <th>Utente</th>
-                        <th>Organizzazione</th>
-                        <th>Ruolo</th>
-                        <th>Consensi</th>
-                        <th>Stato</th>
-                        <th>Ultimo accesso</th>
-                        <th class="text-end">Azioni</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @forelse($managers as $manager)
-                        @php
-                            $managedUsers = $manager->invitedAccounts;
-                            $groupId = 'mgr-' . $manager->id;
-                            $groupExpanded = $forceExpanded && $managedUsers->isNotEmpty();
-                        @endphp
-
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-start gap-2">
-                                    @if($managedUsers->isNotEmpty())
-                                        <button type="button"
-                                                class="btn btn-icon crm-wnplus-toggle"
-                                                data-wnplus-toggle="{{ $groupId }}"
-                                                aria-expanded="{{ $groupExpanded ? 'true' : 'false' }}"
-                                                title="Mostra/nascondi utenti"
-                                                aria-label="Mostra/nascondi utenti">
-                                            <x-icon group="actions" name="chevron-right" class="crm-wnplus-toggle-icon" />
-                                        </button>
-                                    @else
-                                        <span class="crm-wnplus-toggle-spacer" aria-hidden="true"></span>
-                                    @endif
-
-                                    <x-crm.avatar :name="$manager->full_name" type="person" size="sm" />
-
-                                    <div>
-                                        <div class="fw-semibold">
-                                            {{ $manager->full_name }}
-
-                                            @if($managedUsers->isNotEmpty())
-                                                <span class="text-muted small fw-normal">
-                                                    ({{ $managedUsers->count() }} {{ $managedUsers->count() === 1 ? 'utente' : 'utenti' }})
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <div class="text-muted small">
-                                            {{ $manager->email }}
-                                        </div>
-                                    </div>
+                        <td colspan="6" class="p-0">
+                            <div class="crm-empty-state">
+                                <div class="crm-empty-state__icon">
+                                    <x-icon group="actions" name="search" />
                                 </div>
-                            </td>
+                                <h3 class="crm-empty-state__title">Nessun utente WN+ trovato</h3>
+                                <p class="crm-empty-state__text">
+                                    Non ci sono account da mostrare con i filtri correnti.
+                                </p>
 
-                            <td>
-                                @if($manager->organization)
-                                    <a href="{{ route('organizations.show', $manager->organization) }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                                        <x-crm.avatar :name="$manager->organization->name ?? $manager->organization->legal_name" type="organization" size="sm" />
-                                        <span>{{ $manager->organization->name ?? $manager->organization->legal_name }}</span>
-                                    </a>
-                                @else
-                                    —
-                                @endif
-                            </td>
-
-                            <td>
-                                <x-crm.tag label="Referente" variant="primary" />
-                            </td>
-
-                            <td>
-                                <button
-                                    type="button"
-                                    class="crm-status-badge crm-status-badge--{{ $manager->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} border-0"
-                                    title="{{ $manager->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-                                    aria-label="{{ $manager->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#wnplusConsentsModal{{ $manager->id }}">
-                                    <x-icon group="entities" name="consent" />
-                                </button>
-                            </td>
-
-                            <td>
-                                <x-crm.status
-                                    :label="$manager->statusLabel()"
-                                    :variant="$manager->statusBadgeVariant()"
-                                    icon-group="status"
-                                    :icon-name="$manager->statusIcon()"
-                                    mode="icon"
-                                />
-                            </td>
-
-                            <td>
-                                {{ $manager->last_login_at?->format('d/m/Y H:i') ?? '—' }}
-                            </td>
-
-                            <td class="text-end">
-
-                                @include('components.crm.row-actions', [
-                                    'view' => route('wn-plus.accounts.show', $manager),
-                                    'edit' => route('wn-plus.accounts.edit', $manager),
-                                    'delete' => route('wn-plus.accounts.destroy', $manager),
-                                    'deleteConfirm' => 'Confermi l\'eliminazione di questo account WN+?',
-
-                                    'actions' => [
-                                        [
-                                            'label' => 'Genera invito',
-                                            'route' => route('wn-plus.accounts.invite', $manager),
-                                            'method' => 'POST',
-                                            'icon' => 'send',
-                                            'show' => $manager->status !== 'active',
-                                        ],
-                                        [
-                                            'route' => route('wn-plus.accounts.suspend', $manager),
-                                            'label' => 'Sospendi account',
-                                            'icon' => 'archive',
-                                            'show' => ! in_array($manager->status, ['suspended', 'disabled'], true),
-                                        ],
-                                        [
-                                            'route' => route('wn-plus.accounts.reactivate', $manager),
-                                            'label' => 'Riattiva account',
-                                            'icon' => 'archive-restore',
-                                            'show' => in_array($manager->status, ['suspended', 'disabled'], true),
-                                        ],
-                                        [
-                                            'route' => route('wn-plus.accounts.disable', $manager),
-                                            'label' => 'Disabilita account',
-                                            'icon' => 'close',
-                                            'show' => $manager->status !== 'disabled',
-                                        ],
-                                    ],
-                                ])
-
-                            </td>
-                        </tr>
-
-                        @foreach($managedUsers as $user)
-                            <tr class="crm-table__row--wnplus-user {{ $groupExpanded ? '' : 'd-none' }}" data-wnplus-group="{{ $groupId }}">
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <x-crm.avatar :name="$user->full_name" type="person" size="sm" />
-
-                                        <div>
-                                            <div class="fw-semibold">
-                                                {{ $user->full_name }}
-                                            </div>
-                                            <div class="text-muted small">
-                                                {{ $user->email }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    @if($user->organization)
-                                        <a href="{{ route('organizations.show', $user->organization) }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                                            <x-crm.avatar :name="$user->organization->name ?? $user->organization->legal_name" type="organization" size="sm" />
-                                            <span>{{ $user->organization->name ?? $user->organization->legal_name }}</span>
-                                        </a>
-                                    @else
-                                        —
-                                    @endif
-                                </td>
-
-                                <td>
-                                    <x-crm.tag label="Utente" variant="default" />
-                                </td>
-
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="crm-status-badge crm-status-badge--{{ $user->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} border-0"
-                                        title="{{ $user->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-                                        aria-label="{{ $user->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#wnplusConsentsModal{{ $user->id }}">
-                                        <x-icon group="entities" name="consent" />
-                                    </button>
-                                </td>
-
-                                <td>
-                                    <x-crm.status
-                                        :label="$user->statusLabel()"
-                                        :variant="$user->statusBadgeVariant()"
-                                        icon-group="status"
-                                        :icon-name="$user->statusIcon()"
-                                        mode="icon"
-                                    />
-                                </td>
-
-                                <td>
-                                    {{ $user->last_login_at?->format('d/m/Y H:i') ?? '—' }}
-                                </td>
-
-                                <td class="text-end">
-
-                                    @include('components.crm.row-actions', [
-                                        'view' => route('wn-plus.accounts.show', $user),
-                                        'edit' => route('wn-plus.accounts.edit', $user),
-                                        'delete' => route('wn-plus.accounts.destroy', $user),
-                                        'deleteConfirm' => 'Confermi l\'eliminazione di questo account WN+?',
-
-                                        'actions' => [
-                                            [
-                                                'label' => 'Genera invito',
-                                                'route' => route('wn-plus.accounts.invite', $user),
-                                                'method' => 'POST',
-                                                'icon' => 'send',
-                                                'show' => $user->status !== 'active',
-                                            ],
-                                            [
-                                                'route' => route('wn-plus.accounts.suspend', $user),
-                                                'label' => 'Sospendi account',
-                                                'icon' => 'archive',
-                                                'show' => ! in_array($user->status, ['suspended', 'disabled'], true),
-                                            ],
-                                            [
-                                                'route' => route('wn-plus.accounts.reactivate', $user),
-                                                'label' => 'Riattiva account',
-                                                'icon' => 'archive-restore',
-                                                'show' => in_array($user->status, ['suspended', 'disabled'], true),
-                                            ],
-                                            [
-                                                'route' => route('wn-plus.accounts.disable', $user),
-                                                'label' => 'Disabilita account',
-                                                'icon' => 'close',
-                                                'show' => $user->status !== 'disabled',
-                                            ],
-                                        ],
-                                    ])
-
-                                </td>
-                            </tr>
-                        @endforeach
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center text-muted py-5">
-                                Nessun utente WN+ presente.
-                            </td>
-                        </tr>
-                    @endforelse
-
-                    @if($orphanUsers->isNotEmpty())
-                        <tr class="crm-wnplus-group-divider">
-                            <td colspan="7">
-                                Utenti senza referente assegnato
-                            </td>
-                        </tr>
-
-                        @foreach($orphanUsers as $user)
-                            <tr class="crm-table__row--wnplus-user">
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <x-crm.avatar :name="$user->full_name" type="person" size="sm" />
-
-                                        <div>
-                                            <div class="fw-semibold">
-                                                {{ $user->full_name }}
-                                            </div>
-                                            <div class="text-muted small">
-                                                {{ $user->email }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    @if($user->organization)
-                                        <a href="{{ route('organizations.show', $user->organization) }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                                            <x-crm.avatar :name="$user->organization->name ?? $user->organization->legal_name" type="organization" size="sm" />
-                                            <span>{{ $user->organization->name ?? $user->organization->legal_name }}</span>
-                                        </a>
-                                    @else
-                                        —
-                                    @endif
-                                </td>
-
-                                <td>
-                                    <x-crm.tag label="Utente" variant="default" />
-                                </td>
-
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="crm-status-badge crm-status-badge--{{ $user->consentBadgeVariant(ConsentType::PRIVACY_NOTICE) }} border-0"
-                                        title="{{ $user->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-                                        aria-label="{{ $user->consentStatusLabel(ConsentType::PRIVACY_NOTICE) }}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#wnplusConsentsModal{{ $user->id }}">
-                                        <x-icon group="entities" name="consent" />
-                                    </button>
-                                </td>
-
-                                <td>
-                                    <x-crm.status
-                                        :label="$user->statusLabel()"
-                                        :variant="$user->statusBadgeVariant()"
-                                        icon-group="status"
-                                        :icon-name="$user->statusIcon()"
-                                        mode="icon"
-                                    />
-                                </td>
-
-                                <td>
-                                    {{ $user->last_login_at?->format('d/m/Y H:i') ?? '—' }}
-                                </td>
-
-                                <td class="text-end">
-
-                                    @include('components.crm.row-actions', [
-                                        'view' => route('wn-plus.accounts.show', $user),
-                                        'edit' => route('wn-plus.accounts.edit', $user),
-                                        'delete' => route('wn-plus.accounts.destroy', $user),
-                                        'deleteConfirm' => 'Confermi l\'eliminazione di questo account WN+?',
-
-                                        'actions' => [
-                                            [
-                                                'label' => 'Genera invito',
-                                                'route' => route('wn-plus.accounts.invite', $user),
-                                                'method' => 'POST',
-                                                'icon' => 'send',
-                                                'show' => $user->status !== 'active',
-                                            ],
-                                            [
-                                                'route' => route('wn-plus.accounts.suspend', $user),
-                                                'label' => 'Sospendi account',
-                                                'icon' => 'archive',
-                                                'show' => ! in_array($user->status, ['suspended', 'disabled'], true),
-                                            ],
-                                            [
-                                                'route' => route('wn-plus.accounts.reactivate', $user),
-                                                'label' => 'Riattiva account',
-                                                'icon' => 'archive-restore',
-                                                'show' => in_array($user->status, ['suspended', 'disabled'], true),
-                                            ],
-                                            [
-                                                'route' => route('wn-plus.accounts.disable', $user),
-                                                'label' => 'Disabilita account',
-                                                'icon' => 'close',
-                                                'show' => $user->status !== 'disabled',
-                                            ],
-                                        ],
-                                    ])
-
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
+                                <div class="mt-3">
+                                    <x-crm.button
+                                        href="{{ route('wn-plus.accounts.create') }}"
+                                        icon="add"
+                                        variant="primary"
+                                    >
+                                        Crea il primo referente
+                                    </x-crm.button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
     </div>
 
-    {{--
-        Le modali dei consensi vivono qui, fuori dalla tabella: dentro il <tbody>
-        (tra una riga e l'altra) non sono HTML valido e il browser le "espelle"
-        dalla tabella in modo scorretto, facendole comparire come contenuto in
-        chiaro invece che come popup nascosto.
-    --}}
-    @php
-        $wnplusModalAccounts = collect();
+    <div class="card-footer crm-table-footer">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <form method="GET" action="{{ route('wn-plus.accounts.index') }}" class="crm-table-footer__left">
+                <input type="hidden" name="search" value="{{ $search }}">
+                <input type="hidden" name="sort" value="{{ $sort }}">
+                <input type="hidden" name="direction" value="{{ $direction }}">
 
-        foreach ($managers as $manager) {
-            $wnplusModalAccounts->push($manager);
+                <select
+                    name="per_page"
+                    id="per_page_footer"
+                    class="form-select form-select-sm"
+                    onchange="this.form.submit()"
+                >
+                    <option value="10" {{ (int) $perPage === 10 ? 'selected' : '' }}>10 organizzazioni</option>
+                    <option value="20" {{ (int) $perPage === 20 ? 'selected' : '' }}>20 organizzazioni</option>
+                    <option value="50" {{ (int) $perPage === 50 ? 'selected' : '' }}>50 organizzazioni</option>
+                </select>
+            </form>
 
-            foreach ($manager->invitedAccounts as $invitedAccount) {
-                $wnplusModalAccounts->push($invitedAccount);
-            }
-        }
-
-        foreach ($orphanUsers as $orphanUser) {
-            $wnplusModalAccounts->push($orphanUser);
-        }
-    @endphp
-
-    @foreach($wnplusModalAccounts as $modalAccount)
-        @include('people.partials.show.consents-modal', [
-            'modalId' => 'wnplusConsentsModal' . $modalAccount->id,
-            'owner' => $modalAccount,
-        ])
-    @endforeach
-
-    @if($managers->hasPages())
-        <div class="card-footer bg-white border-0">
-            {{ $managers->links() }}
+            <div class="crm-table-footer__right">
+                @if($organizations->hasPages())
+                    <div class="crm-pagination">
+                        {{ $organizations->links() }}
+                    </div>
+                @else
+                    <span class="crm-text-muted small">
+                        {{ $organizations->total() }}
+                        {{ $organizations->total() === 1 ? 'organizzazione trovata' : 'organizzazioni trovate' }}
+                    </span>
+                @endif
+            </div>
         </div>
-    @endif
+    </div>
 </div>
+
+{{--
+    Le modali dei consensi vivono qui, fuori dalla tabella: dentro il <tbody>
+    (tra una riga e l'altra) non sono HTML valido e il browser le "espelle"
+    dalla tabella in modo scorretto, facendole comparire come contenuto in
+    chiaro invece che come popup nascosto.
+--}}
+@foreach($modalAccounts as $modalAccount)
+    @include('people.partials.show.consents-modal', [
+        'modalId' => 'wnplusConsentsModal' . $modalAccount->id,
+        'owner' => $modalAccount,
+    ])
+@endforeach
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var toggleButtons = document.querySelectorAll('.crm-wnplus-toggle');
+        var forceExpanded = @json($forceExpanded);
 
-        function setGroupState(button, expanded) {
-            var groupId = button.dataset.wnplusToggle;
+        // Due livelli di apertura indipendenti: l'organizzazione mostra o nasconde
+        // tutto il proprio blocco, il referente mostra o nasconde i suoi utenti.
+        // Gli stati vivono qui e la visibilità delle righe viene sempre ricalcolata
+        // da entrambi, così riaprendo un'organizzazione i referenti chiusi restano chiusi.
+        var orgState = {};
+        var managerState = {};
 
-            document.querySelectorAll('[data-wnplus-group="' + groupId + '"]').forEach(function (row) {
-                row.classList.toggle('d-none', !expanded);
+        document.querySelectorAll('[data-wnplus-org-toggle]').forEach(function (button) {
+            orgState[button.dataset.wnplusOrgToggle] = true;
+        });
+
+        document.querySelectorAll('[data-wnplus-toggle]').forEach(function (button) {
+            managerState[button.dataset.wnplusToggle] = forceExpanded;
+        });
+
+        function refresh() {
+            document.querySelectorAll('[data-wnplus-row]').forEach(function (row) {
+                var orgOpen = orgState[row.dataset.wnplusOrg] !== false;
+                var managerKey = row.dataset.wnplusManager;
+                var managerOpen = !managerKey || managerState[managerKey] === true;
+
+                row.classList.toggle('d-none', !(orgOpen && managerOpen));
             });
 
-            button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            document.querySelectorAll('[data-wnplus-org-toggle]').forEach(function (button) {
+                button.setAttribute(
+                    'aria-expanded',
+                    orgState[button.dataset.wnplusOrgToggle] !== false ? 'true' : 'false'
+                );
+            });
+
+            document.querySelectorAll('[data-wnplus-toggle]').forEach(function (button) {
+                button.setAttribute(
+                    'aria-expanded',
+                    managerState[button.dataset.wnplusToggle] === true ? 'true' : 'false'
+                );
+            });
         }
 
-        toggleButtons.forEach(function (button) {
+        document.querySelectorAll('[data-wnplus-org-toggle]').forEach(function (button) {
             button.addEventListener('click', function () {
-                var expanded = button.getAttribute('aria-expanded') === 'true';
-                setGroupState(button, !expanded);
+                var key = button.dataset.wnplusOrgToggle;
+                orgState[key] = orgState[key] === false;
+                refresh();
+            });
+        });
+
+        document.querySelectorAll('[data-wnplus-toggle]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var key = button.dataset.wnplusToggle;
+                managerState[key] = managerState[key] !== true;
+                refresh();
             });
         });
 
         var toggleAllButton = document.getElementById('wnplusToggleAll');
 
-        if (toggleAllButton && toggleButtons.length) {
+        if (toggleAllButton) {
             toggleAllButton.addEventListener('click', function () {
                 var shouldExpand = toggleAllButton.dataset.state !== 'expanded';
 
-                toggleButtons.forEach(function (button) {
-                    setGroupState(button, shouldExpand);
+                Object.keys(orgState).forEach(function (key) {
+                    orgState[key] = shouldExpand;
+                });
+
+                Object.keys(managerState).forEach(function (key) {
+                    managerState[key] = shouldExpand;
                 });
 
                 toggleAllButton.textContent = shouldExpand ? 'Comprimi tutti' : 'Espandi tutti';
                 toggleAllButton.dataset.state = shouldExpand ? 'expanded' : 'collapsed';
+
+                refresh();
             });
-        } else if (toggleAllButton) {
-            // Nessun referente ha utenti da mostrare/nascondere: il pulsante non serve.
-            toggleAllButton.classList.add('d-none');
         }
+
+        refresh();
     });
 </script>

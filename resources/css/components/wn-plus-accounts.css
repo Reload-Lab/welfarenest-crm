@@ -1,34 +1,101 @@
 /* =========================================================
-   WN+ ACCOUNTS — elenco raggruppato per referente
+   WN+ ACCOUNTS — elenco raggruppato per organizzazione
+
+   Tre livelli di lettura:
+     1. riga organizzazione — intestazione del gruppo, a tutta larghezza
+     2. riga referente      — marcata: barra di accento a sinistra, nome in evidenza
+     3. riga utente         — rientrata sotto il proprio referente, in tono minore
    ========================================================= */
 
-/* Riga di un utente semplice, annidata sotto il referente che lo ha invitato */
-.crm-table__row--wnplus-user > td:first-child {
-    padding-left: 3.5rem !important;
-    border-left: 4px solid var(--crm-table-border-strong);
-    position: relative;
+:root {
+    --crm-wnplus-indent-manager: 1.5rem;
+    --crm-wnplus-indent-user: 3.25rem;
 }
 
-/* Piccolo connettore a "L" che lega visivamente la riga al referente sopra */
-.crm-table__row--wnplus-user > td:first-child::before {
+/* ---------------------------------------------------------
+   1. Riga organizzazione
+   --------------------------------------------------------- */
+.crm-wnplus-org-row > td {
+    background: var(--crm-primary-subtle-bg);
+    border-top: 1px solid var(--crm-primary-border);
+    border-bottom: 1px solid var(--crm-primary-border);
+    padding-top: 0.7rem !important;
+    padding-bottom: 0.7rem !important;
+}
+
+.crm-wnplus-org-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--crm-primary-active);
+    text-decoration: none;
+}
+
+.crm-wnplus-org-name:hover {
+    color: var(--crm-primary);
+    text-decoration: none;
+}
+
+.crm-wnplus-org-name--empty {
+    color: var(--crm-table-muted);
+    font-style: italic;
+}
+
+.crm-wnplus-org-counts {
+    white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+   2. Riga referente
+   --------------------------------------------------------- */
+.crm-wnplus-row--manager > td:first-child {
+    padding-left: var(--crm-wnplus-indent-manager) !important;
+    box-shadow: inset 3px 0 0 var(--crm-primary-light);
+}
+
+.crm-wnplus-row--manager .crm-entity-link {
+    font-weight: 700;
+}
+
+/* ---------------------------------------------------------
+   3. Riga utente — rientrata sotto il referente
+   --------------------------------------------------------- */
+.crm-wnplus-row--user > td {
+    background-color: rgba(15, 23, 42, 0.02);
+}
+
+.crm-wnplus-row--user > td:first-child {
+    padding-left: var(--crm-wnplus-indent-user) !important;
+    position: relative;
+    box-shadow: inset 3px 0 0 var(--crm-table-border-strong);
+}
+
+/* Connettore a "L" che lega visivamente l'utente al referente sopra */
+.crm-wnplus-row--user > td:first-child::before {
     content: '';
     position: absolute;
-    left: 1.75rem;
+    left: calc(var(--crm-wnplus-indent-user) - 1.4rem);
     top: 0;
     height: 50%;
-    width: 0.75rem;
+    width: 0.7rem;
     border-left: 2px solid var(--crm-table-border-strong);
     border-bottom: 2px solid var(--crm-table-border-strong);
 }
 
-.crm-table__row--wnplus-user {
-    background-color: rgba(15, 23, 42, 0.03);
+.crm-wnplus-row--user .crm-entity-link {
+    font-weight: 500;
+    font-size: 0.875rem;
 }
 
-/* Intestazione della sezione "utenti senza referente" */
-.crm-wnplus-group-divider td {
-    padding-top: 1.25rem !important;
-    font-size: 0.72rem;
+.crm-wnplus-row--user .crm-avatar {
+    transform: scale(0.88);
+}
+
+/* Intestazione "Senza referente assegnato" dentro un'organizzazione */
+.crm-wnplus-loose-divider > td {
+    padding-top: 0.6rem !important;
+    padding-bottom: 0.6rem !important;
+    padding-left: var(--crm-wnplus-indent-manager) !important;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -36,12 +103,15 @@
     background: var(--crm-table-head-bg);
 }
 
-/* Pulsante per espandere/comprimere gli utenti di un referente */
+/* ---------------------------------------------------------
+   Freccine di apertura
+   --------------------------------------------------------- */
 .crm-wnplus-toggle-icon {
     transition: transform 0.15s ease;
 }
 
-.crm-wnplus-toggle[aria-expanded="true"] .crm-wnplus-toggle-icon {
+.crm-wnplus-toggle[aria-expanded="true"] .crm-wnplus-toggle-icon,
+.crm-wnplus-org-toggle[aria-expanded="true"] .crm-wnplus-toggle-icon {
     transform: rotate(90deg);
 }
 
@@ -51,4 +121,36 @@
     display: inline-block;
     width: var(--crm-action-size);
     flex-shrink: 0;
+}
+
+.crm-wnplus-name {
+    min-width: 0;
+}
+
+/* ---------------------------------------------------------
+   Intestazione con due ordinamenti nella stessa colonna
+   --------------------------------------------------------- */
+.crm-wnplus-sort-pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.crm-wnplus-sort-sep {
+    opacity: 0.4;
+    font-weight: 400;
+}
+
+/* ---------------------------------------------------------
+   Pulsante consensi: stessa forma della colonna Stato qui accanto
+   --------------------------------------------------------- */
+.crm-status-icon--button {
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+}
+
+.crm-status-icon--button:hover {
+    filter: brightness(0.96);
 }

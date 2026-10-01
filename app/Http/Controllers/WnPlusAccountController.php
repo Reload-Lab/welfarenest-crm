@@ -20,64 +20,151 @@ class WnPlusAccountController extends Controller
 {
     public function index(Request $request)
     {
-        // Ricerca per nome/email: opera sia sul referente sia sui suoi utenti invitati,
-        // così un referente compare in elenco anche se a corrispondere è un suo utente.
-        $search = trim((string) $request->string('q'));
+        // L'elenco parte dall'organizzazione: ogni organizzazione è un gruppo che
+        // contiene i propri referenti (account_type=manager) e, annidati sotto a
+        // ciascuno, gli utenti che ha invitato (account_type=user,
+        // invited_by_account_id = referente). Prima il raggruppamento era per
+        // referente e l'organizzazione era una colonna: il cliente però ragiona nel
+        // senso opposto — sceglie l'organizzazione e poi le assegna un referente.
+        //
+        // Nota: il raggruppamento è solo di presentazione. Nessun dato cambia e gli
+        // account già inseriti continuano a essere letti da organization_id e
+        // invited_by_account_id esattamente come prima.
 
-        $matchesSearch = function ($query) use ($search) {
-            $query->where('first_name', 'like', "%{$search}%")
-                ->orWhere('last_name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%");
+        // 'search' è il nome usato dalle altre sezioni del CRM; 'q' resta accettato
+        // perché è il parametro che la pagina usava finora (link e preferiti salvati).
+        $search = trim((string) ($request->input('search') ?? $request->input('q') ?? ''));
+
+        $sort = (string) $request->input('sort', 'organization');
+
+        if (! in_array($sort, ['organization', 'name', 'accounts_count'], true)) {
+            $sort = 'organization';
+        }
+
+        $direction = $request->input('direction') === 'desc' ? 'desc' : 'asc';
+
+        $perPage = (int) $request->input('per_page', 20);
+
+        if (! in_array($perPage, [10, 20, 50], true)) {
+            $perPage = 20;
+        }
+
+        // L'intestazione "Organizzazione" ordina i gruppi, "Utente" ordina le persone
+        // dentro ogni gruppo: in una tabella annidata sono due ordinamenti distinti.
+        $accountsDirection = $sort === 'name' ? $direction : 'asc';
+
+        $matchesAccount = function ($query) use ($search) {
+            $query->where(function ($inner) use ($search) {
+                $inner->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
         };
 
-        // L'elenco è organizzato per referente: ogni referente (account_type=manager)
-        // compare come riga principale, seguito dagli utenti semplici che ha invitato
-        // (account_type=user, invited_by_account_id = referente). Prima era una lista
-        // piatta e non si capiva a colpo d'occhio chi gestisse chi.
-        $managersQuery = WnPlusAccount::query()
-            ->where('account_type', 'manager')
-            ->with([
-                'organization',
-                'role',
-                'level',
-                'consents.consentType',
-                'invitedAccounts' => function ($query) {
-                    $query->with(['organization', 'role', 'level', 'consents.consentType'])
-                        ->orderBy('last_name')
-                        ->orderBy('first_name');
-                },
-            ]);
+        $withAccounts = function ($query) use ($accountsDirection) {
+            $query->with(['role', 'level', 'consents.consentType'])
+                ->orderBy('last_name', $accountsDirection)
+                ->orderBy('first_name', $accountsDirection);
+        };
 
+        $organizationsQuery = Organization::query()
+            ->whereHas('wnPlusAccounts')
+            ->withCount('wnPlusAccounts')
+            ->with(['wnPlusAccounts' => $withAccounts]);
+
+        // Un'organizzazione resta in elenco sia se corrisponde lei, sia se corrisponde
+        // una delle persone che contiene: così cercando un nome si vede anche dove sta.
         if ($search !== '') {
-            $managersQuery->where(function ($query) use ($matchesSearch, $search) {
-                $matchesSearch($query);
-                $query->orWhereHas('invitedAccounts', $matchesSearch);
+            $organizationsQuery->where(function ($query) use ($matchesAccount, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('legal_name', 'like', "%{$search}%")
+                    ->orWhereHas('wnPlusAccounts', $matchesAccount);
             });
         }
 
-        $managers = $managersQuery
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->paginate(25)
-            ->withQueryString();
-
-        // Utenti semplici senza un referente valido collegato (dato anomalo,
-        // non dovrebbe succedere nel flusso normale, ma non vanno persi dall'elenco).
-        $orphanUsersQuery = WnPlusAccount::query()
-            ->where('account_type', 'user')
-            ->whereNull('invited_by_account_id')
-            ->with(['organization', 'role', 'level', 'consents.consentType']);
-
-        if ($search !== '') {
-            $orphanUsersQuery->where($matchesSearch);
+        if ($sort === 'accounts_count') {
+            $organizationsQuery->orderBy('wn_plus_accounts_count', $direction);
+        } else {
+            $organizationsQuery->orderBy('name', $sort === 'organization' ? $direction : 'asc');
         }
 
-        $orphanUsers = $orphanUsersQuery
-            ->orderBy('last_name')
-            ->orderBy('first_name')
+        $organizations = $organizationsQuery
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $groups = $organizations
+            ->getCollection()
+            ->map(fn (Organization $organization) => $this->buildAccountGroup(
+                $organization,
+                $organization->wnPlusAccounts
+            ));
+
+        // Account senza organizzazione collegata: dato anomalo, non dovrebbe
+        // succedere nel flusso normale, ma non vanno persi dall'elenco.
+        $unassignedQuery = WnPlusAccount::query()
+            ->whereNull('organization_id')
+            ->with(['role', 'level', 'consents.consentType']);
+
+        if ($search !== '') {
+            $unassignedQuery->where($matchesAccount);
+        }
+
+        $unassignedAccounts = $unassignedQuery
+            ->orderBy('last_name', $accountsDirection)
+            ->orderBy('first_name', $accountsDirection)
             ->get();
 
-        return view('wn-plus.accounts.index', compact('managers', 'orphanUsers', 'search'));
+        $unassignedGroup = $unassignedAccounts->isNotEmpty()
+            ? $this->buildAccountGroup(null, $unassignedAccounts)
+            : null;
+
+        return view('wn-plus.accounts.index', compact(
+            'organizations',
+            'groups',
+            'unassignedGroup',
+            'search',
+            'sort',
+            'direction',
+            'perPage'
+        ));
+    }
+
+    /**
+     * Costruisce l'albero di un gruppo: i referenti dell'organizzazione e, sotto a
+     * ciascuno, gli utenti che ha invitato.
+     *
+     * Gli utenti il cui referente non sta in questo gruppo (invited_by_account_id
+     * nullo, oppure un referente di un'altra organizzazione) finiscono in
+     * looseUsers: restano visibili sotto la loro organizzazione invece di sparire.
+     * Ogni account compare una volta sola, nel gruppo della propria organizzazione.
+     */
+    private function buildAccountGroup(?Organization $organization, $accounts): array
+    {
+        $managers = $accounts->where('account_type', 'manager')->values();
+        $managerIds = $managers->pluck('id')->all();
+
+        $users = $accounts->where('account_type', '!=', 'manager');
+
+        $managerRows = $managers->map(fn (WnPlusAccount $manager) => [
+            'manager' => $manager,
+            'users' => $users
+                ->where('invited_by_account_id', $manager->id)
+                ->values(),
+        ])->all();
+
+        $looseUsers = $users
+            ->filter(fn (WnPlusAccount $user) => ! in_array($user->invited_by_account_id, $managerIds, true))
+            ->values();
+
+        return [
+            'organization' => $organization,
+            'managers' => $managerRows,
+            'looseUsers' => $looseUsers,
+            'accountsCount' => $accounts->count(),
+            'managersCount' => $managers->count(),
+            'usersCount' => $users->count(),
+            'key' => $organization ? 'org-' . $organization->id : 'org-none',
+        ];
     }
 
     public function create()
