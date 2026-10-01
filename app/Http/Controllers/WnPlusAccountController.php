@@ -235,6 +235,10 @@ class WnPlusAccountController extends Controller
 
         $person = Person::findOrFail($validated['person_id']);
 
+        // account_type segue il ruolo scelto: prima era 'manager' fisso, quindi
+        // creando un account con ruolo "Utente" usciva comunque un referente.
+        $accountType = WnPlusAccount::accountTypeForRole($validated['wn_plus_role_id']);
+
         WnPlusAccount::create([
             'uuid' => (string) Str::uuid(),
             'organization_id' => $validated['organization_id'],
@@ -245,13 +249,15 @@ class WnPlusAccountController extends Controller
             'wn_plus_role_id' => $validated['wn_plus_role_id'],
             'wn_plus_level_id' => $validated['wn_plus_level_id'],
             'status' => 'invited',
-            'account_type' => 'manager',
+            'account_type' => $accountType,
             'created_by_user_id' => auth()->id(),
         ]);
 
         return redirect()
             ->route('wn-plus.accounts.index')
-            ->with('success', 'Referente WN+ creato correttamente.');
+            ->with('success', $accountType === 'manager'
+                ? 'Referente WN+ creato correttamente.'
+                : 'Utente WN+ creato correttamente.');
     }
 
 
@@ -297,6 +303,34 @@ class WnPlusAccountController extends Controller
             'wn_plus_level_id' => ['required', 'exists:wn_plus_levels,id'],
             'status' => ['required', 'in:invited,active,suspended,disabled'],
         ]);
+
+        // Il menu "Ruolo" cambiava solo wn_plus_role_id, mentre account_type —
+        // quello che decide accesso all'area referente, permesso di invitare e
+        // posizione in elenco — restava com'era. Risultato: un utente promosso a
+        // referente restava appeso al suo vecchio referente e non entrava nella
+        // propria area riservata.
+        $newAccountType = WnPlusAccount::accountTypeForRole($validated['wn_plus_role_id']);
+        $wasManager = $account->account_type === 'manager';
+
+        // Retrocessione a utente semplice: stessa regola di sospendi, disabilita
+        // ed elimina. Senza questo blocco i suoi utenti resterebbero con
+        // invited_by_account_id puntato a lui, ma lui non avrebbe più accesso
+        // all'area referente: account che nessuno può più gestire.
+        if ($wasManager && $newAccountType === 'user' && $account->hasActiveInvitedAccounts()) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'wn_plus_role_id' => 'Impossibile riportare questo referente a utente semplice: ha utenti invitati non disattivati. Disattiva o riassegna prima gli utenti collegati.',
+                ]);
+        }
+
+        $validated['account_type'] = $newAccountType;
+
+        // Promozione a referente: un referente non sta sotto nessuno. Chi lo aveva
+        // invitato resta scritto nell'activity log, non serve tenerlo qui.
+        if ($newAccountType === 'manager') {
+            $validated['invited_by_account_id'] = null;
+        }
 
         $account->update($validated);
 
@@ -352,11 +386,7 @@ class WnPlusAccountController extends Controller
 
     public function destroy(WnPlusAccount $account)
     {
-        $hasActiveInvitedAccounts = $account->invitedAccounts()
-            ->where('status', '!=', 'disabled')
-            ->exists();
-
-        if ($hasActiveInvitedAccounts) {
+        if ($account->hasActiveInvitedAccounts()) {
             return back()->with('error', 'Impossibile eliminare: questo referente ha utenti invitati non disattivati. Disattiva o riassegna prima gli utenti collegati.');
         }
 
@@ -383,11 +413,7 @@ class WnPlusAccountController extends Controller
             return back()->with('error', 'Questo account è già sospeso.');
         }
 
-        $hasActiveInvitedAccounts = $account->invitedAccounts()
-            ->where('status', '!=', 'disabled')
-            ->exists();
-
-        if ($hasActiveInvitedAccounts) {
+        if ($account->hasActiveInvitedAccounts()) {
             return back()->with('error', 'Impossibile sospendere: questo referente ha utenti invitati non disattivati. Disattiva o riassegna prima gli utenti collegati.');
         }
 
@@ -413,11 +439,7 @@ class WnPlusAccountController extends Controller
             return back()->with('error', 'Questo account è già disabilitato.');
         }
 
-        $hasActiveInvitedAccounts = $account->invitedAccounts()
-            ->where('status', '!=', 'disabled')
-            ->exists();
-
-        if ($hasActiveInvitedAccounts) {
+        if ($account->hasActiveInvitedAccounts()) {
             return back()->with('error', 'Impossibile disabilitare: questo referente ha utenti invitati non disattivati. Disattiva o riassegna prima gli utenti collegati.');
         }
 
