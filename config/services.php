@@ -48,6 +48,13 @@ return [
     | Va valorizzato con l'indirizzo del sito che avvia il login OIDC, quando esiste.
     */
     'wn_plus_site' => [
+        // Pagina interna del sito da cui si entra nell'area riservata (quella che
+        // avvia il login OIDC), non la home: dalla home l'utente resterebbe anonimo.
+        // Finché è vuota, il portale non mostra il pulsante verso il sito.
+        'area_url' => env('WN_PLUS_SITE_AREA_URL'),
+
+        // Dove atterra chi ha appena attivato l'account. Se vuota si usa area_url,
+        // e in mancanza anche di quella l'area riservata sul CRM.
         'after_activation_url' => env('WN_PLUS_AFTER_ACTIVATION_URL'),
     ],
 

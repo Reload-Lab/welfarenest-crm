@@ -162,13 +162,21 @@
 }
 
 .wn-auth-submit {
-    min-height: 3.75rem;
+    /* inline-flex con padding proprio: usato senza w-100 (nel portale) il testo
+       arrivava a filo del bordo, perché il bottone si stringeva sul contenuto. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.5rem;
+    padding: 0.75rem 2.25rem;
     border-radius: 0.85rem;
     border: 0;
     background: linear-gradient(135deg, var(--crm-primary), var(--crm-primary-hover));
     color: #fff;
     font-weight: 800;
     font-size: 1.15rem;
+    line-height: 1.2;
+    text-decoration: none;
     box-shadow: 0 14px 28px rgba(15, 130, 120, 0.22);
 }
 
@@ -199,5 +207,119 @@
 
     .wn-auth-info {
         gap: 1.5rem;
+    }
+}
+/* --- Area riservata (portale WN+) --------------------------------------- */
+
+/*
+ * Le pagine del portale usano la stessa impalcatura della pagina di attivazione
+ * — logo, card, footer — perché sono lo stesso prodotto: chi attiva l'account e
+ * poi entra nel profilo non deve avere l'impressione di aver cambiato sito.
+ */
+
+.wn-portal-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    max-width: 860px;
+    margin-inline: auto;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.wn-portal-bar__links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.wn-portal-bar__link {
+    color: #64748b;
+    font-weight: 600;
+    text-decoration: none;
+    padding-block: 0.25rem;
+    border-bottom: 2px solid transparent;
+}
+
+.wn-portal-bar__link:hover {
+    color: var(--crm-primary);
+}
+
+.wn-portal-bar__link.is-active {
+    color: #102033;
+    border-bottom-color: var(--crm-primary);
+}
+
+.wn-portal-bar__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Il pulsante verso il sito: è la via d'uscita dal portale, deve vedersi. */
+.wn-portal-site-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 0.65rem;
+    background: var(--crm-primary-subtle-bg);
+    color: var(--crm-primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid var(--crm-primary-border);
+}
+
+.wn-portal-site-link:hover {
+    background: var(--crm-primary);
+    color: #fff;
+    border-color: var(--crm-primary);
+}
+
+.wn-portal-logout {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.65rem;
+    background: #fff;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.55rem 1.1rem;
+}
+
+.wn-portal-logout:hover {
+    color: #102033;
+    border-color: #cbd5e1;
+}
+
+.wn-portal-card-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #102033;
+}
+
+/* Card d'ingresso al sito, in cima alla dashboard: senza, chi arriva qui dopo
+   l'attivazione non ha nessuna indicazione su dove andare. */
+.wn-portal-cta {
+    border: 1px solid var(--crm-primary-border);
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, rgba(15, 130, 120, 0.08), #fff 65%);
+}
+
+@media (max-width: 575.98px) {
+    .wn-portal-bar {
+        align-items: stretch;
+    }
+
+    .wn-portal-bar__actions {
+        width: 100%;
+        justify-content: space-between;
     }
 }

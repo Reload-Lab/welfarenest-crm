@@ -2,16 +2,18 @@
 
 @section('title', 'Il mio profilo')
 @section('body_class', 'wn-auth-page')
+@section('full_page', 'true')
 
 @section('content')
 <div class="container py-5">
+    @include('wn-plus.portal.partials.header')
     @include('wn-plus.portal.partials.nav', ['active' => 'profile'])
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <div class="wn-auth-card mx-auto p-4 p-md-5 mb-4" style="max-width: 640px;">
+    <div class="wn-auth-card mx-auto p-4 p-md-5 mb-4" style="max-width: 860px;">
         <h2 class="h5 mb-4">I miei dati</h2>
 
         <dl class="row mb-0">
@@ -32,7 +34,7 @@
         </dl>
     </div>
 
-    <div class="wn-auth-card mx-auto p-4 p-md-5 mb-4" style="max-width: 640px;">
+    <div class="wn-auth-card mx-auto p-4 p-md-5 mb-4" style="max-width: 860px;">
         <h2 class="h5 mb-4">Cambia password</h2>
 
         <form method="POST" action="{{ route('wn-plus.portal.profile.password') }}">
@@ -67,7 +69,7 @@
         </form>
     </div>
 
-    <div class="wn-auth-card mx-auto p-4 p-md-5 mb-4" style="max-width: 640px;">
+    <div class="wn-auth-card mx-auto p-4 p-md-5 mb-4" style="max-width: 860px;">
         <h2 class="h5 mb-4">Privacy e consensi</h2>
 
         @php
@@ -201,5 +203,6 @@
             </script>
         @endpush
     </div>
+    @include('wn-plus.portal.partials.footer')
 </div>
 @endsection

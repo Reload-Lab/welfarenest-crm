@@ -2,20 +2,22 @@
 
 @section('title', 'I miei utenti')
 @section('body_class', 'wn-auth-page')
+@section('full_page', 'true')
 
 @section('content')
 <div class="container py-5">
+    @include('wn-plus.portal.partials.header')
     @include('wn-plus.portal.partials.nav', ['active' => 'users'])
 
     @if(session('success'))
-        <div class="alert alert-success mx-auto" style="max-width: 640px;">{{ session('success') }}</div>
+        <div class="alert alert-success mx-auto" style="max-width: 860px;">{{ session('success') }}</div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger mx-auto" style="max-width: 640px;">{{ session('error') }}</div>
+        <div class="alert alert-danger mx-auto" style="max-width: 860px;">{{ session('error') }}</div>
     @endif
 
-    <div class="wn-auth-card mx-auto p-4 p-md-5 mb-4" style="max-width: 640px;">
+    <div class="wn-auth-card mx-auto p-4 p-md-5 mb-4" style="max-width: 860px;">
         <h2 class="h5 mb-1">Utenti di {{ $account->organization?->name ?? $account->organization?->legal_name }}</h2>
         <p class="text-muted small mb-4">
             Le persone della tua organizzazione che hai invitato in Welfare Nest Plus.
@@ -44,7 +46,7 @@
         @endforelse
     </div>
 
-    <div class="wn-auth-card mx-auto p-4 p-md-5" style="max-width: 640px;">
+    <div class="wn-auth-card mx-auto p-4 p-md-5" style="max-width: 860px;">
         <h2 class="h5 mb-1">Invita una persona</h2>
         <p class="text-muted small mb-4">
             Riceverà un’email con l’informativa privacy e il link per attivare il proprio
@@ -87,5 +89,6 @@
             <button type="submit" class="wn-auth-submit">Invia invito</button>
         </form>
     </div>
+    @include('wn-plus.portal.partials.footer')
 </div>
 @endsection

@@ -106,16 +106,22 @@ class WnPlusInvitationController extends Controller
      * Finché il sito WN+ non espone un indirizzo che avvia il login OIDC, la
      * destinazione sensata è l'area riservata sul CRM: mandarlo sulla home del sito
      * lo lascerebbe anonimo, perché WordPress non avvia la procedura da solo.
-     * Quando quell'indirizzo esisterà basta valorizzare WN_PLUS_AFTER_ACTIVATION_URL
-     * e l'ingresso diventa diretto, senza credenziali, grazie alla sessione appena
-     * creata qui.
+     * Quando quell'indirizzo esisterà basta valorizzare WN_PLUS_SITE_AREA_URL — la
+     * stessa usata dal pulsante nel portale — e l'ingresso diventa diretto, senza
+     * credenziali, grazie alla sessione appena creata qui.
+     * WN_PLUS_AFTER_ACTIVATION_URL resta per mandare altrove chi ha appena attivato,
+     * se un domani servisse una pagina di benvenuto diversa.
      */
     private function afterActivationUrl(): string
     {
-        $configured = trim((string) config('services.wn_plus_site.after_activation_url'));
+        foreach (['after_activation_url', 'area_url'] as $key) {
+            $url = trim((string) config("services.wn_plus_site.{$key}"));
 
-        return $configured !== ''
-            ? $configured
-            : route('wn-plus.portal.dashboard');
+            if ($url !== '') {
+                return $url;
+            }
+        }
+
+        return route('wn-plus.portal.dashboard');
     }
 }
