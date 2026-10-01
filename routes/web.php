@@ -15,6 +15,7 @@ use App\Http\Controllers\WnPlusOidcController;
 use App\Http\Controllers\ConsentRequestController;
 use App\Http\Controllers\ConsentRegisterController;
 use App\Http\Controllers\WnPlusPortalController;
+use App\Http\Controllers\WnPlusPortalUserController;
 use App\Http\Controllers\TaxonomyController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LogController;
@@ -222,6 +223,12 @@ Route::middleware('wn-plus.account')->prefix('wn-plus/portal')->name('wn-plus.po
     Route::get('/profile', [WnPlusPortalController::class, 'profile'])->name('profile');
     Route::put('/profile/password', [WnPlusPortalController::class, 'updatePassword'])->name('profile.password');
     Route::put('/profile/consents', [WnPlusPortalController::class, 'updateConsents'])->name('profile.consents');
+
+    // Gestione dei componenti della propria organizzazione. Solo per i referenti:
+    // il controllo e' dentro il controller, su ogni azione.
+    Route::get('/users', [WnPlusPortalUserController::class, 'index'])->name('users.index');
+    Route::post('/users', [WnPlusPortalUserController::class, 'store'])->name('users.store');
+    Route::post('/users/{user}/resend', [WnPlusPortalUserController::class, 'resend'])->name('users.resend');
 });
 
 
