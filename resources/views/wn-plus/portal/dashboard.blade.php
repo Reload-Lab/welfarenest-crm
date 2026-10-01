@@ -7,6 +7,15 @@
 @section('content')
 @php
     $siteUrl = trim((string) config('services.wn_plus_site.area_url'));
+
+    // Il testo si compone qui e non dentro il markup: una direttiva Blade attaccata
+    // alla parola precedente (consensi@if) non viene compilata e finisce stampata
+    // a schermo, perché Blade non riconosce la chiocciola dopo un carattere di parola.
+    $intro = 'Il tuo account Welfare Nest Plus è attivo. Da qui gestisci la tua password e le tue scelte sui consensi';
+
+    $intro .= $account->account_type === 'manager'
+        ? ', e inviti i componenti della tua organizzazione.'
+        : '.';
 @endphp
 
 <div class="container py-5">
@@ -33,10 +42,7 @@
                     Ciao <strong>{{ $account->first_name }}</strong>
                 </h1>
 
-                <p class="wn-auth-text mb-0">
-                    Il tuo account Welfare Nest Plus è attivo. Da qui gestisci la tua
-                    password e le tue scelte sui consensi@if($account->account_type === 'manager'), e inviti i componenti della tua organizzazione@endif.
-                </p>
+                <p class="wn-auth-text mb-0">{{ $intro }}</p>
             </div>
         </div>
 
