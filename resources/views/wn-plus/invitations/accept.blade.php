@@ -150,6 +150,16 @@
                             <strong>{{ $labelFor('privacy_notice') }}</strong>
                         </label>
 
+                        <div class="mt-2">
+                            <a href="{{ $informativaUrl }}" target="_blank" rel="noopener" class="wn-auth-doclink">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M14 3H7C6 3 5 4 5 5V19C5 20 6 21 7 21H17C18 21 19 20 19 19V8L14 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M14 3V8H19" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                </svg>
+                                Leggi l'informativa privacy
+                            </a>
+                        </div>
+
                         @error('privacy_base')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror

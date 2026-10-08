@@ -34,6 +34,7 @@ class WnPlusInvitationMail extends Mailable
             with: [
                 'invitation' => $this->invitation,
                 'activationUrl' => route('wn-plus.invitations.accept', $this->invitation->token),
+                'informativaUrl' => route('wn-plus.invitations.informativa', $this->invitation->token),
             ],
         );
     }

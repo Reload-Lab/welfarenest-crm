@@ -3,8 +3,7 @@
 
   Stessa impalcatura dell'email dei consent request (tabelle, fallback Outlook,
   footer istituzionale) ma con l'identità Welfare Nest Plus: fondo crema e blu
-  notte come il sito plus.welfarenest.it, e il verde acqua del logo (#17ABB4) al
-  posto dell'oro come colore d'accento.
+  del logo (#0E354D), come il sito plus.welfarenest.it.
 
   Il logo va servito come PNG: i client email non renderizzano SVG e bloccano le
   data: URI.
@@ -31,7 +30,7 @@
   body{margin:0;padding:0;width:100% !important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;background-color:#F7F3E9;}
   table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;}
   img{border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;display:block;}
-  a{color:#0E354D;}
+  a{color:#2E6E92;}
   a.btn:hover{background-color:#0B2738 !important;}
   @media screen and (max-width:620px){
     .container{width:100% !important;}
@@ -64,11 +63,11 @@
 
         <!-- Corpo -->
         <tr>
-          <td bgcolor="#FFFFFF" style="background-color:#FFFFFF;border-top:4px solid #17ABB4;">
+          <td bgcolor="#FFFFFF" style="background-color:#FFFFFF;border-top:4px solid #0E354D;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
                 <td class="px" style="padding:44px 48px 4px 48px;">
-                  <h1 class="h1 serif" style="margin:0 0 22px 0;font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:30px;line-height:38px;font-weight:600;color:#0E354D;">Benvenuto nella <em style="color:#17ABB4;">Community</em></h1>
+                  <h1 class="h1 serif" style="margin:0 0 22px 0;font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:30px;line-height:38px;font-weight:600;color:#0E354D;">Benvenuto nella <em style="color:#2E6E92;">Community</em></h1>
                   <p style="margin:0 0 16px 0;font-family:'Poppins','Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:25px;color:#3F5A6B;">Ciao {{ $invitation->account->full_name }},</p>
                   <p style="margin:0;font-family:'Poppins','Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:25px;color:#3F5A6B;">è stato creato per te un account per accedere a <strong style="font-weight:600;color:#0E354D;">Welfare Nest Plus</strong>, lo spazio della community di sanità integrativa.</p>
                 </td>
@@ -121,15 +120,25 @@
                 </td>
               </tr>
 
+              <!-- Informativa privacy: dev'essere leggibile prima di dare i consensi -->
+              <tr>
+                <td class="px" style="padding:18px 48px 0 48px;">
+                  <p style="margin:0;font-family:'Poppins','Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:22px;color:#3F5A6B;">
+                    Prima di confermare puoi leggere l'informativa sul trattamento dei tuoi dati:
+                    <a href="{{ $informativaUrl }}" style="color:#2E6E92;text-decoration:underline;">apri l'informativa privacy</a>.
+                  </p>
+                </td>
+              </tr>
+
               <!-- Validità del link -->
               <tr>
                 <td class="px" style="padding:30px 48px 0 48px;">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F7F3E9" style="background-color:#F7F3E9;border-left:3px solid #17ABB4;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F7F3E9" style="background-color:#F7F3E9;border-left:3px solid #0E354D;">
                     <tr>
                       <td style="padding:18px 22px;">
                         <p style="margin:0 0 10px 0;font-family:'Poppins','Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:22px;color:#0E354D;">Il link è personale e resta valido fino al <strong style="font-weight:600;">{{ $invitation->expires_at->format('d/m/Y H:i') }}</strong>.</p>
                         <p style="margin:0;font-family:'Poppins','Helvetica Neue',Arial,sans-serif;font-size:13px;line-height:21px;color:#3F5A6B;">Se il pulsante non funziona, copia e incolla questo indirizzo nel browser:<br>
-                          <a href="{{ $activationUrl }}" style="color:#0E354D;text-decoration:underline;word-break:break-all;">{{ $activationUrl }}</a></p>
+                          <a href="{{ $activationUrl }}" style="color:#2E6E92;text-decoration:underline;word-break:break-all;">{{ $activationUrl }}</a></p>
                       </td>
                     </tr>
                   </table>
@@ -154,7 +163,7 @@
             <p class="serif" style="margin:0 0 8px 0;font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:16px;line-height:22px;font-weight:600;color:#F7F3E9;">Welfare Nest S.r.l. Società benefit</p>
             <p style="margin:0;font-family:'Poppins','Helvetica Neue',Arial,sans-serif;font-size:12px;line-height:20px;color:#B9C6CE;">Via Nomentana 150, 00162 Roma<br>
               P.IVA 16633731001<br>
-              <a href="https://plus.welfarenest.it" style="color:#17ABB4;text-decoration:none;">plus.welfarenest.it</a></p>
+              <a href="https://plus.welfarenest.it" style="color:#9FBBD0;text-decoration:none;">plus.welfarenest.it</a></p>
           </td>
         </tr>
         <tr>

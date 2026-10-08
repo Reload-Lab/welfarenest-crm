@@ -177,6 +177,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/wn-plus/invitations/{token}', [WnPlusInvitationController::class, 'accept'])
     ->name('wn-plus.invitations.accept');
 
+Route::get('/wn-plus/invitations/{token}/informativa', [WnPlusInvitationController::class, 'informativa'])
+    ->name('wn-plus.invitations.informativa');
+
 Route::post('/wn-plus/invitations/{token}', [WnPlusInvitationController::class, 'complete'])
     ->name('wn-plus.invitations.complete');
 
@@ -223,6 +226,7 @@ Route::middleware('wn-plus.account')->prefix('wn-plus/portal')->name('wn-plus.po
     Route::get('/profile', [WnPlusPortalController::class, 'profile'])->name('profile');
     Route::put('/profile/password', [WnPlusPortalController::class, 'updatePassword'])->name('profile.password');
     Route::put('/profile/consents', [WnPlusPortalController::class, 'updateConsents'])->name('profile.consents');
+    Route::get('/informativa', [WnPlusPortalController::class, 'informativa'])->name('informativa');
 
     // Gestione dei componenti della propria organizzazione. Solo per i referenti:
     // il controllo e' dentro il controller, su ogni azione.

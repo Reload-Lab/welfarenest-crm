@@ -1,9 +1,32 @@
+/*
+ * Palette WN+ — blu del logo (#0E354D).
+ *
+ * Le variabili sono locali a quest'area e NON toccano --crm-primary, che resta
+ * verde nel back office: qui cambia solo quello che vede l'utente esterno, cioè
+ * attivazione, portale ed email. Il turchese del logo non entra nelle interfacce
+ * perché con testo bianco sopra non raggiunge il contrasto minimo di
+ * accessibilità; resta dentro il logo, che è un'immagine.
+ */
+.wn-auth-page {
+    --wn-primary: #0E354D;
+    --wn-primary-hover: #0A2639;
+    --wn-primary-active: #071B29;
+
+    /* Per il testo d'accento (il "WN+" del titolo): il blu pieno, su una pagina
+       di testo già scuro, non si distinguerebbe dal resto. */
+    --wn-primary-light: #2E6E92;
+
+    --wn-primary-soft: rgba(14, 53, 77, 0.07);
+    --wn-primary-border: rgba(14, 53, 77, 0.20);
+    --wn-primary-subtle: #E8EDF2;
+}
+
 .wn-auth-page {
     min-height: 100vh;
     background:
-        radial-gradient(circle at 8% 85%, rgba(15, 130, 120, 0.16), transparent 28%),
-        radial-gradient(circle at 98% 72%, rgba(15, 130, 120, 0.12), transparent 24%),
-        linear-gradient(180deg, #f8fafc 0%, #eef7f6 100%);
+        radial-gradient(circle at 8% 85%, rgba(14, 53, 77, 0.10), transparent 28%),
+        radial-gradient(circle at 98% 72%, rgba(14, 53, 77, 0.08), transparent 24%),
+        linear-gradient(180deg, #f8fafc 0%, #eaeef3 100%);
     color: #102033;
 }
 
@@ -24,11 +47,11 @@
     width: 180px;
     height: 180px;
     border-radius: 999px;
-    background: var(--crm-primary-soft);
+    background: var(--wn-primary-soft);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--crm-primary);
+    color: var(--wn-primary);
 }
 
 .wn-auth-title {
@@ -39,7 +62,7 @@
 }
 
 .wn-auth-title strong {
-    color: var(--crm-primary);
+    color: var(--wn-primary-light);
 }
 
 .wn-auth-text {
@@ -58,8 +81,8 @@
     width: 3.25rem;
     height: 3.25rem;
     border-radius: 999px;
-    background: var(--crm-primary-soft);
-    color: var(--crm-primary);
+    background: var(--wn-primary-soft);
+    color: var(--wn-primary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -73,8 +96,8 @@
 }
 
 .wn-auth-input:focus {
-    border-color: var(--crm-primary);
-    box-shadow: 0 0 0 0.2rem rgba(15, 130, 120, 0.12);
+    border-color: var(--wn-primary);
+    box-shadow: 0 0 0 0.2rem rgba(14, 53, 77, 0.12);
 }
 
 .wn-consent-card {
@@ -85,8 +108,8 @@
 }
 
 .wn-consent-card.is-required {
-    border-color: rgba(15, 130, 120, 0.45);
-    background: linear-gradient(135deg, rgba(15, 130, 120, 0.06), #fff);
+    border-color: rgba(14, 53, 77, 0.45);
+    background: linear-gradient(135deg, rgba(14, 53, 77, 0.06), #fff);
 }
 
 /*
@@ -133,14 +156,14 @@
 
 .wn-consent-check .form-check-input:checked,
 .wn-consent-switch .form-check-input:checked {
-    background-color: var(--crm-primary);
-    border-color: var(--crm-primary);
+    background-color: var(--wn-primary);
+    border-color: var(--wn-primary);
 }
 
 .wn-consent-check .form-check-input:focus,
 .wn-consent-switch .form-check-input:focus {
-    border-color: var(--crm-primary);
-    box-shadow: 0 0 0 0.2rem rgba(15, 130, 120, 0.15);
+    border-color: var(--wn-primary);
+    box-shadow: 0 0 0 0.2rem rgba(14, 53, 77, 0.15);
 }
 
 .wn-consent-check .form-check-label,
@@ -171,22 +194,22 @@
     padding: 0.75rem 2.25rem;
     border-radius: 0.85rem;
     border: 0;
-    background: linear-gradient(135deg, var(--crm-primary), var(--crm-primary-hover));
+    background: linear-gradient(135deg, var(--wn-primary), var(--wn-primary-hover));
     color: #fff;
     font-weight: 800;
     font-size: 1.15rem;
     line-height: 1.2;
     text-decoration: none;
-    box-shadow: 0 14px 28px rgba(15, 130, 120, 0.22);
+    box-shadow: 0 14px 28px rgba(14, 53, 77, 0.22);
 }
 
 .wn-auth-submit:hover {
     color: #fff;
-    background: linear-gradient(135deg, var(--crm-primary-hover), var(--crm-primary-active));
+    background: linear-gradient(135deg, var(--wn-primary-hover), var(--wn-primary-active));
 }
 
 .wn-auth-safe {
-    color: var(--crm-primary);
+    color: var(--wn-primary);
     font-weight: 700;
 }
 
@@ -248,12 +271,12 @@
 }
 
 .wn-portal-bar__link:hover {
-    color: var(--crm-primary);
+    color: var(--wn-primary);
 }
 
 .wn-portal-bar__link.is-active {
     color: #102033;
-    border-bottom-color: var(--crm-primary);
+    border-bottom-color: var(--wn-primary);
 }
 
 .wn-portal-bar__actions {
@@ -269,18 +292,18 @@
     gap: 0.5rem;
     padding: 0.55rem 1.1rem;
     border-radius: 0.65rem;
-    background: var(--crm-primary-subtle-bg);
-    color: var(--crm-primary);
+    background: var(--wn-primary-subtle);
+    color: var(--wn-primary);
     font-weight: 700;
     font-size: 0.95rem;
     text-decoration: none;
-    border: 1px solid var(--crm-primary-border);
+    border: 1px solid var(--wn-primary-border);
 }
 
 .wn-portal-site-link:hover {
-    background: var(--crm-primary);
+    background: var(--wn-primary);
     color: #fff;
-    border-color: var(--crm-primary);
+    border-color: var(--wn-primary);
 }
 
 .wn-portal-logout {
@@ -308,9 +331,9 @@
 /* Card d'ingresso al sito, in cima alla dashboard: senza, chi arriva qui dopo
    l'attivazione non ha nessuna indicazione su dove andare. */
 .wn-portal-cta {
-    border: 1px solid var(--crm-primary-border);
+    border: 1px solid var(--wn-primary-border);
     border-radius: 1.5rem;
-    background: linear-gradient(135deg, rgba(15, 130, 120, 0.08), #fff 65%);
+    background: linear-gradient(135deg, rgba(14, 53, 77, 0.08), #fff 65%);
 }
 
 @media (max-width: 575.98px) {
@@ -322,4 +345,21 @@
         width: 100%;
         justify-content: space-between;
     }
+}
+
+/* Link al PDF dell'informativa. Deve vedersi: senza, la presa visione sarebbe
+   una spunta su un documento che non si può aprire. */
+.wn-auth-doclink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--wn-primary-light);
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+}
+
+.wn-auth-doclink:hover {
+    color: var(--wn-primary);
 }

@@ -10,6 +10,7 @@ use App\Support\AccessLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 
 class WnPlusInvitationController extends Controller
@@ -37,7 +38,28 @@ class WnPlusInvitationController extends Controller
             ->get()
             ->keyBy(fn (ConsentVersion $version) => $version->consentType->code);
 
-        return view('wn-plus.invitations.accept', compact('invitation', 'versionCode', 'consentVersions'));
+        $informativaUrl = route('wn-plus.invitations.informativa', $token);
+
+        return view('wn-plus.invitations.accept', compact('invitation', 'versionCode', 'consentVersions', 'informativaUrl'));
+    }
+
+    /**
+     * L'informativa del ruolo, aperta dal link nella pagina di attivazione e
+     * nell'email. Resta accessibile anche dopo l'attivazione: chi ha appena
+     * accettato deve poter rileggere il documento su cui si è espresso.
+     */
+    public function informativa(string $token, WnPlusConsentService $wnPlusConsents)
+    {
+        $invitation = WnPlusInvitation::query()
+            ->with('account')
+            ->where('token', $token)
+            ->firstOrFail();
+
+        $path = $wnPlusConsents->privacyNoticePath($invitation->account);
+
+        abort_unless($path && Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path);
     }
 
     public function complete(Request $request, string $token, WnPlusConsentService $wnPlusConsents)

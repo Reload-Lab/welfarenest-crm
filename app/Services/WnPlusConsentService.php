@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Consent;
 use App\Models\ConsentType;
+use App\Models\ConsentVersion;
 use App\Models\WnPlusAccount;
 
 /**
@@ -163,6 +164,23 @@ class WnPlusConsentService
         }
 
         return $granted($code);
+    }
+
+    /**
+     * Percorso del PDF dell'informativa da mostrare a questo account.
+     *
+     * Non è un dettaglio di comodo: l'informativa dev'essere consultabile nel
+     * momento in cui si danno i consensi, altrimenti la presa visione non è
+     * informata. Referente e membro hanno documenti diversi, quindi la scelta
+     * passa dallo stesso version_code usato per registrare i consensi.
+     */
+    public function privacyNoticePath(WnPlusAccount $account): ?string
+    {
+        return ConsentVersion::query()
+            ->whereHas('consentType', fn ($query) => $query->where('code', ConsentType::PRIVACY_NOTICE))
+            ->where('version_code', $this->versionCodeFor($account))
+            ->where('is_active', true)
+            ->value('content_file_path');
     }
 
     /**
